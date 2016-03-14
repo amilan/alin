@@ -1,0 +1,168 @@
+peripheral {
+  name = "WB-HRMY-MEMORY     ";
+  vendor_id = "000000000000a1ba";
+  device_id = "0000f609";
+  version   = "00000001";
+  date      = "20151203";
+  description = "Ram Memory to save and donwload data from fast BUS. It implements a circular buffer that can be started/stopped from fast or slow bus";
+  hdl_entity = "hrmy_mem_block_csr";
+  prefix = "mem_block";
+
+    reg {
+    name = "Control Register";
+    prefix = "ctl";
+     field {
+      name = "Save data received";
+      description = "Bit that indicates if the data received is saved(1) in the memory or not(0).";
+      prefix = "save";
+      type = BIT;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    };
+    
+    field {
+      name = "Save at trigger or continous saving";
+      description = "This bit indicates that only 1 data for ID is saved for trigger (1) or that is saved all the data after the trigger(0).";
+      prefix = "OnTrigger";
+      type = BIT;
+      size = 1;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    };
+    
+    field {
+      name = "Memory Overflow";
+      description = "This bits indicates that a memory overflow is produced and some data can be lost.";
+      prefix = "MOF";
+      type = BIT;
+      size = 1;
+      access_bus = READ_ONLY;
+      access_dev = WRITE_ONLY;
+    };
+
+    field {
+      name = "Memory Overread";
+      description = "This bits indicates that a memory was red without data. So some of the data red could be not valid.";
+      prefix = "ROF";
+      type = BIT;
+      size = 1;
+      access_bus = READ_ONLY;
+      access_dev = WRITE_ONLY;
+    };
+    
+     field {
+      name = "RESET";
+      description = "This bit produces a reset of error flags and memory.";
+      prefix = "RST";
+      type = MONOSTABLE;
+      size = 1;
+      access_bus = WRITE_ONLY;
+      access_dev = READ_ONLY;
+    };   
+    
+    field {
+      name = "ID of trigger generator";
+      description = "When this Data ID is received Trigger is generated.";
+      prefix = "TRIGID";
+      type = SLV;
+      size = 8;
+      align = 8;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    };
+    
+    field {
+      name = "ID of data to save";
+      description = "ID of the Data to save once trigger is received. To check if data has to be saved only set bits on IDMASK are checked.";
+      prefix = "ID";
+      type = SLV;
+      size = 8;
+      align = 8;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    };
+    
+    field {
+      name = "Mask ID of data to save";
+      description = "Mask of ID, only the bits set at 1 will be checked to identify the data to save. DATAID & IDMASK == ID & IDMASK";
+      prefix = "IDMask";
+      type = SLV;
+      size = 8;
+      align = 8;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    };
+    
+
+  };
+  
+  reg {
+    name = "DataLength";
+    prefix = "Len";
+
+    field {
+      name = "number of data stored in the memory";
+      description = "numeber of data actually saved in the memory.";
+      prefix = "nDATA";
+      type = SLV;
+      size = 16;
+      align = 16;
+      access_bus = READ_ONLY;
+      access_dev = WRITE_ONLY;
+    };
+
+    field {
+      name = "Maximum number of data that can be stored in the memory.";
+      description = "Maximum number of data that can be stored in the memory.";
+      prefix = "maxdata";
+      type = SLV;
+      size = 16;
+      align = 16;
+      access_bus = READ_ONLY;
+      access_dev = WRITE_ONLY;
+    };
+  };  
+  
+  reg {
+    name = "ID_time";
+    prefix = "v";
+
+    field {
+      name = "ID";
+      description = "8-bit length register with the data ID.";
+      prefix = "id";
+      type = SLV;
+      size = 8;
+      align = 8;
+      access_bus = READ_ONLY;
+      access_dev = WRITE_ONLY;
+    };
+    
+    field {
+      name = "Time Stamp";
+      description = "24-bit length register with the Data's Time Stamp";
+      prefix = "T_stamp";
+      type = SLV;
+      size = 24;
+      align = 8;
+      access_bus = READ_ONLY;
+      access_dev = WRITE_ONLY;
+    };    
+   };  
+     
+  reg {
+    name = "DATA";
+    prefix = "v";
+
+    field {
+      name = "data saved in the memory";
+      description = "Data saved in the memory. Once it has been red the TS ID and Data are updated with the values of next avaiable data. This data is only valid when nDATA is different than 0.";
+      prefix = "data";
+      type = SLV;
+      size = 32;
+      access_bus = READ_ONLY;
+      access_dev = WRITE_ONLY;
+    };  
+  };
+  
+};

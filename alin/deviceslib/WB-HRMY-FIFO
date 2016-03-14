@@ -1,0 +1,94 @@
+(dp0
+S'vendorid'
+p1
+S'000000000000a1ba'
+p2
+sS'product'
+p3
+S'efea35a4'
+p4
+sS'name'
+p5
+S'WB-HRMY-FIFO '
+p6
+sS'devname'
+p7
+S'WB-HRMY-FIFO'
+p8
+sS'regs'
+p9
+(lp10
+(dp11
+S'mem_ctl_ID_IN'
+p12
+(dp13
+S'access'
+p14
+S' READ_WRITE'
+p15
+sS'bit_position'
+p16
+I0
+sS'address'
+p17
+I0
+sS'description'
+p18
+S'ID of data to be delayed.'
+p19
+sS'size'
+p20
+I8
+ssa(dp21
+S'mem_ctl_ID_OUT'
+p22
+(dp23
+g14
+S' READ_WRITE'
+p24
+sg16
+I8
+sg17
+I0
+sg18
+S'This is the ID of the delayed data generated, when new data arrives with the data and timestamp of ID_IN received FIFO_SIZE messages before. If the ID_OUT=0 then FIFO do not send anything.'
+p25
+sg20
+I8
+ssa(dp26
+S'FIFO_SIZE_size'
+p27
+(dp28
+g14
+S' READ_WRITE'
+p29
+sg16
+I0
+sg17
+I1
+sg18
+S'Number that indicates the delay elements of the FIFO. It must be smaller than maxSize.'
+p30
+sg20
+I16
+ssa(dp31
+S'FIFO_SIZE_maxSize'
+p32
+(dp33
+g14
+S' READ_ONLY'
+p34
+sg16
+I16
+sg17
+I1
+sg18
+S'Maximum number of FIFO elements'
+p35
+sg20
+I16
+ssasS'description'
+p36
+S'FIFO to delay any data specifying the data ID.'
+p37
+s.

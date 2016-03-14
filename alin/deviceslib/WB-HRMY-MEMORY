@@ -1,0 +1,238 @@
+(dp0
+S'vendorid'
+p1
+S'000000000000a1ba'
+p2
+sS'product'
+p3
+S'0000f609'
+p4
+sS'name'
+p5
+S'WB-HRMY-MEMORY '
+p6
+sS'devname'
+p7
+S'WB-HRMY-MEMORY'
+p8
+sS'regs'
+p9
+(lp10
+(dp11
+S'ctl_save'
+p12
+(dp13
+S'access'
+p14
+S' READ_WRITE'
+p15
+sS'bit_position'
+p16
+I0
+sS'address'
+p17
+I0
+sS'description'
+p18
+S'Bit that indicates if the data received is saved(1) in the memory or not(0).'
+p19
+sS'size'
+p20
+I1
+ssa(dp21
+S'ctl_OnTrigger'
+p22
+(dp23
+g14
+S' READ_WRITE'
+p24
+sg16
+I1
+sg17
+I0
+sg18
+S'This bit indicates that only 1 data for ID is saved for trigger (1) or that is saved all the data after the trigger(0).'
+p25
+sg20
+I1
+ssa(dp26
+S'ctl_MOF'
+p27
+(dp28
+g14
+S' READ_ONLY'
+p29
+sg16
+I2
+sg17
+I0
+sg18
+S'This bits indicates that a memory overflow is produced and some data can be lost.'
+p30
+sg20
+I1
+ssa(dp31
+S'ctl_ROF'
+p32
+(dp33
+g14
+S' READ_ONLY'
+p34
+sg16
+I3
+sg17
+I0
+sg18
+S'This bits indicates that a memory was red without data. So some of the data red could be not valid.'
+p35
+sg20
+I1
+ssa(dp36
+S'ctl_RST'
+p37
+(dp38
+g14
+S' WRITE_ONLY'
+p39
+sg16
+I4
+sg17
+I0
+sg18
+S'This bit produces a reset of error flags and memory.'
+p40
+sg20
+I1
+ssa(dp41
+S'ctl_TRIGID'
+p42
+(dp43
+g14
+S' READ_WRITE'
+p44
+sg16
+I8
+sg17
+I0
+sg18
+S'When this Data ID is received Trigger is generated.'
+p45
+sg20
+I8
+ssa(dp46
+S'ctl_ID'
+p47
+(dp48
+g14
+S' READ_WRITE'
+p49
+sg16
+I16
+sg17
+I0
+sg18
+S'ID of the Data to save once trigger is received. To check if data has to be saved only set bits on IDMASK are checked.'
+p50
+sg20
+I8
+ssa(dp51
+S'ctl_IDMask'
+p52
+(dp53
+g14
+S' READ_WRITE'
+p54
+sg16
+I24
+sg17
+I0
+sg18
+S'Mask of ID, only the bits set at 1 will be checked to identify the data to save. DATAID & IDMASK == ID & IDMASK'
+p55
+sg20
+I8
+ssa(dp56
+S'Len_nDATA'
+p57
+(dp58
+g14
+S' READ_ONLY'
+p59
+sg16
+I0
+sg17
+I1
+sg18
+S'numeber of data actually saved in the memory.'
+p60
+sg20
+I16
+ssa(dp61
+S'Len_maxdata'
+p62
+(dp63
+g14
+S' READ_ONLY'
+p64
+sg16
+I16
+sg17
+I1
+sg18
+S'Maximum number of data that can be stored in the memory.'
+p65
+sg20
+I16
+ssa(dp66
+S'v_id'
+p67
+(dp68
+g14
+S' READ_ONLY'
+p69
+sg16
+I0
+sg17
+I2
+sg18
+S'8-bit length register with the data ID.'
+p70
+sg20
+I8
+ssa(dp71
+S'v_T_stamp'
+p72
+(dp73
+g14
+S' READ_ONLY'
+p74
+sg16
+I8
+sg17
+I2
+sg18
+S"24-bit length register with the Data's Time Stamp"
+p75
+sg20
+I24
+ssa(dp76
+S'v_data'
+p77
+(dp78
+g14
+S' READ_ONLY'
+p79
+sg16
+I0
+sg17
+I3
+sg18
+S'Data saved in the memory. Once it has been red the TS ID and Data are updated with the values of next avaiable data. This data is only valid when nDATA is different than 0.'
+p80
+sg20
+I32
+ssasS'description'
+p81
+S'Ram Memory to save and donwload data from fast BUS. It implements a circular buffer that can be started/stopped from fast or slow bus'
+p82
+s.

@@ -1,0 +1,228 @@
+peripheral {
+  name = "ADC_CORE";
+  vendor_id = "000000000000a1ba";
+  device_id = "00000608";
+  description = "Wishbone slave for FMC ADC 18bits 400kS/s core";
+  hdl_entity = "fmc_adc_18b_400ks_csr";
+
+  prefix = "fmc_adc_core";
+
+  reg {
+    name = "Control register";
+    prefix = "ctl";
+
+    field {
+      name = "State machine commands (ignore on read)";
+      description = "1: ACQ_START (start acquisition, only when FSM is idle)\n2: ACQ_STOP (stop acquisition, anytime)";
+      prefix = "fsm_cmd";
+      type = SLV;
+      size = 2;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    };
+
+    field {
+      name = "Range";
+      description = "ADC voltage range:\n0: +/-5V\n1: +/-10V (default)";
+      prefix = "adc_volt_rage";
+      type = BIT;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    };
+
+    field {
+      name = "Oversampling Mode";
+      description = "0: No oversampling\n1: 2\n2: 4\n3: 8\n4: 16\n5: 32\n6: 64\n7: Invalid";
+      prefix = "adc_os";
+      type = SLV;
+      size = 3;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    };
+
+    field {
+      name = "Double Rate Input";
+      description = "Sampling of adc (use only with adc_os=0)\n0: Sampling at 200kS/s\n1: Sampling at 400kS/s";
+      prefix = "adc_dbl_rate";
+      type = BIT;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+      clock = "adc_clk_i";
+    };
+
+
+    field {
+      name = "Reserved";
+      description = "Ignore on read, write with 0's";
+      prefix = "reserved";
+      type = SLV;
+      size = 25;
+      access_bus = READ_ONLY;
+      access_dev = WRITE_ONLY;
+    };
+  };
+
+  reg {
+    name = "Status register";
+    prefix = "sta";
+
+    field {
+      name = "State machine status";
+      description = "States:\n0: illegal\n1: IDLE\n2: PRE_TRIG\n3: WAIT_TRIG\n4: POST_TRIG\n5: TRIG_TAG\n6: DECR_SHOT\n7: illegal";
+      prefix = "fsm";
+      type = SLV;
+      size = 3;
+      access_bus = READ_ONLY;
+      access_dev = WRITE_ONLY;
+    };
+    
+    field {
+      name = "ADC State machine status";
+      description = "States:\n0: ADC_RST\n1: IDLE\n2: inConversion\n3: reading\n4: illegal\n5: illegal\n6: illegal\n7: illegal";
+      prefix = "adc_fsm";
+      type = SLV;
+      size = 3;
+      access_bus = READ_ONLY;
+      access_dev = WRITE_ONLY;
+      clock = "adc_clk_i";
+    };
+
+
+    field {
+      name = "Reserved";
+      description = "Ignore on read, write with 0's";
+      prefix = "reserved";
+      type = SLV;
+      size = 26;
+      access_bus = READ_ONLY;
+      access_dev = WRITE_ONLY;
+    };
+  };
+
+    reg {
+    name = "ADC Chanel 1";
+    prefix = "adc_ch1";
+
+    field {
+      name = "ADC Chanel1";
+      description = "Reading of channel 1 of 18bit ADC AD7806";
+      type = SLV;
+      size = 32;
+      access_bus = READ_ONLY;
+      access_dev = WRITE_ONLY;
+    };
+  };
+
+    reg {
+    name = "ADC Chanel 2";
+    prefix = "adc_ch2";
+
+    field {
+      name = "ADC Chanel2";
+      description = "Reading of channel 1 of 18bit ADC AD7806";
+      type = SLV;
+      size = 32;
+      access_bus = READ_ONLY;
+      access_dev = WRITE_ONLY;
+    };
+  };
+  
+    reg {
+    name = "ADC Chanel 3";
+    prefix = "adc_ch3";
+
+    field {
+      name = "ADC Chanel3";
+      description = "Reading of channel 1 of 18bit ADC AD7806";
+      type = SLV;
+      size = 32;
+      access_bus = READ_ONLY;
+      access_dev = WRITE_ONLY;
+    };
+  };
+  
+    reg {
+    name = "ADC Chanel 4";
+    prefix = "adc_ch4";
+
+    field {
+      name = "ADC Chanel4";
+      description = "Reading of channel 1 of 18bit ADC AD7806";
+      type = SLV;
+      size = 32;
+      access_bus = READ_ONLY;
+      access_dev = WRITE_ONLY;
+    };
+  };
+  
+  reg {
+    name = "ADC Chanel 5";
+    prefix = "adc_ch5";
+
+    field {
+      name = "ADC Chanel5";
+      description = "Reading of channel 5 of 18bit ADC AD7806";
+      type = SLV;
+      size = 32;
+      access_bus = READ_ONLY;
+      access_dev = WRITE_ONLY;
+    };
+  };
+
+    reg {
+    name = "ADC Chanel 6";
+    prefix = "adc_ch6";
+
+    field {
+      name = "ADC Chanel6";
+      description = "Reading of channel 6 of 18bit ADC AD7806";
+      type = SLV;
+      size = 32;
+      access_bus = READ_ONLY;
+      access_dev = WRITE_ONLY;
+    };
+  };
+  
+    reg {
+    name = "ADC Chanel 7";
+    prefix = "adc_ch7";
+
+    field {
+      name = "ADC Chanel7";
+      description = "Reading of channel 7 of 18bit ADC AD7806";
+      type = SLV;
+      size = 32;
+      access_bus = READ_ONLY;
+      access_dev = WRITE_ONLY;
+    };
+  };
+  
+    reg {
+    name = "ADC Chanel 8";
+    prefix = "adc_ch8";
+
+    field {
+      name = "ADC Chanel8";
+      description = "Reading of channel 8 of 18bit ADC AD7806";
+      type = SLV;
+      size = 32;
+      access_bus = READ_ONLY;
+      access_dev = WRITE_ONLY;
+    };
+  };
+  
+  reg {
+    name = "Samples counter";
+    prefix = "samples_cnt";
+
+    field {
+      name = "Samples counter";
+      description = "Counts the number of samples.\n It is reset on START and then counts the number of pre-trigger + post-trigger samples";
+      type = SLV;
+      size = 32;
+      access_bus = READ_ONLY;
+      access_dev = WRITE_ONLY;
+    };
+  };
+
+};

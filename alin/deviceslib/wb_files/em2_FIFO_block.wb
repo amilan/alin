@@ -1,0 +1,67 @@
+peripheral {
+  name = "WB-HRMY-FIFO       ";
+  vendor_id = "000000000000a1ba";
+  device_id = "efea35a4";
+  version   = "00000001";
+  date      = "20160217";
+  description = "FIFO to delay any data specifying the data ID.";
+  hdl_entity = "em2_fifo_block_csr";
+
+  prefix = "fifo_block";
+    
+    reg {
+    name = "Control Register";
+    prefix = "mem_ctl";
+     
+     field {
+      name = "Input ID";
+      description = "ID of data to be delayed.";
+      prefix = "ID_IN";
+      type = SLV;
+      size = 8;
+      align = 8;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    };
+    
+    field {
+      name = "OUTPUT ID";
+      description = "This is the ID of the delayed data generated, when new data arrives with the data and timestamp of ID_IN received FIFO_SIZE messages before. If the ID_OUT=0 then FIFO do not send anything.";
+      prefix = "ID_OUT";
+      type = SLV;
+      size = 8;
+      align = 8;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    };
+
+  };
+  
+  reg {
+    name = "FIFO size";
+    prefix = "FIFO_SIZE";
+
+    field {
+      name = "Number of FIFO elements";
+      description = "Number that indicates the delay elements of the FIFO. It must be smaller than maxSize.";
+      prefix = "size";
+      type = SLV;
+      size = 16;
+      align = 16;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    };
+
+    field {
+      name = "Maximum number of FIFO elements";
+      description = "Maximum number of FIFO elements";
+      prefix = "maxSize";
+      type = SLV;
+      size = 16;
+      align = 16;
+      access_bus = READ_ONLY;
+      access_dev = WRITE_ONLY;
+    };
+  };  
+  
+};

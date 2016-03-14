@@ -1,0 +1,105 @@
+peripheral {
+  name = "WB-HRMY-ID-GEN     ";
+  vendor_id = "000000000000a1ba";
+  device_id = "0000fdaf";
+  version   = "00000001";
+  date      = "20151202";
+  description = "This block is though to generate data with and ID. It can be used to setup memories or for diagnostics";
+  hdl_entity = "hrmy_gen_id_block_csr";
+
+  prefix = "id_gen_block";
+    
+    reg {
+    name = "ID generator Block Control Register";
+    prefix = "ID_gen_ctl";
+         
+    field {
+      name = "Trigger ID";
+      description = "if EnTrigID is set to 1, each time this ID is received a message is generated in Harmony BUS";
+      prefix = "TriggerID";
+      type = SLV;
+      size = 8;
+      align = 8;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    };
+	field {
+      name = "MTrigger";
+      description = "Sends the Data Message when it is set.";
+      prefix = "mTrig";
+      type = MONOSTABLE;
+      size = 1;
+      access_bus = WRITE_ONLY;
+      access_dev = READ_ONLY;
+    };
+
+    field {
+      name = "EnTrigID";
+      description = "If it is set to 1, the data mesage is send in Harmony bus each time a Trigger ID is received.";
+      prefix = "ETI";
+      type = BIT;
+      size = 1;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    };
+	field {
+      name = "CLKE";
+      description = "If it is set to 1, the mesage's timestamp is internally generated.";
+      prefix = "CLKE";
+      type = BIT;
+      size = 1;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    };
+	field {
+      name = "Ready";
+      description = "this bit indicates that data is still not send to the Harmony Bus and an error can be generated if a new data request is generated.";
+      prefix = "RDY";
+      type = BIT;
+      size = 1;
+      access_bus = READ_ONLY;
+      access_dev = WRITE_ONLY;
+    };
+  };
+  
+  reg {
+    name = "TimeStamp_ID";
+    prefix = "TS_ID";
+     
+    field {
+      name = "Output ID";
+      description = "This is the ID of data generated.";
+      prefix = "ID_OUT";
+      type = SLV;
+      size = 8;
+      align = 8;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    };
+	field {
+      name = "Timestamp";
+      description = "This is the TimeStamp of data generated.";
+      prefix = "TimeStamp";
+      type = SLV;
+      size = 24;
+      align = 8;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    };
+  };
+  
+  reg {
+    name = "DATA_GEN";
+    prefix = "DATA_GEN";    
+    field {
+      name = "DATA";
+      description = "This is the data value of the data generated.";
+      prefix = "DATA";
+      type = SLV;
+      size = 32;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    };
+  };
+    
+};

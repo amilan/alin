@@ -1,0 +1,270 @@
+(dp0
+S'vendorid'
+p1
+S'000000000000a1ba'
+p2
+sS'product'
+p3
+S'00000608'
+p4
+sS'name'
+p5
+S'ADC_CORE'
+p6
+sS'devname'
+p7
+S'ADC_CORE'
+p8
+sS'regs'
+p9
+(lp10
+(dp11
+S'ctl_fsm_cmd'
+p12
+(dp13
+S'access'
+p14
+S' READ_WRITE'
+p15
+sS'bit_position'
+p16
+I0
+sS'address'
+p17
+I0
+sS'description'
+p18
+S'1: ACQ_START (start acquisition, only when FSM is idle)\\n2: ACQ_STOP (stop acquisition, anytime)'
+p19
+sS'size'
+p20
+I2
+ssa(dp21
+S'ctl_adc_volt_rage'
+p22
+(dp23
+g14
+S' READ_WRITE'
+p24
+sg16
+I2
+sg17
+I0
+sg18
+S'ADC voltage range:\\n0: +/-5V\\n1: +/-10V (default)'
+p25
+sg20
+I1
+ssa(dp26
+S'ctl_adc_os'
+p27
+(dp28
+g14
+S' READ_WRITE'
+p29
+sg16
+I3
+sg17
+I0
+sg18
+S'0: No oversampling\\n1: 2\\n2: 4\\n3: 8\\n4: 16\\n5: 32\\n6: 64\\n7: Invalid'
+p30
+sg20
+I3
+ssa(dp31
+S'ctl_adc_dbl_rate'
+p32
+(dp33
+g14
+S' READ_WRITE'
+p34
+sg16
+I6
+sg17
+I0
+sg18
+S'Sampling of adc (use only with adc_os=0)\\n0: Sampling at 200kS/s\\n1: Sampling at 400kS/s'
+p35
+sg20
+I1
+ssa(dp36
+S'sta_fsm'
+p37
+(dp38
+g14
+S' READ_ONLY'
+p39
+sg16
+I0
+sg17
+I1
+sg18
+S'States:\\n0: illegal\\n1: IDLE\\n2: PRE_TRIG\\n3: WAIT_TRIG\\n4: POST_TRIG\\n5: TRIG_TAG\\n6: DECR_SHOT\\n7: illegal'
+p40
+sg20
+I3
+ssa(dp41
+S'sta_adc_fsm'
+p42
+(dp43
+g14
+S' READ_ONLY'
+p44
+sg16
+I3
+sg17
+I1
+sg18
+S'States:\\n0: ADC_RST\\n1: IDLE\\n2: inConversion\\n3: reading\\n4: illegal\\n5: illegal\\n6: illegal\\n7: illegal'
+p45
+sg20
+I3
+ssa(dp46
+S'adc_ch1'
+p47
+(dp48
+g14
+S' READ_ONLY'
+p49
+sg16
+I0
+sg17
+I2
+sg18
+S'Reading of channel 1 of 18bit ADC AD7806'
+p50
+sg20
+I32
+ssa(dp51
+S'adc_ch2'
+p52
+(dp53
+g14
+S' READ_ONLY'
+p54
+sg16
+I0
+sg17
+I3
+sg18
+S'Reading of channel 1 of 18bit ADC AD7806'
+p55
+sg20
+I32
+ssa(dp56
+S'adc_ch3'
+p57
+(dp58
+g14
+S' READ_ONLY'
+p59
+sg16
+I0
+sg17
+I4
+sg18
+S'Reading of channel 1 of 18bit ADC AD7806'
+p60
+sg20
+I32
+ssa(dp61
+S'adc_ch4'
+p62
+(dp63
+g14
+S' READ_ONLY'
+p64
+sg16
+I0
+sg17
+I5
+sg18
+S'Reading of channel 1 of 18bit ADC AD7806'
+p65
+sg20
+I32
+ssa(dp66
+S'adc_ch5'
+p67
+(dp68
+g14
+S' READ_ONLY'
+p69
+sg16
+I0
+sg17
+I6
+sg18
+S'Reading of channel 5 of 18bit ADC AD7806'
+p70
+sg20
+I32
+ssa(dp71
+S'adc_ch6'
+p72
+(dp73
+g14
+S' READ_ONLY'
+p74
+sg16
+I0
+sg17
+I7
+sg18
+S'Reading of channel 6 of 18bit ADC AD7806'
+p75
+sg20
+I32
+ssa(dp76
+S'adc_ch7'
+p77
+(dp78
+g14
+S' READ_ONLY'
+p79
+sg16
+I0
+sg17
+I8
+sg18
+S'Reading of channel 7 of 18bit ADC AD7806'
+p80
+sg20
+I32
+ssa(dp81
+S'adc_ch8'
+p82
+(dp83
+g14
+S' READ_ONLY'
+p84
+sg16
+I0
+sg17
+I9
+sg18
+S'Reading of channel 8 of 18bit ADC AD7806'
+p85
+sg20
+I32
+ssa(dp86
+S'samples_cnt'
+p87
+(dp88
+g14
+S' READ_ONLY'
+p89
+sg16
+I0
+sg17
+I10
+sg18
+S'Counts the number of samples.\\n It is reset on START and then counts the number of pre-trigger + post-trigger samples'
+p90
+sg20
+I32
+ssasS'description'
+p91
+S'Wishbone slave for FMC ADC 18bits 400kS/s core'
+p92
+s.

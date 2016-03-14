@@ -1,0 +1,97 @@
+peripheral {
+  name = "FV_CTRL";
+  vendor_id = "000000000000a1ba";
+  device_id = "7565c07b";
+  description = "Wishbone slave for FMC ADC 18bits 400kS/s FV control registers";
+  hdl_entity = "fmc_adc_18b_FV_Ctrl_csr";
+
+  prefix = "fmc_FV_Ctrl";
+
+  
+  reg {
+    name = "Control and Status";
+    prefix = "ctrl_sta";
+
+    field {
+      name = "FV_relay_sta";
+      description = "On reading the state of the FV relay. 1 - FV on.\n On write changes the state of FV relay if FV Voltage is in the correct range.";
+      prefix = "relay";
+      type = BIT;
+      size = 1;
+      load= LOAD_EXT;
+      access_bus = READ_WRITE;
+      access_dev = READ_WRITE;
+    };
+    
+    field {
+      name = "FV_Led_sta";
+      description = "The state of FV_led 0 means Led is off.";
+      prefix = "led";
+      type = SLV;
+      size = 3;
+      access_bus = READ_ONLY;
+      access_dev = WRITE_ONLY;
+    };
+    
+    field {
+      name = "Reading_mode";
+      description = "The Reading mode of Floating voltage.\n 1. Reading of instantaneus voltage.\n 2. Reading of minimum voltage since last reading.\n 3. Reading of minimum voltage since last reading.\n 4. Reading of average voltage of 256 samples.";
+      prefix = "Read_mode";
+      type = SLV;
+      size = 2;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    };
+    field {
+      name = "Spare Led";
+      description = "Sets or gets the spare led. 1 -> Led on";
+      prefix = "SP1";
+      type = BIT;
+      size = 1;
+      load= LOAD_EXT;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    };
+
+    field {
+      name = "Floating ground Voltage";
+      description = "The floating voltage is: 2.5*(1001*FV/1024 - 500) ";
+      prefix = "FV";
+      type = SLV;
+      size = 10;
+      align = 16;
+      access_bus = READ_ONLY;
+      access_dev = WRITE_ONLY;
+    };     
+  };
+  
+  reg {
+    name = "range of voltage voltages";
+    prefix = "lim";
+
+    field {
+      name = "Maximum Voltage";
+      description = "The maximum voltage before switching off the FV_Relay signal\n The voltage follows the following formula V=2.5*(1001*Max/1024 - 500)";
+      prefix = "Max";
+      type = SLV;
+      size = 10;
+      align = 16;
+      load= LOAD_EXT;
+      access_bus = READ_WRITE;
+      access_dev = READ_WRITE;
+    };
+               
+               
+    field {
+      name = "Minimum voltage";
+      description = "The minimum voltage before switching off the FV_Relay signal\n The voltage follows the following formula V=2.5*(1001*Min/1024 - 500)";
+      prefix = "Min";
+      type = SLV;
+      size = 10;
+      align = 16;
+      load= LOAD_EXT;
+      access_bus = READ_WRITE;
+      access_dev = READ_WRITE;
+    }; 
+  };  
+};

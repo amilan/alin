@@ -1,0 +1,143 @@
+peripheral {
+  name = "SPI";
+  vendor_id = "000000000000a1ba";
+  device_id = "00000609";  
+  description = "SPI core for HW configuration-monitoring. Flexible TX and RX, with 5 bits coded address.";
+  hdl_entity = "em2_spi_config_csr";
+
+  prefix = "spi_config";
+
+  reg {
+    name = "Transmission Data";
+    prefix = "ctl_tx";
+
+    field {
+      name = "Data to transmit through SPI";
+      description = "32-bit length register with the data to transmit via SPI bus.";
+      prefix = "data";
+      type = SLV;
+      size = 32;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    };
+  };
+  
+  reg {
+    name = "Reception Data";
+    prefix = "ctl_rx";
+
+    field {
+      name = "Received data through SPI";
+      description = "32-bit length register with the data received via SPI bus.";
+      prefix = "data";
+      type = SLV;
+      size = 32;
+      access_bus = READ_ONLY;
+      access_dev = WRITE_ONLY;
+    };
+  };
+
+  reg {
+    name = "Status register";
+    prefix = "stat";
+
+    field {
+      name = "Ready";
+      description = "Its value is '0' while SPI bus is busy, '1' when the communication has ended and bus is free.";
+      prefix = "ready";
+      type = BIT;
+      size = 1;
+      access_bus = READ_ONLY;
+      access_dev = WRITE_ONLY;
+    };
+	
+	field {
+      name = "Error Code";
+      description = "Shows if the SPI module state machine ended with an error:\n 0 - No error\n 1 - Requested TX with length 0\n 2 - Requested RX with length 0\n 3 - Requested TX and RX with both lengths 0\n 4 - No TX or RX requested after address decoding";
+      prefix = "error_code";
+      type = SLV;
+      size = 3;
+      access_bus = READ_ONLY;
+      access_dev = WRITE_ONLY;
+    };
+	
+	field {
+      name = "State Machine status";
+      description = "Shows the current state of the State Machine that manages SPI bus communication:\n 0 - IDLE\n 1 - WAIT_1\n 2 - ADDR_GEN_1\n 3 - ADDR_GEN_2\n 4 - TX_ON\n 5 - RX_ON";
+      prefix = "state_machine";
+      type = SLV;
+      size = 3;
+      access_bus = READ_ONLY;
+      access_dev = WRITE_ONLY;
+    };	
+  };
+  
+  reg {
+    name = "Control Register";
+    prefix = "ctl";
+
+    field {
+      name = "Reception Data Length";
+      description = "Length of the data to receive via SPI bus. After SPI communication ends, in the spi_config_ctl_rx_data register the less significant bits indicated by this field will contain received data. Accepatble values from 0 to 32.";
+      prefix = "rx_data_length";
+	  align = 8;
+      type = SLV;
+      size = 6;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    };
+	
+	field {
+      name = "Reception Request";
+      description = "This bit indicates if a data reception is required.";
+      prefix = "rx";
+      type = BIT;
+      size = 1;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    };
+	
+	field {
+      name = "Transmission Data Length";
+      description = "Length of the data to transmit. From the 32-bit length spi_config_ctl_tx_data register, only the less significant bits indicated by this field will be transmitted. Accepatble values from 0 to 32.";
+      prefix = "tx_data_length";
+	  align = 8;
+      type = SLV;
+      size = 6;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    };
+	
+	field {
+      name = "Transmission Request";
+      description = "This bit indicates if a data transmission is required.";
+      prefix = "tx";
+      type = BIT;
+      size = 1;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    };
+	
+	field {
+      name = "SPI Address";
+      description = "Address of the communication target device. Up to 32 devices can be selected.";
+      prefix = "spi_addr";
+	  align = 8;
+      type = SLV;
+      size = 5;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    };
+	
+	field {
+      name = "Start SPI communication";
+      description = "This bit starts SPI communication when is set to '1'. All the fields in the spi_config_ctl and spi_config_ctl_tx_data registers must be correctly set and stable before this bit is set to '1', in order to make a correct communication procedure.";
+      prefix = "start";
+      type = MONOSTABLE;
+      size = 1;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    };
+  };
+
+};

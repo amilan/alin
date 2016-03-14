@@ -1,0 +1,190 @@
+(dp0
+S'vendorid'
+p1
+S'000000000000a1ba'
+p2
+sS'product'
+p3
+S'00000568'
+p4
+sS'name'
+p5
+S'WB-HRMY-AVERAGE'
+p6
+sS'devname'
+p7
+S'WB-HRMY-AVERAGE'
+p8
+sS'regs'
+p9
+(lp10
+(dp11
+S'avg_ctl_wb_Trig'
+p12
+(dp13
+S'access'
+p14
+S' WRITE_ONLY'
+p15
+sS'bit_position'
+p16
+I0
+sS'address'
+p17
+I0
+sS'description'
+p18
+S'If there is data in the FIFO, a rise on this bit forces a data output and FIFO is emptied one position.'
+p19
+sS'size'
+p20
+I1
+ssa(dp21
+S'avg_ctl_ENA'
+p22
+(dp23
+g14
+S' READ_WRITE'
+p24
+sg16
+I1
+sg17
+I0
+sg18
+S'These bits indicates, when output data will be generated.\\n 00: Data is never send.\\n 01: Data is send after receive a positive input. \\n 10: Data is send after receive a negative input. \\n 11: Data is send after receive a both positive and negative inputs.'
+p25
+sg20
+I2
+ssa(dp26
+S'avg_ctl_AOF'
+p27
+(dp28
+g14
+S' READ_ONLY'
+p29
+sg16
+I3
+sg17
+I0
+sg18
+S'This bit indicates that FIFO is full and it is ready to send output data.'
+p30
+sg20
+I1
+ssa(dp31
+S'avg_ctl_OOF'
+p32
+(dp33
+g14
+S' READ_ONLY'
+p34
+sg16
+I4
+sg17
+I0
+sg18
+S'This bit indicates that FIFO is full and it is ready to send output data.'
+p35
+sg20
+I1
+ssa(dp36
+S'avg_ctl_ID_OUT'
+p37
+(dp38
+g14
+S' READ_WRITE'
+p39
+sg16
+I5
+sg17
+I0
+sg18
+S'This bit indicates the number of bits that output is shifted respect to acomulator register.'
+p40
+sg20
+I4
+ssa(dp41
+S'ID_CFG_ID_IP'
+p42
+(dp43
+g14
+S' READ_WRITE'
+p44
+sg16
+I0
+sg17
+I1
+sg18
+S'This is the ID data that will be added at the acomulator.'
+p45
+sg20
+I8
+ssa(dp46
+S'ID_CFG_ID_IN'
+p47
+(dp48
+g14
+S' READ_WRITE'
+p49
+sg16
+I8
+sg17
+I1
+sg18
+S'This is the ID data that will be substracted at the acomulator.'
+p50
+sg20
+I8
+ssa(dp51
+S'ID_CFG_ID_OUT'
+p52
+(dp53
+g14
+S' READ_WRITE'
+p54
+sg16
+I16
+sg17
+I1
+sg18
+S'This is the ID of the delayed data generated, when new data arrives and FIFO is full or when , the first element of FIFO is generated keeping the original data and time, but with this new ID. If the ID_OUT=0 then FIFO do not send anything. Timestamp of Output is the timestamp of the last input.'
+p55
+sg20
+I8
+ssa(dp56
+S'FIFO_SIZE_size'
+p57
+(dp58
+g14
+S' READ_WRITE'
+p59
+sg16
+I0
+sg17
+I2
+sg18
+S'Number that indicates the delay elements of the FIFO. It must be smaller than maxSize.'
+p60
+sg20
+I16
+ssa(dp61
+S'FIFO_SIZE_maxSize'
+p62
+(dp63
+g14
+S' READ_ONLY'
+p64
+sg16
+I16
+sg17
+I2
+sg18
+S'Maximum number of FIFO elements'
+p65
+sg20
+I16
+ssasS'description'
+p66
+S'This block is though to calculate the dynamic mean of data in 32-bit 2-Complement format.'
+p67
+s.

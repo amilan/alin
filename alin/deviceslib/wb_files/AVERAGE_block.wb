@@ -1,0 +1,130 @@
+peripheral {
+  name = "WB-HRMY-AVERAGE";
+  vendor_id = "000000000000a1ba";
+  device_id = "00000568";
+  description = "This block is though to calculate the dynamic mean of data in 32-bit 2-Complement format.";
+  hdl_entity = "hrm_average_block_csr";
+
+  prefix = "avg_block";
+    
+    reg {
+    name = "Average Block Control Register";
+    prefix = "avg_ctl";
+         
+    field {
+      name = "Acumulator Reset";
+      description = "If there is data in the FIFO, a rise on this bit forces a data output and FIFO is emptied one position.";
+      prefix = "wb_Trig";
+      type = MONOSTABLE;
+      size = 1;
+      access_bus = WRITE_ONLY;
+      access_dev = READ_ONLY;
+    };
+
+    field {
+      name = "Enable Output";
+      description = "These bits indicates, when output data will be generated.\n 00: Data is never send.\n 01: Data is send after receive a positive input. \n 10: Data is send after receive a negative input. \n 11: Data is send after receive a both positive and negative inputs.";
+      prefix = "ENA";
+      type = SLV;
+      size = 2;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    };
+
+    field {
+      name = "Acumulator overflow";
+      description = "This bit indicates that FIFO is full and it is ready to send output data.";
+      prefix = "AOF";
+      type = BIT;
+      size = 1;
+      access_bus = READ_ONLY;
+      access_dev = WRITE_ONLY;
+    };
+    
+    field {
+      name = "Output overflow";
+      description = "This bit indicates that FIFO is full and it is ready to send output data.";
+      prefix = "OOF";
+      type = BIT;
+      size = 1;
+      access_bus = READ_ONLY;
+      access_dev = WRITE_ONLY;
+    };
+     
+    field {
+      name = "PRE_DIV";
+      description = "This bit indicates the number of bits that output is shifted respect to acomulator register.";
+      prefix = "ID_OUT";
+      type = SLV;
+      size = 4;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    };
+  };
+  
+  reg {
+    name = "ID config";
+    prefix = "ID_CFG";
+     
+     field {
+      name = "Input ID POSITIVE";
+      description = "This is the ID data that will be added at the acomulator.";
+      prefix = "ID_IP";
+      type = SLV;
+      size = 8;
+      align = 8;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    };
+    
+    field {
+      name = "Input ID NEGATIVE";
+      description = "This is the ID data that will be substracted at the acomulator.";
+      prefix = "ID_IN";
+      type = SLV;
+      size = 8;
+      align = 8;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    };
+    
+    field {
+      name = "Output ID";
+      description = "This is the ID of the delayed data generated, when new data arrives and FIFO is full or when , the first element of FIFO is generated keeping the original data and time, but with this new ID. If the ID_OUT=0 then FIFO do not send anything. Timestamp of Output is the timestamp of the last input.";
+      prefix = "ID_OUT";
+      type = SLV;
+      size = 8;
+      align = 8;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    };
+  };
+  
+  reg {
+    name = "FIFO size";
+    prefix = "FIFO_SIZE";
+
+    field {
+      name = "Number of FIFO elements";
+      description = "Number that indicates the delay elements of the FIFO. It must be smaller than maxSize.";
+      prefix = "size";
+      type = SLV;
+      size = 16;
+      align = 16;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    };
+
+    field {
+      name = "Maximum number of FIFO elements";
+      description = "Maximum number of FIFO elements";
+      prefix = "maxSize";
+      type = SLV;
+      size = 16;
+      align = 16;
+      access_bus = READ_ONLY;
+      access_dev = WRITE_ONLY;
+    };
+  };  
+  
+};

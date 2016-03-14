@@ -1,0 +1,48 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides: alin
+# Default-Start:  2345
+# Default-Stop:   016
+# Short-Description: run alin daemonn
+### END INIT INFO
+
+ALIN=/usr/bin/alinmain
+
+[ -x $ALIN ] || exit 1
+
+. /etc/profile.d/alin.sh
+
+# Source function library.
+. /etc/init.d/functions
+
+case "$1" in
+  start)
+    echo -n "Starting alin: "
+    start-stop-daemon --start --quiet --exec $ALIN
+    RETVAL=$?
+    if [ $RETVAL -eq 0 ] ; then
+        echo "OK"
+    else
+        echo "FAIL"
+    fi
+    ;;
+  stop)
+    echo -n "Stopping alin: "
+    /usr/bin/alinmainoff
+    RETVAL=$?
+    if [ $RETVAL -eq 0 ] ; then
+        echo "OK"
+    else
+        echo "FAIL"
+    fi
+    ;;
+  restart)
+    $0 stop && sleep 1 && $0 start
+    ;;
+  *)
+    echo "Usage: /etc/init.d/alin {start|stop|restart}"
+    exit 1
+esac
+
+exit 0
+

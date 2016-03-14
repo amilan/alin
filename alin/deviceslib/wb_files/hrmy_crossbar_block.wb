@@ -1,0 +1,89 @@
+peripheral {
+  name = "WB-HRMY-CROSSBAR   ";
+  vendor_id = "000000000000a1ba";
+  device_id = "0000fd11";
+  version   = "00000002";
+  date      = "20160216";
+  description = "This block is the crossbar of harmony bus it can be used for diagnostics diagnostics";
+  hdl_entity = "hrmy_crossbar_block_csr";
+
+  prefix = "id_gen_block";
+    
+    reg {
+    name = "TransactionsDia";
+    prefix = "ID_diagn";
+         
+    field {
+      name = "UploadMsg";
+      description = "The number of messages raised in the current cycle";
+      prefix = "UploadMsg";
+      type = SLV;
+      size = 16;
+      align = 16;
+      access_bus = READ_ONLY;
+      access_dev = WRITE_ONLY;
+    };
+	field {
+      name = "DwloadMsg";
+      description = "The number of messages broadcasted in the current cycle";
+      prefix = "DwLoadMsg";
+      type = SLV;
+      size = 16;
+      align = 16;
+      access_bus = READ_ONLY;
+      access_dev = WRITE_ONLY;
+    }
+  };
+  
+  reg {
+    name = "JamDia";
+    prefix = "JD";
+      
+    field {
+      name = "Lenght";
+      description = "Maximum number of messages send without a free slot";
+      prefix = "MLen";
+      type = SLV;
+      size = 8;
+      align = 8;
+      access_bus = READ_ONLY;
+      access_dev = WRITE_ONLY;
+    };
+
+    name = "RequestDia";
+    prefix = "RD";    
+    field {
+      name = "MRequest";
+      description = "Maximum number of requests active simultaiusly";
+      prefix = "MReq";
+      type = SLV;
+      size = 8;
+      align = 8;
+      access_bus = READ_ONLY;
+      access_dev = WRITE_ONLY;
+    };
+	
+	name = "ReqTimeDia";
+    prefix = "RD";    
+    field {
+      name = "MTReq";
+      description = "Maximum time device has request signal active.";
+      prefix = "MTReq";
+      type = SLV;
+      size = 8;
+      align = 8;
+      access_bus = READ_ONLY;
+      access_dev = WRITE_ONLY;
+    };
+	field {
+      name = "Diagnostigs reset stadistics";
+      description = "This bit is resets the diagnositcs stadistics";
+      prefix = "rst_sta";
+      type = MONOSTABLE;
+      size = 1;
+      access_bus = WRITE_ONLY;
+      access_dev = READ_ONLY;
+    };
+  };
+    
+};

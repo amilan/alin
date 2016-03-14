@@ -1,0 +1,203 @@
+#   GENERAL CONFIGURATION FILE FOR ALBA INSTRUMENTATION     #
+#
+#       AlIn Project - ALBA SYNCHROTRON LIGHT SOURCE
+#                   Copyright 2016, ALBA
+#                 Author: mbroseta@cells.es
+#
+#
+
+
+#---------------------------------------------------------------------------
+# Project related configuration options
+#---------------------------------------------------------------------------
+
+# The MANUFACTURER_ is the name of the AlIn manufacturer
+
+MAIN_MANUFACTURER_ = ALBA SYNCHROTRON
+
+# The INSTRUMENT_ contains teh name of the equipment
+
+MAIN_INSTRUMENT_ = Electrometer 2
+
+# The SERIAL_ contains teh serial number assigned to thsi particular equipment
+
+MAIN_SERIAL_ = 000000000
+
+# If the DEBUG_ flag is set to True, all scpi log information will be added to 
+# the log file and to the screen output. Setting this flag to False, will 
+# just disable the log information through screen
+
+MAIN_DEBUG_ = False
+
+# The DEBUGLEVEL_ is an integer value which indicates the expected debug
+# level for the corresponding device. Expected values are:
+#       10 = DEBUG
+#       20 = INFO
+#       30 = WARNING
+#       40 = ERROR
+#       50 = CRITICAL
+
+MAIN_DEBUGLEVEL_ = 40
+
+# if the SCPI_AUTOOPEN_ flag is set, then the scpi module wil ltry to open the
+# defined communication PORT_ by itself. Otherwhise the port will have to be
+# opened manually 
+
+MAIN_SCPI_AUTOOPEN_ = True
+
+# If the SCPI_LOCAL_ flag is set, the scpi application will open the local 
+# addess as the default communication address, it means 0.0.0.0
+
+MAIN_SCPI_LOCAL_ = False
+
+# The SCPI_PORT_ is an integer value that it is used to specify the port number
+# that will be used in the communications through telnet service. By default it
+# is set to localhost, port 5025
+
+MAIN_SCPI_PORT_ = 5025
+
+# If the SCPI_DEBUG_ flag is set to True, all scpi log information will be added to 
+# the log file and to the screen output. Setting this flag to False, will 
+# just disable the log information through screen
+
+MAIN_SCPI_DEBUG_ = False
+
+
+#---------------------------------------------------------------------------
+# AlIn driver configuration
+#---------------------------------------------------------------------------
+
+# If the SIMULATED_ flag is set to True, there will not be communication
+# with the spec_pci card and all values returned will be simulated random
+# values. Default expected setting should be False
+ 
+ALIN_SIMULATED = False
+
+# If the DEBUG_ flag is set to True, all log information will be added to 
+# the log file and to the screen output. Setting this flag to False, will 
+# just disable the log information through screen
+
+ALIN_DEBUG_ = True
+
+# The DEBUGLEVEL_ is an integer value which indicates the expected debug
+# level for the corresponding device. Expected values are:
+#       10 = DEBUG
+#       20 = INFO
+#       30 = WARNING
+#       40 = ERROR
+#       50 = CRITICAL
+
+ALIN_DEBUGLEVEL_ = 40
+
+
+#---------------------------------------------------------------------------
+# AlInDevice driver configuration
+#---------------------------------------------------------------------------
+
+# If the DEBUG_ flag is set to True, all log information will be added to 
+# the log file and to the screen output. Setting this flag to False, will 
+# just disable the log information through screen
+
+ALINDEV_DEBUG_ = True
+
+# The DEBUGLEVEL_ is an integer value which indicates the expected debug
+# level for the corresponding device. Expected values are:
+#       10 = DEBUG
+#       20 = INFO
+#       30 = WARNING
+#       40 = ERROR
+#       50 = CRITICAL
+
+ALINDEV_DEBUGLEVEL_ = 40
+
+#---------------------------------------------------------------------------
+# SPI device configuration
+#---------------------------------------------------------------------------
+
+# The DEVICE_ parameter refers to the spec module name that will take care of the 
+# control for this device. It should match with the name of the devices defined
+# in the alin device list, included in the /alin/deviceslib folder
+
+SPI_DEVICE_ = SPI
+
+# If the DEBUG_ flag is set to True, all log information will be added to 
+# the log file and to the screen output. Setting this flag to False, will 
+# just disable the log information through screen
+
+SPI_DEBUG_ = True
+
+# The DEBUGLEVEL_ is an integer value which indicates the expected debug
+# level for the corresponding device. Expected values are:
+#       10 = DEBUG
+#       20 = INFO
+#       30 = WARNING
+#       40 = ERROR
+#       50 = CRITICAL
+
+SPI_DEBUGLEVEL_ = 40
+
+
+#---------------------------------------------------------------------------
+# ADC device configuration
+#---------------------------------------------------------------------------
+
+# The DEVICE_ parameter refers to the spec module name that will take care of the 
+# control for this device. It should match with the name of the devices defined
+# in the alin device list, included in the /alin/deviceslib folder
+
+ADCCORE_DEVICE_ = ADC_CORE
+
+# If the DEBUG_ flag is set to True, all log information will be added to 
+# the log file and to the screen output. Setting this flag to False, will 
+# just disable the log information through screen
+
+ADCCORE_DEBUG_ = True
+
+# The DEBUGLEVEL_ is an integer value which indicates the expected debug
+# level for the corresponding device. Expected values are:
+#       10 = DEBUG
+#       20 = INFO
+#       30 = WARNING
+#       40 = ERROR
+#       50 = CRITICAL
+
+ADCCORE_DEBUGLEVEL_ = 40
+
+
+#---------------------------------------------------------------------------
+# Display device configuration
+#---------------------------------------------------------------------------
+
+# The I2C_ADDRESS_ contains the 7 MSB shifted 1 bit to the right address
+# of the device to control through I2C protocol.
+# I.e.: Display I2C address is 0x94 for reading and 0x95 for writing. In this
+# case the 7 MSB corresponds to 0x94 >> 1 = 0x4A
+
+DISPLAY_I2C_ADDRESS_ = 0x4A
+
+# The I2C_BUS_ contains the bus number to be used in the I2C communications.
+# Alin system can use one of the two different i2c-designware-pci buses for
+# the I2C protocol (I2C bus 0 or I2C bus 1). You can check the corresponding
+# numbers detected for these buses by executing the command i2cdetect -l
+# With this, display panel is using the I2C bus 0, that corresponds to I2C
+# bus number 8
+
+DISPLAY_I2C_BUS_ = 8
+
+
+# If the DEBUG_ flag is set to True, all log information will be added to 
+# the log file and to the screen output. Setting this flag to False, will 
+# just disable the log information through screen
+
+DISPLAY_DEBUG_ = True
+
+# The DEBUGLEVEL_ is an integer value which indicates the expected debug
+# level for the corresponding device. Expected values are:
+#       10 = DEBUG
+#       20 = INFO
+#       30 = WARNING
+#       40 = ERROR
+#       50 = CRITICAL
+
+DISPLAY_DEBUGLEVEL_ = 40
+

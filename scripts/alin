@@ -1,0 +1,9 @@
+#!/bin/sh
+ 
+if [ -z "$ALINPATH" ]; then
+ 	echo "ALINPATH var is unset"
+else
+ 	python $ALINPATH/tools/alininfo.py $@
+fi
+ 
+#python /usr/lib/python2.7/site-packages/alin/tools/alininfo.py $@

@@ -1,0 +1,126 @@
+(dp0
+S'vendorid'
+p1
+S'000000000000a1ba'
+p2
+sS'product'
+p3
+S'0000fd11'
+p4
+sS'name'
+p5
+S'WB-HRMY-CROSSBAR '
+p6
+sS'devname'
+p7
+S'WB-HRMY-CROSSBAR'
+p8
+sS'regs'
+p9
+(lp10
+(dp11
+S'ID_diagn_UploadMsg'
+p12
+(dp13
+S'access'
+p14
+S' READ_ONLY'
+p15
+sS'bit_position'
+p16
+I0
+sS'address'
+p17
+I0
+sS'description'
+p18
+S'The number of messages raised in the current cycle'
+p19
+sS'size'
+p20
+I16
+ssa(dp21
+S'ID_diagn_DwLoadMsg'
+p22
+(dp23
+g14
+S' READ_ONLY'
+p24
+sg16
+I16
+sg17
+I0
+sg18
+S'The number of messages broadcasted in the current cycle'
+p25
+sg20
+I16
+ssa(dp26
+S'ID_diagnJD_MLen'
+p27
+(dp28
+g14
+S' READ_ONLY'
+p29
+sg16
+I32
+sg17
+I0
+sg18
+S'Maximum number of messages send without a free slot'
+p30
+sg20
+I8
+ssa(dp31
+S'ID_diagnJDRD_MReq'
+p32
+(dp33
+g14
+S' READ_ONLY'
+p34
+sg16
+I40
+sg17
+I0
+sg18
+S'Maximum number of requests active simultaiusly'
+p35
+sg20
+I8
+ssa(dp36
+S'ID_diagnJDRDRD_MTReq'
+p37
+(dp38
+g14
+S' READ_ONLY'
+p39
+sg16
+I48
+sg17
+I0
+sg18
+S'Maximum time device has request signal active.'
+p40
+sg20
+I8
+ssa(dp41
+S'ID_diagnJDRDRD_rst_sta'
+p42
+(dp43
+g14
+S' WRITE_ONLY'
+p44
+sg16
+I56
+sg17
+I0
+sg18
+S'This bit is resets the diagnositcs stadistics'
+p45
+sg20
+I1
+ssasS'description'
+p46
+S'This block is the crossbar of harmony bus it can be used for diagnostics diagnostics'
+p47
+s.

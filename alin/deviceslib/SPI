@@ -1,0 +1,206 @@
+(dp0
+S'vendorid'
+p1
+S'000000000000a1ba'
+p2
+sS'product'
+p3
+S'00000609'
+p4
+sS'name'
+p5
+S'SPI'
+p6
+sS'devname'
+p7
+S'SPI'
+p8
+sS'regs'
+p9
+(lp10
+(dp11
+S'ctl_tx_data'
+p12
+(dp13
+S'access'
+p14
+S' READ_WRITE'
+p15
+sS'bit_position'
+p16
+I0
+sS'address'
+p17
+I0
+sS'description'
+p18
+S'32-bit length register with the data to transmit via SPI bus.'
+p19
+sS'size'
+p20
+I32
+ssa(dp21
+S'ctl_rx_data'
+p22
+(dp23
+g14
+S' READ_ONLY'
+p24
+sg16
+I0
+sg17
+I1
+sg18
+S'32-bit length register with the data received via SPI bus.'
+p25
+sg20
+I32
+ssa(dp26
+S'stat_ready'
+p27
+(dp28
+g14
+S' READ_ONLY'
+p29
+sg16
+I0
+sg17
+I2
+sg18
+S"Its value is '0' while SPI bus is busy, '1' when the communication has ended and bus is free."
+p30
+sg20
+I1
+ssa(dp31
+S'stat_error_code'
+p32
+(dp33
+g14
+S' READ_ONLY'
+p34
+sg16
+I1
+sg17
+I2
+sg18
+S'Shows if the SPI module state machine ended with an error:\\n 0 - No error\\n 1 - Requested TX with length 0\\n 2 - Requested RX with length 0\\n 3 - Requested TX and RX with both lengths 0\\n 4 - No TX or RX requested after address decoding'
+p35
+sg20
+I3
+ssa(dp36
+S'stat_state_machine'
+p37
+(dp38
+g14
+S' READ_ONLY'
+p39
+sg16
+I4
+sg17
+I2
+sg18
+S'Shows the current state of the State Machine that manages SPI bus communication:\\n 0 - IDLE\\n 1 - WAIT_1\\n 2 - ADDR_GEN_1\\n 3 - ADDR_GEN_2\\n 4 - TX_ON\\n 5 - RX_ON'
+p40
+sg20
+I3
+ssa(dp41
+S'ctl_rx_data_length'
+p42
+(dp43
+g14
+S' READ_WRITE'
+p44
+sg16
+I0
+sg17
+I3
+sg18
+S'Length of the data to receive via SPI bus. After SPI communication ends, in the spi_config_ctl_rx_data register the less significant bits indicated by this field will contain received data. Accepatble values from 0 to 32.'
+p45
+sg20
+I6
+ssa(dp46
+S'ctl_rx'
+p47
+(dp48
+g14
+S' READ_WRITE'
+p49
+sg16
+I6
+sg17
+I3
+sg18
+S'This bit indicates if a data reception is required.'
+p50
+sg20
+I1
+ssa(dp51
+S'ctl_tx_data_length'
+p52
+(dp53
+g14
+S' READ_WRITE'
+p54
+sg16
+I8
+sg17
+I3
+sg18
+S'Length of the data to transmit. From the 32-bit length spi_config_ctl_tx_data register, only the less significant bits indicated by this field will be transmitted. Accepatble values from 0 to 32.'
+p55
+sg20
+I6
+ssa(dp56
+S'ctl_tx'
+p57
+(dp58
+g14
+S' READ_WRITE'
+p59
+sg16
+I14
+sg17
+I3
+sg18
+S'This bit indicates if a data transmission is required.'
+p60
+sg20
+I1
+ssa(dp61
+S'ctl_spi_addr'
+p62
+(dp63
+g14
+S' READ_WRITE'
+p64
+sg16
+I16
+sg17
+I3
+sg18
+S'Address of the communication target device. Up to 32 devices can be selected.'
+p65
+sg20
+I5
+ssa(dp66
+S'ctl_start'
+p67
+(dp68
+g14
+S' READ_WRITE'
+p69
+sg16
+I21
+sg17
+I3
+sg18
+S"This bit starts SPI communication when is set to '1'. All the fields in the spi_config_ctl and spi_config_ctl_tx_data registers must be correctly set and stable before this bit is set to '1', in order to make a correct communication procedure."
+p70
+sg20
+I1
+ssasS'description'
+p71
+S'SPI core for HW configuration-monitoring. Flexible TX and RX, with 5 bits coded address.'
+p72
+s.

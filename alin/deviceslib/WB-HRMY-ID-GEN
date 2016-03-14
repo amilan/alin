@@ -1,0 +1,158 @@
+(dp0
+S'vendorid'
+p1
+S'000000000000a1ba'
+p2
+sS'product'
+p3
+S'0000fdaf'
+p4
+sS'name'
+p5
+S'WB-HRMY-ID-GEN '
+p6
+sS'devname'
+p7
+S'WB-HRMY-ID-GEN'
+p8
+sS'regs'
+p9
+(lp10
+(dp11
+S'ID_gen_ctl_TriggerID'
+p12
+(dp13
+S'access'
+p14
+S' READ_WRITE'
+p15
+sS'bit_position'
+p16
+I0
+sS'address'
+p17
+I0
+sS'description'
+p18
+S'if EnTrigID is set to 1, each time this ID is received a message is generated in Harmony BUS'
+p19
+sS'size'
+p20
+I8
+ssa(dp21
+S'ID_gen_ctl_mTrig'
+p22
+(dp23
+g14
+S' WRITE_ONLY'
+p24
+sg16
+I8
+sg17
+I0
+sg18
+S'Sends the Data Message when it is set.'
+p25
+sg20
+I1
+ssa(dp26
+S'ID_gen_ctl_ETI'
+p27
+(dp28
+g14
+S' READ_WRITE'
+p29
+sg16
+I9
+sg17
+I0
+sg18
+S'If it is set to 1, the data mesage is send in Harmony bus each time a Trigger ID is received.'
+p30
+sg20
+I1
+ssa(dp31
+S'ID_gen_ctl_CLKE'
+p32
+(dp33
+g14
+S' READ_WRITE'
+p34
+sg16
+I10
+sg17
+I0
+sg18
+S"If it is set to 1, the mesage's timestamp is internally generated."
+p35
+sg20
+I1
+ssa(dp36
+S'ID_gen_ctl_RDY'
+p37
+(dp38
+g14
+S' READ_ONLY'
+p39
+sg16
+I11
+sg17
+I0
+sg18
+S'this bit indicates that data is still not send to the Harmony Bus and an error can be generated if a new data request is generated.'
+p40
+sg20
+I1
+ssa(dp41
+S'TS_ID_ID_OUT'
+p42
+(dp43
+g14
+S' READ_WRITE'
+p44
+sg16
+I0
+sg17
+I1
+sg18
+S'This is the ID of data generated.'
+p45
+sg20
+I8
+ssa(dp46
+S'TS_ID_TimeStamp'
+p47
+(dp48
+g14
+S' READ_WRITE'
+p49
+sg16
+I8
+sg17
+I1
+sg18
+S'This is the TimeStamp of data generated.'
+p50
+sg20
+I24
+ssa(dp51
+S'DATA_GEN_DATA'
+p52
+(dp53
+g14
+S' READ_WRITE'
+p54
+sg16
+I0
+sg17
+I2
+sg18
+S'This is the data value of the data generated.'
+p55
+sg20
+I32
+ssasS'description'
+p56
+S'This block is though to generate data with and ID. It can be used to setup memories or for diagnostics'
+p57
+s.

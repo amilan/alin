@@ -1,0 +1,812 @@
+## @package alinspinctrl.py 
+#	File containing the device class, to access device registers
+#
+#	Author = "Jose Avila & Manuel Broseta"
+#	Copyright = "Copyright 2015, ALBA"
+#	Version = "1.1"
+#	Email = "javila@cells.es"
+#	Status = "Development"
+#	History:
+#   01/08/2015 - file created by Jose Avila
+#	06/11/2015 - File included in SW project by M.Broseta
+#	             Doxygen detailed info addedfrom ctabem_dev import *
+
+__author__ = "Jose Avila & Manuel Broseta"
+__copyright__ = "Copyright 2015, ALBA"
+__license__ = "GPLv3 or later"
+__version__ = "1.0"
+__email__ = "javila@cells.es"+" mbroseta@cells.es"
+__status__ = "Development"
+
+import os
+
+from alin.base import AlinDevice
+from alin.base import AlinLog
+
+from distutils.sysconfig import get_python_lib
+
+__CONFIG_FILE__ = "Config"
+__CONFIG_MASK__ = "SPI_"
+
+## SPICtrl class
+#
+# Main class that takes care of the SPI Driver control. The ALba INstrumentation Low Speed HW configuration and monitoring is done via a SPI bus.
+# The SPI lines are controlled from the FPGA and the controlled devices with this SPI bus are placed in the Front-End Board (FEB), in the Current
+# Amplifiers Carrier Board (CACB) and in the 4 Current Amplifiers (CAp pickel file created with the coresponding memory area defined in the SDB
+# This API provides functions to control and get information of the devices connected to that SPI bus
+class SpiCtrl(AlinLog):
+	
+		# SPI devices Addresses
+	__CA1_EEPROM	= 		0x00	# Chip Select for the EEPROM Memory of Current Amplifier #1.
+	__CA1_PEXP1		=		0x01	# Chip Select for the Port Expander 1 of the Current Amplifier #1
+	__CA1_PEXP2		=		0x02	# Chip Select for the Port Expander 2 of the Current Amplifier #1
+	__CA1_DAC		=		0x03	# Chip Select for the DAC of the Current Amplifier #1.
+	__CA1_TEMP		=		0x04	# Chip Select for the Temperature Sensor of Current Amplifier #1
+	
+	__CA2_EEPROM 	= 		0x05	# Chip Select for the EEPROM Memory of Current Amplifier #2.
+	__CA2_PEXP1		=		0x06	# Chip Select for the Port Expander 1 of the Current Amplifier #2
+	__CA2_PEXP2		=		0x07	# Chip Select for the Port Expander 2 of the Current Amplifier #2
+	__CA2_DAC		=		0x08	# Chip Select for the DAC of the Current Amplifier #2.
+	__CA2_TEMP		=		0x09	# Chip Select for the Temperature Sensor of Current Amplifier #2
+	
+	__CA3_EEPROM 	= 		0x0a	# Chip Select for the EEPROM Memory of Current Amplifier #3.
+	__CA3_PEXP1		=		0x0b	# Chip Select for the Port Expander 1 of the Current Amplifier #3
+	__CA3_PEXP2		=		0x0c	# Chip Select for the Port Expander 2 of the Current Amplifier #3
+	__CA3_DAC		=		0x0d	# Chip Select for the DAC of the Current Amplifier #3.
+	__CA3_TEMP		=		0x0e	# Chip Select for the Temperature Sensor of Current Amplifier #3
+	
+	__CA4_EEPROM 	= 		0x0f	# Chip Select for the EEPROM Memory of Current Amplifier #4.
+	__CA4_PEXP1		=		0x10	# Chip Select for the Port Expander 1 of the Current Amplifier #4
+	__CA4_PEXP2		=		0x11	# Chip Select for the Port Expander 2 of the Current Amplifier #4
+	__CA4_DAC		=		0x12	# Chip Select for the DAC of the Current Amplifier #4.
+	__CA4_TEMP		=		0x13	# Chip Select for the Temperature Sensor of Current Amplifier #4
+	
+	__CACB_TEMP		=		0x14	# Chip Select for the Temperature Sensor of CA Carrier Board. Active Low.
+	
+	__FEB_PEXP1		=		0x18	# Chip Select for the Port Expander 1 of the Front End Board
+	__FEB_PEXP2		=		0x19	# Chip Select for the Port Expander 2 of the Front End Board
+	__FEB_PEXP3		=		0x1a	# Chip Select for the Port Expander 3 of the Front End Board
+	__FEB_TEMP		=		0x1b	# Chip Select for the Temperature Sensor of the Front End Board
+	
+	__N_CHANNELS	=		4		# Number of channels defined
+
+	__N_DIFF_IO_PORTS	= 	9		# Number of I/O pins
+	__N_HS_IO_PORTS 	= 	4		# Number of high speed I/O ports
+	__N_SUPPLY_PORTS	= 	4		# Number of Supply Ports
+	
+	## The constructor.
+	#  @param device Device name of tha file that contains the SPI core registers mapping
+	def __init__(self, dev='SPI', debug=False):
+		AlinLog.__init__(self, debug=False, loggerName='SpiCtrl')
+
+		self._debug = debug
+		self._debuglevel = None
+		self._device = dev
+		# Get default configuration from config file
+		self.getConfigData()
+		
+		# Initializes ALIN device ADC core device
+		self._alindev = AlinDevice(debug=self._debug, device=self._device)
+		
+		# Init variables 
+		self._ca_init = [False]*self.__N_CHANNELS
+		self._inversion = [None]*self.__N_CHANNELS
+		self._post_filter = [None]*self.__N_CHANNELS
+		self._pre_filter = [None]*self.__N_CHANNELS
+		self._filter = [None]*self.__N_CHANNELS
+		self._ti_gain = [None]*self.__N_CHANNELS
+		self._v_gain = [None]*self.__N_CHANNELS
+		self._range = [None]*self.__N_CHANNELS
+		
+		self._diff_io_ports_h = None # I/O ports from 9 to 15 (only 9 is used)
+		self._diff_io_ports_l = None # I/O ports from 0 to 8
+		self._hs_io_ports = None
+		self._supply_ports = None
+		self._dac_gain = None
+		
+		# Logging
+		self.setLogLevel(self._debuglevel)
+		self.logEnable(self._debug)
+
+	def getConfigData(self):
+		# Get config File
+		config_folder = get_python_lib()+"/alin/config/"
+		config_file = config_folder+__CONFIG_FILE__
+		
+		try:
+			with open(config_file, 'r') as f:
+				lines = f.readlines()
+				f.close()
+				
+			comp = [ln.split(__CONFIG_MASK__)[1].replace(" ","").replace("\t","").replace("\n","") for ln in lines if ln.startswith(__CONFIG_MASK__)]
+			if comp != []:
+				for cm in comp:
+					if cm.startswith("DEBUG_"):
+						try:
+							self._debug = True if cm.split("=")[1].lower() == "true" else False
+							self.logMessage("%s::getConfigData(): DEBUG set to %s"%(__CONFIG_MASK__, self._debug),self.INFO)
+						except Exception, e:
+							self.logMessage("%s::getConfigData(): Can't get DEBUG flag %s"%(__CONFIG_MASK__, self._debug, str(e)),self.ERROR)
+					elif cm.startswith("DEBUGLEVEL_"):
+						try:
+							self._debuglevel = int(cm.split("=")[1])
+							self.logMessage("%s::getConfigData(): DEBUGLEVEL set to %d"%(__CONFIG_MASK__,self._debuglevel),self.INFO)
+						except Exception, e:
+							self.logMessage("%s::getConfigData(): Can't get DEBUGLEVEL %s"%(__CONFIG_MASK__, self._debug, str(e)),self.ERROR)
+					elif cm.startswith("DEVICE_"):
+						try:
+							self._device = cm.split("=")[1]
+							self.logMessage("%s::getConfigData(): DEVICE set to %s"%(__CONFIG_MASK__,self._device),self.INFO)
+						except Exception, e:
+							self.logMessage("%s::getConfigData(): Can't get DEVICE %s"%(__CONFIG_MASK__, self._debug, str(e)),self.ERROR)
+					 
+		except Exception, e:
+			self.logMessage("%s::getConfigData():: Not possible to get config file due to:"%__CONFIG_MASK__,self.ERROR)
+			self.logMessage(str(e),self.ERROR)
+			
+	def setLogLevel(self, level):
+		self._debuglevel = level
+		self.logLevel(self._debuglevel)
+		
+		self._alindev.setLogLevel(self._debuglevel)
+		
+	def start(self):
+		self.logMessage("start(): Starting SPI channels", self.INFO)
+		for i in range(0,4):
+			self.caInit(i)
+		self.logMessage("start(): SPI module Started!!", self.INFO)
+		
+	## caReadTemp(channel)
+	#  This function reads the temperature of the current amplifer modules.
+	#  @param chennel There are four CA blocks. This parameters is used to select the CA block to read its temperature 
+	def caReadTemp(self, channel):
+		self.logMessage("caReadTemperature::Reading temp CA%s"%(str(channel)), self.INFO)
+		caTempList = [self.__CA1_TEMP, self.__CA2_TEMP, self.__CA3_TEMP, self.__CA4_TEMP]	
+		try:
+			value = self.__spiRead(caTempList[channel-1], 0, 0, 0, 1, 0x0d)		
+		except: 
+			self.logMessage("caReadTemperature::Incorrect channel %s"%(str(channel)), self.ERROR)
+			return	
+
+		value = value*0.0625
+		self.logMessage("caReadTemperature::Temperature of CA%s: %.4f" %(str(channel), value), self.INFO)
+		return value
+	
+	
+	## caCBReadTemp()
+	#  This function reads the temperature of the current amplifer carrier board
+	#  @param chennel There are four CA blocks. This parameters is used to select the CA block to read its temperature 
+	def caCBReadTemp(self):
+		self.logMessage("caCBReadTemp::Reading temp CACB", self.INFO)
+		value = self.__spiRead(self.__CACB_TEMP, 0, 0, 0, 1, 0x0d)
+		value = value*0.0625
+		self.logMessage("caCBReadTemp::Temperature of Current Amplifier Carrier Board: %.4f" %(value), self.INFO)
+		return value	
+	
+	## caInit(channel)
+	#  This function initializes a current amplifer modules.
+	#  @param channel There are four CA blocks. This parameters is used to select the CA block to read its temperature 
+	def caInit(self, ch):
+		self.logMessage("caInit::Init CA%s"%str(ch), self.INFO)
+		if ch<0 and ch>3:
+			self.logMessage("caReadTemperature::Incorrect channel %s"%(str(ch)), self.ERROR)
+			return	
+
+		channel = ch-1		
+		caAddrSet = [[self.__CA1_EEPROM, self.__CA1_PEXP1, self.__CA1_PEXP2, self.__CA1_DAC],
+					 [self.__CA2_EEPROM, self.__CA2_PEXP1, self.__CA2_PEXP2, self.__CA2_DAC],
+					 [self.__CA3_EEPROM, self.__CA3_PEXP1, self.__CA3_PEXP2, self.__CA3_DAC],
+					 [self.__CA4_EEPROM, self.__CA4_PEXP1, self.__CA4_PEXP2, self.__CA4_DAC],
+					]
+		
+		# Step1: Dummy readings all items CA module and DAC load 0V 
+		self.logMessage("caInit::Step 1 dummy readings CA%d module"%ch, self.INFO)		
+		self.caReadTemp(channel)
+		self.__spiRead(caAddrSet[channel][1], 1, 0x4100, 0x10, 1, 0x08)
+		self.__spiRead(caAddrSet[channel][2], 1, 0x4100, 0x10, 1, 0x08)
+		self.__spiRead(caAddrSet[channel][0], 1, 0x0300, 0x10, 1, 0x08)
+		self.__spiWrite(caAddrSet[channel][3], 1, 0, 0x0c, 0, 0)
+		
+		# Step2: Real initialization:
+		# - PE1: write IODIR register all to 0 (all bits as output)
+		self.__spiWrite(caAddrSet[channel][1], 1, 0x00400000, 0x18, 0, 0)
+		val = self.__spiRead(caAddrSet[channel][1], 1, 0x00004100, 0x10, 1, 0x08)
+		self.logMessage("caInit::Value of IODIR register of PE1 of CA%d : %d" %(ch, val), self.INFO)
+
+		# - PE2: write IODIR register all to 0 (all bits as output)
+		self.__spiWrite(caAddrSet[channel][2], 1, 0x00400000, 0x18, 0, 0)
+		val = self.__spiRead(caAddrSet[channel][2], 1, 0x00004100, 0x10, 1, 0x08)
+		self.logMessage("caInit::Value of IODIR register of PE1 of CA%d : %d" %(ch, val), self.INFO)
+					   
+		# Step3: Configuration of both Port Expanders of Current Amplifier:
+		# INVERSION ON;  TI_GAIN 10k; POST_F 3200Hz; PRE_F 3500Hz; V_GAIN 1
+		self.__spiWrite(caAddrSet[channel][1], 1, 0x00400908, 0x18, 0, 0)
+		val = self.__spiRead(caAddrSet[channel][1], 1, 0x00004109, 0x10, 1, 0x08)
+		self.logMessage("caInit::Value of IODIR register of PE1 of CA%d : %d" %(ch, val), self.INFO)
+		self.__spiWrite(caAddrSet[channel][2], 1, 0x00400918, 0x18, 0, 0)
+		val = self.__spiRead(caAddrSet[channel][2], 1, 0x00004109, 0x10, 1, 0x08)
+		self.logMessage("caInit::Value of IODIR register of PE1 of CA%d : %d" %(ch, val), self.INFO)
+		self.caReadTemp(channel)
+		self.logMessage("caInit::Init CA%s complete!!"%str(ch), self.INFO)
+		
+		# Init local variables
+		self._ca_init[ch] = True
+		self._inversion[ch] = True
+
+		self._post_filter[ch] = '3200'
+		self._pre_filter[ch] = '3500'
+		self._filter[ch] = '3200'
+		
+		self._ti_gain[ch] = '10k'
+		self._v_gain[ch] = '1'
+		self._range[ch] = '1mA'
+
+	def caGetInit(self, channel):
+		val = None
+		try:
+			val = self._ca_init[channel]
+			self.logMessage("caGetInit::Get Init state CA%d=%s"%(channel,str(val)), self.INFO)
+		except:
+			self.logMessage("caGetInit::Incorrect parameters channel=%d"%(channel), self.ERROR)
+
+		return val		
+		
+	## caSetTIGain(channel,gain)
+	#  This function sets the Trans Impedance Gain for a particular CA channel
+	#  @param channel There are four CA blocks. This parameters is used to select the CA block to read its temperature 
+	#  @param gain Gain value expected 
+	def caSetTIGain(self, channel, gain ):
+		self.logMessage("caSetTIGain::Set Transimpedance CA%d gain %d"%(channel,gain), self.INFO)
+		    
+		maskErase = 0x87	#Mask to erase the TI Gain bits (bits D6-D3)
+		caAddrSet = [self.__CA1_PEXP1, self.__CA2_PEXP1, self.__CA3_PEXP1, self.__CA4_PEXP1]
+		caTIGainSet = {'10k':	0x08,
+						'1M':	0x10,
+						'100M':	0x20,
+						'1G':	0x40,
+						'10G':	0x00
+						}
+		
+		try:
+			caAddr = caAddrSet[channel-1]
+			maskGain = caTIGainSet[gain]
+		except:
+			self.logMessage("caSetTIGain::Incorrect parameters channel=%d gain=%s"%(channel,gain), self.ERROR)
+			return
+		
+	    #Process to generate data to send from read data
+		val = self.__spiRead(caAddr, 1, 0x00004109, 0x10, 1, 0x08)
+		val = val & maskErase		#bits D6-D3 erased
+		val = val | maskGain		#bits D6-D3 set according to the mask
+		val = val | 0x00400900		#necessary bits (opcode and address) are added for proper communication
+		self.__spiWrite(caAddr, 1, val, 0x18, 0, 0)
+		
+		#read GPIO register of PE1 (just for confirmation, it can be commented)
+		val = self.__spiRead(caAddr, 1, 0x00004109, 0x10, 1, 0x08)
+		
+		# update local variable
+		self._ti_gain[channel] = gain
+		
+	def caGetTIGain(self, channel):
+		val = None
+		try:
+			val = self._ti_gain[channel]
+			self.logMessage("caGetTIGain::Get Transimpedance CA%d gain=%s"%(channel,val), self.INFO)
+		except:
+			self.logMessage("caGetTIGain::Incorrect parameters channel=%d"%(channel), self.ERROR)
+
+		return val
+		
+		
+	## caInv(channel,inv)
+	#  This function sets the Inverse gain for a particular CA channel
+	#  @param channel There are four CA blocks. This parameters is used to select the CA block to read its temperature 
+	#  @param inv Inverse gain value expected 
+	def caSetInv(self, channel, inv ):
+		self.logMessage("caSetInv::Set Inversion %s CA%d"%(inv, channel), self.INFO)
+		    
+		maskErase = 0x7f	#Mask to erase the INV bit (bit D7)
+		caAddrSet = [self.__CA1_PEXP1, self.__CA2_PEXP1, self.__CA3_PEXP1, self.__CA4_PEXP1]
+		try:
+			caAddr = caAddrSet[channel-1]
+		except:
+			self.logMessage("caSetInv::Incorrect channel=%d"%(channel,gain), self.ERROR)
+			return
+		if inv:
+			maskInv = 0x00 #inversion by default
+		else:
+			maskInv = 0x80
+			
+	    #Process to generate data to send from read data
+		val = self.__spiRead(caAddr, 1, 0x00004109, 0x10, 1, 0x08)
+		val = val & maskErase		#bit D7 erased
+		val = val | maskInv			#bit D7 set according to the mask
+		val = val | 0x00400900		#necessary bits (opcode and address) are added for proper communication
+		self.__spiWrite(caAddr, 1, val, 0x18, 0, 0)
+		
+		#read GPIO register of PE1 (just for confirmation, it can be commented)
+		val = self.__spiRead(caAddr, 1, 0x00004109, 0x10, 1, 0x08)
+
+		# update local variable
+		self._inversion[channel] = inv
+		
+	def caGetInv(self, channel):
+		val = None
+		try:
+			val = self._inversion[channel]
+			self.logMessage("caGetInv::Get Inversion CA%d value=%s"%(channel, val), self.INFO)
+		except:
+			self.logMessage("caGetInv::Incorrect parameters channel=%d"%(channel), self.ERROR)
+
+		return val
+		
+	## caPostFilter(channel,postf)
+	#  This function sets a the post filter value for a particular CA channel
+	#  @param channel There are four CA blocks. This parameters is used to select the CA block to read its temperature 
+	#  @param postf Postfilter value to set
+	def caSetPostFilter(self, channel, postf ):
+		self.logMessage("caSetPostFilter::Set PostFilter CA%d value: %s"%(channel, postf), self.INFO)
+		    
+		maskErase = 0xf8	# Mask to erase the Post Filter bits (bits D2-D0)
+		caAddrSet = [self.__CA1_PEXP1, self.__CA2_PEXP1, self.__CA3_PEXP1, self.__CA4_PEXP1]
+		caPostFilterSet = {'3200':	0x00,
+							'100':	0x04,
+							'10':	0x02,
+							'1':	0x01,
+						}
+		
+		try:
+			caAddr = caAddrSet[channel-1]
+			maskPostf = caPostFilterSet[postf]
+		except:
+			self.logMessage("caSetPostFilter::Incorrect channel=%d or PostF=%s"%(channel,postf), self.ERROR)
+			return
+			
+	    #Process to generate data to send from read data
+		val = self.__spiRead(caAddr, 1, 0x00004109, 0x10, 1, 0x08)
+		val = val & maskErase		#bit D7 erased
+		val = val | maskInv			#bit D7 set according to the mask
+		val = val | 0x00400900		#necessary bits (opcode and address) are added for proper communication
+		self.__spiWrite(caAddr, 1, val, 0x18, 0, 0)
+		
+		#read GPIO register of PE1 (just for confirmation, it can be commented)
+		val = self.__spiRead(caAddr, 1, 0x00004109, 0x10, 1, 0x08)
+		self.logMessage("caSetPostFilter::Value of GPIO register of PE1 of CA%d : %d" %(channel, val), self.INFO)
+		
+		# update local variable
+		self._post_filter[channel] = postf
+		
+	def caGetPostFilter(self, channel):
+		val = None
+		try:
+			val = self._post_filter[channel]
+			self.logMessage("caGetPostFilter::Get PostFilter CA%d value=%s"%(channel, val), self.INFO)
+		except:
+			self.logMessage("caGetPostFilter::Incorrect parameters channel=%d"%(channel), self.ERROR)
+
+		return val
+	
+	## caPreFilter(channel,postf)
+	#  This function sets a the pre filter value for a particular CA channel
+	#  @param channel There are four CA blocks. This parameters is used to select the CA block to read its temperature 
+	#  @param pref Prefilter value to set
+	def caSetPreFilter(self, channel, pref ):
+		self.logMessage("caSetPreFilter::Set PostFilter CA%d value: %s"%(channel, pref), self.INFO)
+		    
+		maskErase = 0x0f	# Mask to erase the Post Filter bits (bits D7-D4)
+		caAddrSet = [self.__CA1_PEXP2, self.__CA2_PEXP2, self.__CA3_PEXP2, self.__CA4_PEXP2]
+		caPreFilterSet = {'3500':	0x10,
+							'100':	0x20,
+							'10':	0x40,
+							'1':	0x80,
+							'0.5':	0x00,
+						}
+		
+		try:
+			caAddr = caAddrSet[channel-1]
+			maskPref = caPreFilterSet[pref]
+		except:
+			self.logMessage("caSetPreFilter::Incorrect channel=%d or PreF=%s"%(channel,pref), self.ERROR)
+			return
+
+			
+	    #Process to generate data to send from read data
+		val = self.__spiRead(caAddr, 1, 0x00004109, 0x10, 1, 0x08)
+		val = val & maskErase		#bit D7 erased
+		val = val | maskInv			#bit D7 set according to the mask
+		val = val | 0x00400900		#necessary bits (opcode and address) are added for proper communication
+		self.__spiWrite(caAddr, 1, val, 0x18, 0, 0)
+		
+		#read GPIO register of PE1 (just for confirmation, it can be commented)
+		val = self.__spiRead(caAddr, 1, 0x00004109, 0x10, 1, 0x08)
+		
+		# update local variable
+		self._pre_filter[channel] = pref
+		
+	def caGetPreFilter(self, channel):
+		val = None
+		try:
+			val = self._pre_filter[channel]
+			self.logMessage("caGetPreFilter::Get PreFilter CA%d value=%s"%(channel, val), self.INFO)
+		except:
+			self.logMessage("caGetPreFilter::Incorrect parameters channel=%d"%(channel), self.ERROR)
+
+		return val
+		
+	## caVGain(channel,vgain)
+	#  This function sets the voltage Gain for a particular CA channel
+	#  @param channel There are four CA blocks. This parameters is used to select the CA block to read its temperature 
+	#  @param vgain Voltage gain value to set
+	def caSetVGain(self, channel, vgain ):
+		self.logMessage("caSetVGain::Set Voltage CA%d gain %s"%(channel,str(vgain)), self.INFO)
+		    
+		maskErase = 0xf0	#Mask to erase the TI Gain bits (bits D3-D0)
+		caAddrSet = [self.__CA1_PEXP2, self.__CA2_PEXP2, self.__CA3_PEXP2, self.__CA4_PEXP2]
+		caVGainSet = {'1':	0x08,
+					'10':	0x04,
+					'50':	0x02,
+					'100':	0x01,
+					'sat':	0x00
+					}
+		
+		try:
+			caAddr = caAddrSet[channel-1]
+			maskVgain = caVGainSet[vgain]
+		except:
+			self.logMessage("caSetVGain::Incorrect parameters channel=%d gain=%s"%(channel,str(gain)), self.ERROR)
+			return
+		
+	    #Process to generate data to send from read data
+		val = self.__spiRead(caAddr, 1, 0x00004109, 0x10, 1, 0x08)
+		val = val & maskErase		#bits D6-D3 erased
+		val = val | maskGain		#bits D6-D3 set according to the mask
+		val = val | 0x00400900		#necessary bits (opcode and address) are added for proper communication
+		self.__spiWrite(caAddr, 1, val, 0x18, 0, 0)
+		
+		#read GPIO register of PE1 (just for confirmation, it can be commented)
+		val = self.__spiRead(caAddr, 1, 0x00004109, 0x10, 1, 0x08)
+		
+		# update local variable
+		self._v_gain[channel] = vgain
+		
+	def caGetVGain(self, channel):
+		val = None
+		try:
+			val = self._v_gain[channel]
+			self.logMessage("caGetVGain::Get Voltage gain CA%d value=%s"%(channel, val), self.INFO)
+		except:
+			self.logMessage("caGetVGain::Incorrect parameters channel=%s"%(channel), self.ERROR)
+
+		return val
+		
+	## caRange(channel,rang)
+	#  This function sets the range for a particular CA channel, which results of combining the transimpedance and voltage gains
+	#  @param channel There are four CA blocks. This parameters is used to select the CA block to read its temperature 
+	#  @param rang Range value to set
+	def caSetRange(self, channel, rang ):
+		self.logMessage("caRange::Set range value %s for CA%s"%(str(rang), str(channel)), self.INFO)
+		range_vals = {'1mA':	{'tigain': '10k',	'vgain': '1'},
+					'100uA':	{'tigain': '10k' ,	'vgain': '10'},
+					'10uA':		{'tigain': '1M',	'vgain': '1'},
+					'1uA':		{'tigain': '1M',	'vgain': '10'},
+					'100nA':	{'tigain': '100M',	'vgain': '1'},
+					'10nA':		{'tigain': '1G',	'vgain': '1'},
+					'1nA':		{'tigain': '10G',	'vgain': '1'},
+					'100pA':	{'tigain': '10G',	'vgain': '10'},
+					}
+		
+		if rang not in range_vals.keys():
+			self.logMessage("caRange::Incorrect range Value %s"%(str(rang)), self.ERROR)
+			return
+		
+		self.caTIGain(channel,range_vals[rang]['tigain'])
+		self.caVGain(channel,range_vals[rang]['vgain'])
+		
+		# update local variable
+		self._range[channel] = rang
+		
+	def caGetRange(self, channel):
+		val = None
+		try:
+			val = self._range[channel]
+			self.logMessage("caGetRange::Get range CA%d value=%s"%(channel, val), self.INFO)
+		except:
+			self.logMessage("caGetRange::Incorrect parameters channel=%d"%(channel), self.ERROR)
+
+		return val
+
+			
+	## caFilter(channel,vgain)
+	#  This function sets the Filter for a particular CA channel, setting the pre and post filters.
+	#  @param channel There are four CA blocks. This parameters is used to select the CA block to read its temperature 
+	#  @param filt Filter value to set
+	def caSetFilter(self, channel, filt ):
+		self.logMessage("caFilter::Set filter value %s for CA%s"%(str(filt), str(channel)), self.INFO)
+		
+		filter_vals = {'3200':	{'post': '3200',	'pre': '3500'},
+						'100':	{'post': '100',		'pre': '100'},
+						'10':	{'post': '10',		'pre': '10'},
+						'1':	{'post': '1',		'pre': '1'},
+						'0.5':	{'post': '1',		'pre': '0.5'},
+						},
+		
+		if filt not in filter_vals.keys():
+			self.logMessage("caFilter::Incorrect Filter Value %s"%(str(filt)), self.ERROR)
+			return
+		
+		self.caPostFilter(channel,filter_vals[filt]['post'])
+		self.caPreFilter(channel,filter_vals[filt]['pre'])
+
+		# update local variable
+		self._filter[channel] = filt
+		
+	def caGetFilter(self, channel):
+		val = None
+		try:
+			val = self._filter[channel]
+			self.logMessage("caGetFilter::Get filter CA%d value=%s"%(channel, val), self.INFO)
+		except:
+			self.logMessage("caGetFilter::Incorrect parameters channel=%d"%(channel), self.ERROR)
+
+		return val
+
+	## feInit(channel)
+	#  This function initializes the frontend board
+	#  @param none 
+	def feInit(self):
+		self.logMessage("feInit::Init FrontEnd", self.INFO)
+
+		# Step1: Dummy writtings to 0 to all PEXP 
+		self.__spiWrite(self.__FEB_PEXP1, 1, 0x00400000, 0x18, 0, 0)
+		val = self.__spiRead(self.__FEB_PEXP1, 1, 0x00004100, 0x10, 1, 0x08)
+		self.logMessage("feInit::Value of IODIR register of FE board PE1: %d" %(val), self.INFO)
+
+		self.__spiWrite(self.__FEB_PEXP2, 1, 0x00400000, 0x18, 0, 0)
+		val = self.__spiRead(self.__FEB_PEXP2, 1, 0x00004100, 0x10, 1, 0x08)
+		self.logMessage("feInit::Value of IODIR register of FE board PE2: %d" %(val), self.INFO)
+
+		self.__spiWrite(self.__FEB_PEXP3, 1, 0x00400000, 0x18, 0, 0)
+		val = self.__spiRead(self.__FEB_PEXP3, 1, 0x00004100, 0x10, 1, 0x08)
+		self.logMessage("feInit::Value of IODIR register of FE board PE3: %d" %(val), self.INFO)
+		
+		self._diff_io_ports_h = 0 # I/O ports from 9 to 15 (only 9 is used)
+		self._diff_io_ports_l = 0 # I/O ports from 0 to 8
+		self._hs_io_ports = 0
+		self._supply_ports = 0
+		self._dac_gain = 0
+
+	## feReadTemp()
+	#  This function reads the temperature of the front end board
+	#  @param chennel There are four CA blocks. This parameters is used to select the CA block to read its temperature 
+	def feReadTemp(self):
+		self.logMessage("feReadTemp::Reading temp FEB", self.INFO)
+		value = self.__spiRead(self.__FEB_TEMP, 0, 0, 0, 1, 0x0d)
+		value = value*0.0625
+		self.logMessage("feReadTemp::Temperature of Front End Board: %.4f" %(value), self.INFO)
+		return value	
+
+	def feSetGPIODirection(self, num, dir=False ):
+		self.logMessage("feGPIODirection::Set direction for Input %s to %s"%(str(num),str(dir)), self.INFO)
+		
+		if num<=0 and num>self.__N_DIFF_IO_PORTS:
+			self.logMessage("feGPIODirection::Incorrect port number %s, expected value between 1 and %d"%(str(num),self.__N_DIFF_IO_PORTS), self.ERROR)
+			return
+
+		val = 1 if dir else 0
+		
+		# GPIO number 9 is in PEXP1, the rest are in PEXP2
+		if num == 9: 
+			#Process to generate data to send from read data
+			addr = self.__FEB_PEXP1
+			bit_pos = 0
+		else:
+			addr = self.__FEB_PEXP2
+			bit_pos = num-1
+
+		rdval = self.__spiRead(addr, 1, 0x00004109, 0x10, 1, 0x08)
+		rdval = rdval & (0xFF - (0x01<<bit_pos))
+		rdval = rdval | (val<<bit_pos)
+		rdval = rdval | 0x00400900		#necessary bits (opcode and address) are added for proper communication
+		self.__spiWrite(addr, 1, rdval, 0x18, 0, 0)
+		
+		self.logMessage("feGPIODirection::Set address %s value %s"%(hex(addr),hex(val)), self.INFO)
+		
+
+	def feGetGPIODirection(self, num):
+		self.logMessage("feGetGPIODirection::Returns direction for Input %s"%(str(num)), self.INFO)
+		
+		if num<=0 and num>self.__N_DIFF_IO_PORTS:
+			self.logMessage("feGetGPIODirection::Incorrect port number %s, expected value between 1 and %d"%(str(num),self.__N_DIFF_IO_PORTS), self.ERROR)
+			return
+		
+		# GPIO number 9 is in PEXP1, the rest are in PEXP2
+		if num == 9: 
+			#Process to generate data to send from read data
+			addr = self.__FEB_PEXP1
+			bit_pos = 0
+		else:
+			addr = self.__FEB_PEXP2
+			bit_pos = num-1
+
+		rdval = self.__spiRead(addr, 1, 0x00004109, 0x10, 1, 0x08)
+		rdval = (rdval >> bit_pos) & 0x01
+		
+		self.logMessage("feGetGPIODirection:: GPIO %s set to %s"%(str(num),str(rdval)), self.INFO)
+		
+		return rdval
+
+
+	def feSetDIODirection(self, num, dir=False ):
+		self.logMessage("feDIODirection::Set direction for Input %s to %s"%(str(num),str(dir)), self.INFO)
+		
+		if num<=0 and num>self.__N_HS_IO_PORTS:
+			self.logMessage("feDIODirection::Incorrect port number %s, expected value between 1 and %d"%(str(num),self.__N_HS_IO_PORTS), self.ERROR)
+			return
+		    
+		val = 1 if dir else 0
+		
+		addr = self.__FEB_PEXP3
+		bit_pos = num-1
+
+		rdval = self.__spiRead(addr, 1, 0x00004109, 0x10, 1, 0x08)
+		rdval = rdval & (0xFF - (0x01<<bit_pos))
+		rdval = rdval | (val<<bit_pos)
+		rdval = rdval | 0x00400900		#necessary bits (opcode and address) are added for proper communication
+		self.__spiWrite(addr, 1, rdval, 0x18, 0, 0)
+		
+		self.logMessage("feDIODirection::Set address %s value %s"%(hex(addr),hex(val)), self.INFO)
+		
+	def feGetDIODirection(self, num):
+		self.logMessage("feGetDIODirection::Returns direction for Input %s"%(str(num)), self.INFO)
+		
+		if num<=0 and num>self.__N_HS_IO_PORTS:
+			self.logMessage("feGetDIODirection::Incorrect port number %s, expected value between 1 and %d"%(str(num),self.__N_HS_IO_PORTS), self.ERROR)
+			return
+		
+		addr = self.__FEB_PEXP3
+		bit_pos = num-1
+
+		rdval = self.__spiRead(addr, 1, 0x00004109, 0x10, 1, 0x08)
+		rdval = (rdval >> bit_pos) & 0x01
+		
+		self.logMessage("feGetDIODirection:: GPIO %s set to %s"%(str(num),str(rdval)), self.INFO)
+		
+		return rdval
+
+	def feSetGPIOSupply(self, num, dir=False ):
+		self.logMessage("feDIODirection::Set direction for Input %s to %s"%(str(num),str(dir)), self.INFO)
+		
+		if num<=0 or num>self.__N_SUPPLY_PORTS:
+			self.logMessage("feDIODirection::Incorrect port number %s, expected value between 1 and %d"%(str(num),self.__N_SUPPLY_PORTS), self.ERROR)
+			return
+
+		val = 1 if dir else 0
+		
+		addr = self.__FEB_PEXP1
+		bit_pos = num
+
+		rdval = self.__spiRead(addr, 1, 0x00004109, 0x10, 1, 0x08)
+		rdval = rdval & (0xFF - (0x01<<bit_pos))
+		rdval = rdval | (val<<bit_pos)
+		rdval = rdval | 0x00400900		#necessary bits (opcode and address) are added for proper communication
+		self.__spiWrite(addr, 1, rdval, 0x18, 0, 0)
+		
+		self.logMessage("feDIODirection::Set address %s value %s"%(hex(addr),hex(val)), self.INFO)
+		
+	def feGetGPIOSupply(self, num):
+		self.logMessage("feGetDIODirection::Returns direction for Input %s"%(str(num)), self.INFO)
+		
+		if num<=0 or num>self.__N_SUPPLY_PORTS:
+			self.logMessage("feGetDIODirection::Incorrect port number %s, expected value between 1 and %d"%(str(num),self.__N_SUPPLY_PORTS), self.ERROR)
+			return
+		
+		addr = self.__FEB_PEXP1
+		bit_pos = num
+
+		rdval = self.__spiRead(addr, 1, 0x00004109, 0x10, 1, 0x08)
+		rdval = (rdval >> bit_pos) & 0x01
+		
+		self.logMessage("feGetDIODirection:: GPIO %s set to %s"%(str(num),str(rdval)), self.INFO)
+		
+		return rdval
+
+	def feSetDACGain(self, gain ):
+		self.logMessage("feSetDACGain::Set GAIN Dac to %s"%(str(gain)), self.INFO)
+		
+		if gain>1:
+			self.logMessage("feSetDACGain::Incorrect gain value", self.ERROR)
+			return
+		
+		addr = self.__FEB_PEXP3
+		bit_pos = 0x07
+
+		rdval = self.__spiRead(addr, 1, 0x00004109, 0x10, 1, 0x08)
+		rdval = rdval & (0xFF - (0x01<<bit_pos))
+		rdval = rdval | (gain<<bit_pos)
+		rdval = rdval | 0x00400900		#necessary bits (opcode and address) are added for proper communication
+		self.__spiWrite(addr, 1, rdval, 0x18, 0, 0)
+		
+		if gain:
+			msg = "Output: 0 - 5V"
+		else:
+			msg = "Output: 0 - 2.5V"
+		self.logMessage("feSetDACGain::Gain set to %s"%(msg), self.INFO)
+		
+	def feGetDACGain(self):
+		self.logMessage("feGetDACGain:: Read Gain DAC", self.INFO)
+		
+		addr = self.__FEB_PEXP3
+		bit_pos = 0x07
+
+		rdval = self.__spiRead(addr, 1, 0x00004109, 0x10, 1, 0x08)
+		rdval = (rdval >> bit_pos) & 0x01
+		
+		if rdval:
+			msg = "Output: 0 - 5V"
+		else:
+			msg = "Output: 0 - 2.5V"
+
+		self.logMessage("feGetDACGain::Gain set to %s"%(msg), self.INFO)
+		
+		return rdval
+
+
+	## __spiRead(attrName)
+	#  Private function used to control the SPI Driver read protocol
+	#  @param attrName String containing the attribute name to write
+	#  @return Numeric value for te selected attribute	
+	def __spiRead(self, spiDev, tx, tx_data, tx_data_lenght, rx, rx_data_lenght ):
+		self.logMessage("__spiRead:: Chip select:%s tx=%s tx_data=%s --> rx=%s"%(hex(spiDev), hex(tx), hex(tx_data), hex(rx)), self.DEBUG)
+		
+		try:
+			ready = self._alindev.readAttribute('stat_ready')
+			while not ready:
+				ready = self._alindev.readAttribute('stat_ready')
+			
+			self._alindev.writeAttribute('ctl_tx',tx)
+			self._alindev.writeAttribute('ctl_tx_data', tx_data)
+			self._alindev.writeAttribute('ctl_tx_data_length', tx_data_lenght)
+			
+			self._alindev.writeAttribute('ctl_rx',rx)
+			self._alindev.writeAttribute('ctl_rx_data_length',rx_data_lenght)
+			
+			self._alindev.writeAttribute('ctl_spi_addr',spiDev)
+			
+			self._alindev.writeAttribute('ctl_start',0x01)
+			value = self._alindev.readAttribute('ctl_rx_data')
+			
+			self.logMessage("__spiRead:: rx_data=%s"%(hex(value)), self.DEBUG)
+			
+		except Exception, e:
+			self.logMessage("__spiRead::Problem reading to the SPI!!! Exception: %s"%(str(e)), self.ERROR)
+			value = None
+		
+		return value
+	
+	
+	## __spiWrite(attrName)
+	#  Private function used to control the SPI Driver read protocol
+	#  @param attrName String containing the attribute name to write
+	#  @return Numeric value for te selected attribute	
+	def __spiWrite(self, spiDev, tx, tx_data, tx_data_lenght, rx, rx_data_lenght ):
+		self.logMessage("__spiWrite:: Chip select:%s tx=%s tx_data=%s --> rx=%s"%(hex(spiDev), hex(tx), hex(tx_data), hex(rx)), self.DEBUG)
+		
+		try:
+			ready = self._alindev.readAttribute('stat_ready')
+			while not ready:
+				ready = self._alindev.readAttribute('stat_ready')
+			
+			self._alindev.writeAttribute('ctl_tx',tx)
+			self._alindev.writeAttribute('ctl_tx_data', tx_data)
+			self._alindev.writeAttribute('ctl_tx_data_length', tx_data_lenght)
+			
+			self._alindev.writeAttribute('ctl_rx',rx)
+			self._alindev.writeAttribute('ctl_rx_data_length',rx_data_lenght)
+			
+			self._alindev.writeAttribute('ctl_spi_addr',spiDev)
+			
+			self._alindev.writeAttribute('ctl_start',0x01)
+
+			self.logMessage("__spiWrite:: write successfull!!", self.DEBUG)
+		except Exception,  e:
+			self.logMessage("__spiWrite::Problem writing to the SPI!!! Exception: %s"%(str(e)), self.ERROR)
