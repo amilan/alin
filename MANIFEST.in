@@ -1,5 +1,6 @@
 recursive-include resources *
+include scripts/alin.sh
 include alin_docconfig
 include alin/base/sim_spec_data
 include alin/config/Config
-recursive-include alin/deviceslib/*
+recursive-include alin/deviceslib *

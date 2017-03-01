@@ -1,0 +1,135 @@
+(dp0
+S'vendorid'
+p1
+S'000000000000a1ba'
+p2
+sS'product'
+p3
+S'7565c07b'
+p4
+sS'name'
+p5
+S'WB-FMC-FV-CONTROL'
+p6
+sS'devname'
+p7
+S'WB-FMC-FV-CONTROL'
+p8
+sS'regs'
+p9
+(dp10
+S'LIM_MIN'
+p11
+(dp12
+S'access'
+p13
+S' READ_WRITE'
+p14
+sS'bit_position'
+p15
+I16
+sS'address'
+p16
+I1
+sS'description'
+p17
+S'The minimum voltage before switching off the FV_Relay signal\\n The voltage follows the following formula V=2.5*(1001*Min/1024 - 500)'
+p18
+sS'size'
+p19
+I10
+ssS'CTRL_STA_READ_MODE'
+p20
+(dp21
+g13
+S' READ_WRITE'
+p22
+sg15
+I4
+sg16
+I0
+sg17
+S'The Reading mode of Floating voltage.\\n 1. Reading of instantaneus voltage.\\n 2. Reading of minimum voltage since last reading.\\n 3. Reading of minimum voltage since last reading.\\n 4. Reading of average voltage of 256 samples.'
+p23
+sg19
+I2
+ssS'CTRL_STA_RELAY'
+p24
+(dp25
+g13
+S' READ_WRITE'
+p26
+sg15
+I0
+sg16
+I0
+sg17
+S'On reading the state of the FV relay. 1 - FV on.\\n On write changes the state of FV relay if FV Voltage is in the correct range.'
+p27
+sg19
+I1
+ssS'CTRL_STA_SP1'
+p28
+(dp29
+g13
+S' READ_WRITE'
+p30
+sg15
+I6
+sg16
+I0
+sg17
+S'Sets or gets the spare led. 1 -> Led on'
+p31
+sg19
+I1
+ssS'CTRL_STA_FV'
+p32
+(dp33
+g13
+S' READ_ONLY'
+p34
+sg15
+I16
+sg16
+I0
+sg17
+S'The floating voltage is: 2.5*(1001*FV/1024 - 500) '
+p35
+sg19
+I10
+ssS'CTRL_STA_LED'
+p36
+(dp37
+g13
+S' READ_ONLY'
+p38
+sg15
+I1
+sg16
+I0
+sg17
+S'The state of FV_led 0 means Led is off.'
+p39
+sg19
+I3
+ssS'LIM_MAX'
+p40
+(dp41
+g13
+S' READ_WRITE'
+p42
+sg15
+I0
+sg16
+I1
+sg17
+S'The maximum voltage before switching off the FV_Relay signal\\n The voltage follows the following formula V=2.5*(1001*Max/1024 - 500)'
+p43
+sg19
+I10
+sssS'description'
+p44
+S'Wishbone slave for FMC ADC 18bits 400kS/s FV control registers'
+p45
+s.

@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title> ALBA EM#</title>
+    <link rel="shortcut icon" href="{{ static_url('images/favicon.gif') }}">
+    <link rel="stylesheet" type="text/css" href="{{ static_url('default.css') }}">
+
+    <!--<script  type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.1/jquery.min.js"></script>-->
+    <script  type="text/javascript" src="{{ static_url('jslibs/jquery-3.1.1.js') }}"></script>    
+    
+    <link rel="stylesheet" type="text/css" hrf="{{ static_url('jqplot/jquery.jqplot.min.css') }}"/>
+    <script type="text/javascript" src="{{ static_url('jqplot/jquery.jqplot.js') }}"></script>
+    <script type="text/javascript" src="{{ static_url('jqplot/plugins/jqplot.canvasTextRenderer.js') }}"></script>
+    <script type="text/javascript" src="{{ static_url('jqplot/plugins/jqplot.canvasAxisTickRenderer.js') }}"></script>
+    <script type="text/javascript" src="{{ static_url('jqplot/plugins/jqplot.categoryAxisRenderer.js') }}"></script>
+    <script type="text/javascript" src="{{ static_url('jqplot/plugins/jqplot.dateAxisRenderer.js') }}"></script>
+    <script type="text/javascript" src="{{ static_url('jqplot/plugins/jqplot.canvasAxisLabelRenderer.js') }}"></script>
+    <script type="text/javascript" src="{{ static_url('jqplot/plugins/jqplot.barRenderer.min.js') }}"></script>    
+    <script type="text/javascript" src="{{ static_url('jqplot/plugins/jqplot.pointLabels.js') }}"></script>
+    <script type="text/javascript" src="{{ static_url('jqplot/plugins/jqplot.highlighter.js') }}"></script>
+    <script type="text/javascript" src="{{ static_url('jqplot/plugins/jqplot.cursor.js') }}"></script>
+    <script type="text/javascript" src="{{ static_url('jslibs/FileSaver.js') }}"></script>    
+    <script type="text/javascript" src="{{ static_url('jslibs/DataMain.js') }}"></script>
+    <link rel="stylesheet" type="text/css" href="{{ static_url('jqplot/jquery.jqplot.css') }}"/>
+</head>
+
+<body>
+    <p></p>
+    <h1>
+        <div class="img-wrapper"><img src="{{ static_url('images/official_logo.gif') }}" alt="Site" title="ALBA" align="left" height="86" width="212" style="vertical-align: middle;"/></div>
+        <div class="img-wrapper-right" >
+            <a id="portal-logo" title="Español" accesskey="1" href="http://www.cells.es/es">    
+                <img src="{{ static_url('images/ALBALogo.gif') }}" alt="Site" title="ALBA" align="right" height="74" width="136" style="vertical-align: botom;"/></a>    
+        </div>
+        <div class="img-wrapper-right"><img  src="{{ static_url('images/ComputingLogo.gif') }}" alt="Computing" align="right" height="53" width="120"/></div>
+    </h1>
+    
+    <div class="topmenu">
+    <span id="time" ></span>
+    &nbsp
+    <a class="info" href="fpga.html" title="FPGA Data"><img src="static/images/fpga.gif" height="25" width="25" style="background-color: #222225;"/></a>    
+    &nbsp
+    <a class="info" href="usermanual.html" title="User Manual"><img src="static/images/question.png" height="25" width="25" style="background-color: #222225;"/></a>
+    &nbsp
+    <a class="info" href="index.html" title="Go to Main Page"><img src="static/images/home.gif" height="25" width="25" style="background-color: #222225;"/></a>
+    </div> 
+    
+    
+    <div class="tab">
+    <a id="defaultOpen" href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'General')" >General</a>
+    <a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'Acquisition')">Acquisition</a>
+    <a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'InputOutput')">InputOutput</a>
+    <a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'Diagnostics')">Diagnostics</a>
+    <a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'Equipment Info')">Equipment Info</a>
+    </div>
+
+    
+    <div id="General" class="tabcontent">
+        <table border=1 frame=hsides rules=rows bordercolor="#222225"><caption>&nbsp;</caption>
+        <tbody>
+            <tr>
+                <th class="table_cell_title"></th>
+                <th class="table_cell_title" colspan="3">&nbsp Channel 1 &nbsp</th>
+                <th class="table_cell_title" colspan="3">&nbsp Channel 2 &nbsp</th>
+                <th class="table_cell_title" colspan="3">&nbsp Channel 3 &nbsp</th>
+                <th class="table_cell_title" colspan="3">&nbsp Channel 4 &nbsp</th>
+            </tr>
+            <tr id='graphs_row'>
+                <th class="table_cell_title4" width='120px' style="text-align: center"><button class='tools' onclick='window.open("config.html","Ratting","width=900,height=780,left=150,top=200,toolbar=0,status=0,scrollbars=1")'>
+                <img src="static/images/settings.gif" height="30" width="30"/></button></th>
+                <td colspan="3" ><div id="chart1" style="width:100%"></div></td>
+                <td colspan="3" ><div id="chart2" style="width:100%"></div></td>
+                <td colspan="3" ><div id="chart3" style="width:100%"></div></td>
+                <td colspan="3" ><div id="chart4" style="width:100%"></div></td>
+            </tr>
+            <!--
+            <tr>
+                <th class="table_cell_title2">&nbspVoltage</th>
+                <td colspan="3" class="table_cell_value" id="chn1_insvoltage"></td>
+                <td colspan="3" class="table_cell_value" id="chn2_insvoltage"></td>
+                <td colspan="3" class="table_cell_value" id="chn3_insvoltage"></td>
+                <td colspan="3" class="table_cell_value" id="chn4_insvoltage"></td>
+            </tr>
+            -->
+            <tr>
+                <th class="table_cell_title2">&nbspSaturation %</th>
+                <td colspan="3" class="table_cell_value" id="chn1_satvoltage"></td>
+                <td colspan="3" class="table_cell_value" id="chn2_satvoltage"></td>
+                <td colspan="3" class="table_cell_value" id="chn3_satvoltage"></td>
+                <td colspan="3" class="table_cell_value" id="chn4_satvoltage"></td>
+            </tr>        
+            <tr>
+                <th class="table_cell_title2">&nbspCurrent</th>
+                <td colspan="3" class="table_cell_value" id="chn1_inscurrent"></td>
+                <td colspan="3" class="table_cell_value" id="chn2_inscurrent"></td>
+                <td colspan="3" class="table_cell_value" id="chn3_inscurrent"></td>
+                <td colspan="3" class="table_cell_value" id="chn4_inscurrent"></td>
+            </tr>
+            <tr>
+                <th class="table_cell_title2">&nbspAvgCurrent</th>
+                <td colspan="3" class="table_cell_value" id="chn1_avgcurrent"><br></td>
+                <td colspan="3" class="table_cell_value" id="chn2_avgcurrent"><br></td>
+                <td colspan="3" class="table_cell_value" id="chn3_avgcurrent"><br></td>
+                <td colspan="3" class="table_cell_value" id="chn4_avgcurrent"><br></td>
+            </tr>
+            <tr>
+                <th rowspan="2" class="table_cell_title2">&nbspFilter</th>
+                <td rowspan="2" class="table_cell_value" id="chn1_cafilter"></td>
+                <td class="table_cell_title2_sub">&nbspPreFilter&nbsp</td>
+                <td class="table_cell_value" id="chn1_caprefilter"></td>
+                <td rowspan="2" class="table_cell_value" id="chn2_cafilter"></td>
+                <td class="table_cell_title2_sub">&nbspPreFilter&nbsp</td>
+                <td class="table_cell_value" id="chn2_caprefilter"></td>
+                <td rowspan="2" class="table_cell_value" id="chn3_cafilter"></td>
+                <td class="table_cell_title2_sub">&nbspPreFilter&nbsp</td>
+                <td class="table_cell_value" id="chn3_caprefilter"></td>
+                <td rowspan="2" class="table_cell_value" id="chn4_cafilter"></td>
+                <td class="table_cell_title2_sub">&nbspPreFilter&nbsp</td>
+                <td class="table_cell_value" id="chn4_caprefilter"></td>
+            </tr>
+            <tr>
+                <td class="table_cell_title2_sub">&nbspPostFilter&nbsp</td>
+                <td class="table_cell_value" id="chn1_capostfilter"></td>
+                <td class="table_cell_title2_sub">&nbspPostFilter&nbsp</td>
+                <td class="table_cell_value" id="chn2_capostfilter"></td>
+                <td class="table_cell_title2_sub">&nbspPostFilter&nbsp</td>
+                <td class="table_cell_value" id="chn3_capostfilter"></td>
+                <td class="table_cell_title2_sub">&nbspPostFilter&nbsp</td>
+                <td class="table_cell_value" id="chn4_capostfilter"></td>
+            </tr>
+            <tr>
+                <th rowspan="2" class="table_cell_title2">&nbspRange&nbsp</th>
+                <td rowspan="2" class="table_cell_value" id="chn1_carange"></td>
+                <td class="table_cell_title2_sub">&nbspTiGain&nbsp</td>
+                <td class="table_cell_value" id="chn1_catigain"></td>
+                <td rowspan="2" class="table_cell_value" id="chn2_carange"></td>
+                <td class="table_cell_title2_sub">&nbspTiGain&nbsp</td>
+                <td class="table_cell_value" id="chn2_catigain"></td>
+                <td rowspan="2" class="table_cell_value" id="chn3_carange"></td>
+                <td class="table_cell_title2_sub">&nbspTiGain&nbsp</td>
+                <td class="table_cell_value" id="chn3_catigain"></td>
+                <td rowspan="2" class="table_cell_value" id="chn4_carange"></td>
+                <td class="table_cell_title2_sub">&nbspTiGain&nbsp</td>
+                <td class="table_cell_value" id="chn4_catigain"></td>
+            </tr>
+            <tr>
+                <td class="table_cell_title2_sub">&nbspVGain&nbsp</td>
+                <td class="table_cell_value" id="chn1_cavgain"></td>
+                <td class="table_cell_title2_sub">&nbspVGain&nbsp</td>
+                <td class="table_cell_value" id="chn2_cavgain"></td>
+                <td class="table_cell_title2_sub">&nbspVGain&nbsp</td>
+                <td class="table_cell_value" id="chn3_cavgain"></td>
+                <td class="table_cell_title2_sub">&nbspVGain&nbsp</td>
+                <td class="table_cell_value" id="chn4_cavgain"></td>
+            </tr>
+            <tr>
+                <th class="table_cell_title2" >&nbspInversion&nbsp</th>
+                <td colspan="3" class="table_cell_value" id="chn1_cainv"></td>
+                <td colspan="3" class="table_cell_value" id="chn2_cainv"></td>
+                <td colspan="3" class="table_cell_value" id="chn3_cainv"></td>
+                <td colspan="3" class="table_cell_value" id="chn4_cainv"></td>
+            </tr>
+            <tr>
+                <th class="table_cell_title2" >&nbspOffset&nbsp</th>
+                <td colspan="3" class="table_cell_value" id="chn1_offset"></td>
+                <td colspan="3" class="table_cell_value" id="chn2_offset"></td>
+                <td colspan="3" class="table_cell_value" id="chn3_offset"></td>
+                <td colspan="3" class="table_cell_value" id="chn4_offset"></td>
+            </tr>        
+            <tr>
+                <th class="table_cell_title2">&nbspTemp(deg)&nbsp</th>
+                <td colspan="3" class="table_cell_value" id="chn1_catemp"><br></td>
+                <td colspan="3" class="table_cell_value" id="chn2_catemp"><br></td>
+                <td colspan="3" class="table_cell_value" id="chn3_catemp"><br></td>
+                <td colspan="3" class="table_cell_value" id="chn4_catemp"><br></td>
+            </tr>                
+        </tbody>
+        </table>
+        <div class="alertmsg" id="alertmsg">&nbsp</div>
+        <div class="alertmsg" id="alertsatmsg">&nbsp</div>
+    </div>
+    
+    <div id="Acquisition" class="tabcontent">
+        <table  border=1 frame=hsides rules=rows bordercolor="#222225"><caption>&nbsp;</caption>
+        <tbody>
+            <tr>
+                <th class="table_cell_title" colspan="5">&nbspTrigger&nbsp</th>
+                <th class="table_cell_title" colspan="4">&nbspAcquisition&nbsp</th>
+            </tr>
+            <tr>
+                <th class="table_cell_title4" width='10%' style="text-align: center"><button class='tools' onclick='window.open("config.html","Ratting","width=900,height=780,left=150,top=200,toolbar=0,status=0,scrollbars=1")'>
+                <img src="static/images/settings.gif" height="30" width="30"/></button></th>
+                <th class="table_cell_title4" width="10%"> Mode </th>
+                <th class="table_cell_title4" width="10%"> Delay </th>
+                <th class="table_cell_title4" width="10%"> Input </th>
+                <th class="table_cell_title4" width="10%"> Polarity </th>
+                <th class="table_cell_title4" width="10%"> Range </th>
+                <th class="table_cell_title4" width="10%"> Filter </th>
+                <th class="table_cell_title4" width="10%"> Time </th>
+                <th class="table_cell_title4" width="10%"> State </th>
+            </tr>
+            <tr>
+                <td class="table_cell_value"></td>
+                <td class="table_cell_value" id="acq_trig_mode" width="10%"></td>
+                <td class="table_cell_value" id="acq_trig_delay" width="10%"></td>
+                <td class="table_cell_value" id="acq_trig_input" width="10%"></td>
+                <td class="table_cell_value" id="acq_trig_pol" width="10%"></td>
+                <td class="table_cell_value" id="acq_range" width="10%"></td>
+                <td class="table_cell_value" id="acq_filter" width="10%"></td>
+                <td class="table_cell_value" id="acq_time" width="10%"></td>
+                <td class="table_cell_value" id="acq_state" width="80%"></td>
+            </tr>
+
+        </tbody>
+        </table>
+        <div id="acq_results">
+            <table  border=1 frame=hsides rules=rows bordercolor="#222225"><caption>&nbsp;</caption>
+            <tbody>
+                <tr>
+                    <th class="table_cell_title" colspan="5">&nbsp Acquisition Data&nbsp</th>
+                </tr>
+                <tr>
+                    <th class="table_cell_title4" width='200px'>&nbspSamples</th>
+                    <td class="table_cell_value" id="acq_ndata" colspan="4" style="text-align: left"></td>
+                </tr>
+                <tr id='graphs_acqrow'>
+                    <th class="table_cell_title2" width='200px' style="text-align: center"><button onclick="saveData()" type="button" class="normalButton">Save Acq.</br>Data to File</button></th>
+                    <td colspan="4"><div id="acq_chart" style="width:100%"></div></td>
+                </tr>
+            </tbody>
+            </table>
+            <div>
+                <table  border=1 frame=hsides rules=rows bordercolor="#222225"><caption>&nbsp;</caption>
+                <tbody>
+                    <tr>
+                        <th class="table_cell_title" style="text-align: center;" bgcolor="#828282" width="200px">#</th>
+                        <th class="table_cell_title">&nbsp Channel 1 (mA)</th>
+                        <th class="table_cell_title">&nbsp Channel 2 (mA)</th>
+                        <th class="table_cell_title">&nbsp Channel 3 (mA)</th>
+                        <th class="table_cell_title">&nbsp Channel 4 (mA)</th>
+                    </tr>
+                </tbody>
+                </table>
+                <div id="acq_table" onscroll='setUserScroll(true);' style="max-height:450px;width:100%;overflow:auto"></div>
+            </div>
+        </div>
+        <p>&nbsp;</p>    
+    </div>
+
+    
+    <div id="InputOutput" class="tabcontent">
+        <table border=1 frame=hsides rules=rows bordercolor="#222225"><caption>&nbsp;</caption>
+        <tbody>
+            <tr>
+                <th class="table_cell_title" colspan="6">&nbsp Analog output &nbsp</th>
+            </tr>
+            <tr>
+                <th class="table_cell_title4" width='10%' style="text-align: center"><button class='tools' onclick='window.open("inout.html","Ratting","width=900,height=490,left=150,top=200,toolbar=0,status=0,scrollbars=1")'>
+                <img src="static/images/settings.gif" height="30" width="30"/></button></th>
+                <th class="table_cell_title4">DAC Gain</th>
+                <th class="table_cell_title4">A_OUT1</th>
+                <th class="table_cell_title4">A_OUT2</th>
+                <th class="table_cell_title4">A_OUT3</th>
+                <th class="table_cell_title4">A_OUT4</th>
+            </tr>
+            <tr>
+                <th class="table_cell_title2">&nbspValue </th>        
+                <td class="table_cell_value" id="dac_gain"></td>
+                <td class="table_cell_value" id="chn1_aout"></td>
+                <td class="table_cell_value" id="chn2_aout"></td>
+                <td class="table_cell_value" id="chn3_aout"></td>
+                <td class="table_cell_value" id="chn4_aout"></td>
+            </tr>
+        </tbody>
+        </table>
+        <table border=1 frame=hsides rules=rows bordercolor="#222225"><caption>&nbsp;</caption>
+        <tbody>
+            <tr>
+                <th class="table_cell_title" colspan="5">&nbsp High Speed IOPorts &nbsp</th>
+            </tr>
+            <tr>
+                <th class="table_cell_title4" width='10%' style="text-align: center"></th>
+                <th class="table_cell_title4" id="ioport_1_name"></th>
+                <th class="table_cell_title4" id="ioport_2_name"></th>
+                <th class="table_cell_title4" id="ioport_3_name"></th>
+                <th class="table_cell_title4" id="ioport_4_name"></th>
+            </tr>
+            <tr>
+                <th class="table_cell_title2">&nbspConfig </th>        
+                <td class="table_cell_value" id="ioport_1_config"></td>
+                <td class="table_cell_value" id="ioport_2_config"></td>
+                <td class="table_cell_value" id="ioport_3_config"></td>
+                <td class="table_cell_value" id="ioport_4_config"></td>
+            </tr>
+            <tr>
+                <th class="table_cell_title2">&nbspValue </th>        
+                <td class="table_cell_value" id="ioport_1_value"></td>
+                <td class="table_cell_value" id="ioport_2_value"></td>
+                <td class="table_cell_value" id="ioport_3_value"></td>
+                <td class="table_cell_value" id="ioport_4_value"></td>
+            </tr>
+        </tbody>
+        </table>
+        <table border=1 frame=hsides rules=rows bordercolor="#222225"><caption>&nbsp;</caption>
+        <tbody>
+            <tr>
+                <th class="table_cell_title" colspan="14">&nbsp Differential IOPorts &nbsp</th>
+            </tr>
+            <tr>
+                <th class="table_cell_title4" width='100px' style="text-align: center"></th>            
+                <th class="table_cell_title4" id="ioport_5_name"></th>
+                <th class="table_cell_title4" id="ioport_6_name"></th>
+                <th class="table_cell_title4" id="ioport_7_name"></th>
+                <th class="table_cell_title4" id="ioport_8_name"></th>
+                <th class="table_cell_title4" id="ioport_9_name"></th>
+                <th class="table_cell_title4" id="ioport_10_name"></th>
+                <th class="table_cell_title4" id="ioport_11_name"></th>
+                <th class="table_cell_title4" id="ioport_12_name"></th>
+                <th class="table_cell_title4" id="ioport_13_name"></th>
+            </tr>
+            <tr>
+                <th class="table_cell_title2">&nbspConfig </th>        
+                <td class="table_cell_value" id="ioport_5_config"></td>
+                <td class="table_cell_value" id="ioport_6_config"></td>
+                <td class="table_cell_value" id="ioport_7_config"></td>
+                <td class="table_cell_value" id="ioport_8_config"></td>
+                <td class="table_cell_value" id="ioport_9_config"></td>
+                <td class="table_cell_value" id="ioport_10_config"></td>
+                <td class="table_cell_value" id="ioport_11_config"></td>
+                <td class="table_cell_value" id="ioport_12_config"></td>
+                <td class="table_cell_value" id="ioport_13_config"></td>
+            </tr>
+            <tr>
+                <th class="table_cell_title2">&nbspValue </th>        
+                <td class="table_cell_value" id="ioport_5_value"></td>
+                <td class="table_cell_value" id="ioport_6_value"></td>
+                <td class="table_cell_value" id="ioport_7_value"></td>
+                <td class="table_cell_value" id="ioport_8_value"></td>
+                <td class="table_cell_value" id="ioport_9_value"></td>
+                <td class="table_cell_value" id="ioport_10_value"></td>
+                <td class="table_cell_value" id="ioport_11_value"></td>
+                <td class="table_cell_value" id="ioport_12_value"></td>
+                <td class="table_cell_value" id="ioport_13_value"></td>
+            </tr>
+        </tbody>
+        </table>
+        <table border=1 frame=hsides rules=rows bordercolor="#222225"><caption>&nbsp;</caption>
+        <tbody>
+            <tr>
+                <th class="table_cell_title" colspan="5">&nbsp Supply Ports &nbsp</th>
+            </tr>
+            <tr>
+                <th class="table_cell_title4" width='10%' style="text-align: center"></th>
+                <th class="table_cell_title4">DIO_5 (pin 19)</th>
+                <th class="table_cell_title4">DIO_5 (pin 21)</th>
+                <th class="table_cell_title4">DIO_5 (pin 23)</th>
+                <th class="table_cell_title4">DIO_5 (pin 25)</th>
+            </tr>
+            <tr>
+                <th class="table_cell_title2">&nbspValue </th>        
+                <td class="table_cell_value" id="supplyport_1"></td>
+                <td class="table_cell_value" id="supplyport_2"></td>
+                <td class="table_cell_value" id="supplyport_3"></td>
+                <td class="table_cell_value" id="supplyport_4"></td>
+            </tr>
+        </tbody>
+        </table>    
+        <p>&nbsp;</p>    
+    </div>
+    
+    <div id="Diagnostics" class="tabcontent">
+        <p></p>
+        <table  border=1 frame=hsides rules=rows bordercolor="#222225">
+        <tbody>
+            <tr>
+                <th class="table_cell_title" >&nbsp FE Temp (deg) &nbsp</th>
+                <th class="table_cell_title" >&nbsp CB Temp (deg) &nbsp</th>
+            </tr>
+            <tr>
+                <td class="table_cell_value" id="cafetemp"></td>
+                <td class="table_cell_value" id="cacbtemp"></td>
+            </tr>
+        </tbody>
+        </table>
+        <p>&nbsp;</p>
+        <table  border=1 frame=hsides rules=rows bordercolor="#222225">
+        <tbody>
+            <tr>
+                <th class="table_cell_title" colspan="10">&nbsp FV Ctrl &nbsp</th>
+            </tr>
+            <tr>
+                <th class="table_cell_title">&nbsp Instant (V) &nbsp</th>
+                <th class="table_cell_title">&nbsp Average (V) &nbsp</th>
+                <th class="table_cell_title">&nbsp Maximum (V) &nbsp</th>
+                <th class="table_cell_title">&nbsp Minimum (V) &nbsp</th>
+                <th class="table_cell_title">&nbsp</th>
+                <th class="table_cell_title">&nbsp Max.Limit (V) &nbsp</th>            
+                <th class="table_cell_title">&nbsp Min.Limit (V) &nbsp</th>
+                <th class="table_cell_title">&nbsp Relay &nbsp</th>
+                <th class="table_cell_title">&nbsp LED &nbsp</th>            
+            </tr>
+            <tr>
+                <td class="table_cell_value" id="fv_instant"></td>
+                <td class="table_cell_value" id="fv_avg"></td>
+                <td class="table_cell_value" id="fv_max"></td>
+                <td class="table_cell_value" id="fv_min"></td>
+                <td class="table_cell_value"><button class='tools' onclick='window.open("diags.html","Ratting","width=350,height=520,left=150,top=200,toolbar=0,status=0,scrollbars=1")'>
+                <img src="static/images/settings.gif" height="30" width="30"/></button></td>
+                <td class="table_cell_value" id="fv_maxlim"></td>
+                <td class="table_cell_value" id="fv_minlim"></td>
+                <td class="table_cell_value" id="fv_relay"></td>
+                <td class="table_cell_value" id="fv_led"></td>
+            </tr>
+        </tbody>
+        </table>
+        <p>&nbsp;</p>
+        <table  border=1 frame=hsides rules=rows bordercolor="#222225">
+        <tbody>
+            <tr>
+                <th class="table_cell_title" >&nbsp V Sense I ISO<br>(mA) &nbsp</th>
+                <th class="table_cell_title" >&nbsp V Sense I VCC<br>(mA) &nbsp</th>
+                <th class="table_cell_title" >&nbsp V Sense I VS<br>(mA) &nbsp</th>
+                <th class="table_cell_title" >&nbsp V Sense I AUX<br>(mA) &nbsp</th>
+                <th class="table_cell_title" >&nbsp V Sense I SPEC<br>(mA) &nbsp</th>
+            </tr>
+            <tr>
+                <td class="table_cell_value" id="psb_viso"></td>
+                <td class="table_cell_value" id="psb_vcc"></td>
+                <td class="table_cell_value" id="psb_vs"></td>
+                <td class="table_cell_value" id="psb_vaux"></td>
+                <td class="table_cell_value" > --- </td>
+            </tr>
+            <tr>
+                <td class="table_cell_value" id="diags_viso"></td>
+                <td class="table_cell_value" id="diags_vcc"></td>
+                <td class="table_cell_value" id="diags_vs"></td>
+                <td class="table_cell_value" id="diags_vaux"></td>
+                <td class="table_cell_value" id="diags_vspec"></td>
+            </tr>
+        </tbody>
+        </table>
+        <p>&nbsp;</p>
+        <table  border=1 frame=hsides rules=rows bordercolor="#222225"><caption>&nbsp;</caption>
+        <tbody>
+            <tr>
+                <th class="table_cell_title"></th>
+                <th class="table_cell_title" colspan="3">&nbsp Msg w/o free slot &nbsp</th>
+                <th class="table_cell_title" colspan="3">&&nbsp Active requests &nbsp</th>
+                <th class="table_cell_title" colspan="3">&nbsp Active requests simultaiusly&nbsp</th>
+                <th class="table_cell_title" colspan="3">&nbsp Upload Messages&nbsp</th>
+                <th class="table_cell_title" colspan="3">&nbsp Download Messages&nbsp</th>            
+            </tr>
+            <tr>
+                <th class="table_cell_title2"> Crossbar_0 </th>
+                <td colspan="3" class="table_cell_value" id="diags_mactreq_0"></td>
+                <td colspan="3" class="table_cell_value" id="diags_mlen_0"></td>
+                <td colspan="3" class="table_cell_value" id="diags_msgnact_0"></td>
+                <td colspan="3" class="table_cell_value" id="diags_uploadmsg_0"></td>
+                <td colspan="3" class="table_cell_value" id="diags_dwloadmsg_0"></td>            
+            </tr>
+            <tr>
+                <th class="table_cell_title2"> Crossbar_1 </th>
+                <td colspan="3" class="table_cell_value" id="diags_mactreq_1"></td>
+                <td colspan="3" class="table_cell_value" id="diags_mlen_1"></td>
+                <td colspan="3" class="table_cell_value" id="diags_msgnact_1"></td>
+                <td colspan="3" class="table_cell_value" id="diags_uploadmsg_1"></td>
+                <td colspan="3" class="table_cell_value" id="diags_dwloadmsg_1"></td>            
+            </tr>
+            <tr>
+                <th class="table_cell_title2"> Crossbar_2</th>
+                <td colspan="3" class="table_cell_value" id="diags_mactreq_2"></td>
+                <td colspan="3" class="table_cell_value" id="diags_mlen_2"></td>
+                <td colspan="3" class="table_cell_value" id="diags_msgnact_2"></td>
+                <td colspan="3" class="table_cell_value" id="diags_uploadmsg_2"></td>
+                <td colspan="3" class="table_cell_value" id="diags_dwloadmsg_2"></td>            
+            </tr>
+        </tbody>
+        </table>
+        <p>&nbsp;</p>    
+    </div>
+
+    <div id="Equipment Info" class="tabcontent">
+        <p></p>    
+        <table border=1 frame=hsides rules=rows bordercolor="#222225">
+        <tbody>
+            <tr>
+                <th class="table_cell_title3" >&nbspMac address</th>
+                <td class="table_cell_value3" id="mac"></td>
+            </tr>
+            <tr>
+                <th class="table_cell_title3" >&nbspIdentification</th>
+                <td class="table_cell_value3" id="identification"></td>
+            </tr>
+            <tr>
+                <th class="table_cell_title3" >&nbspSW version</th>
+                <td class="table_cell_value3" id="version"></td>
+            </tr>
+            <tr>
+                <th class="table_cell_title3" >&nbspFW version</th>
+                <td><div class="table_cell_value3" id="fwversion"></div></td>
+            </tr>        
+        </tbody>
+        </table>
+        <p>&nbsp;</p>    
+    </div>    
+        
+    <div class="info" id="contact"><a class="info" href="http://www.cells.es/es">ALBA Synchrotron</a> - By Computing Div. <a class="info"  href="mailto:controls@cells.es">controls@cells.es</a></div>
+
+</body>
+</html>

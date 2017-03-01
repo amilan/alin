@@ -17,18 +17,21 @@ __version__ = "1.1"
 __email__ = "mbroseta@cells.es"
 __status__ = "Development"
 
-from spec_libc import *
-from simulated_spec import *
 
 from alinlog import *
-
+from configdata import getConfigData
+from simulated_spec import *
+from spec_libc import *
 import subprocess
 import os
+import sys
 
-from distutils.sysconfig import get_python_lib
+_CONFIG_MASK = "ALIN_"
 
-__CONFIG_FILE__ = "Config"
-__CONFIG_MASK__ = "ALIN_"
+_OFFSET = 0x00 #0x100
+_SDB_MAGIC = 0x5344422d
+
+
 
 ## alinSDB class
 #
@@ -36,9 +39,7 @@ __CONFIG_MASK__ = "ALIN_"
 # It reads the memory searching for the SDB structure. Provides access to the SDB structured memory
 # reading or writing to specific memory positions or devices.
 class AlinSDB(AlinLog):
-	OFFSET = 0x00 #0x100
-	SDB_MAGIC = 0x5344422d
-
+	
 	SDB_RECORD_INTERCONNECT = 0x00
 	SDB_RECORD_DEVICE = 0x01
 	SDB_RECORD_BRIDGE = 0x02
@@ -46,27 +47,24 @@ class AlinSDB(AlinLog):
 	SDB_RECORD_REPO_URL = 0x81
 	SDB_RECORD_SYNTHESIS = 0x82
 	SDB_RECORD_EMPTY = 0xff
-	
+
 	## The constructor.
 	#  @param offset (not mandatory) Start address where the SDB structure is located in memory
-	def __init__(self, offset=OFFSET, debug=False):
+	def __init__(self, offset=_OFFSET, debug=False):
 		AlinLog.__init__(self, debug=False, loggerName='AlinSDB')
+		
+		# Get default configuration from config file
+		configDict = getConfigData(_CONFIG_MASK)
+		self._debug = bool(configDict["DEBUG_"]) if "DEBUG_" in configDict.keys() else debug
+		self._debuglevel = int(configDict["DEBUGLEVEL_"]) if "DEBUGLEVEL_" in configDict.keys() else 40
+		self._specsimulated = int(configDict["SIMULATED_"]) if "SIMULATED_" in configDict.keys() else False
 		
 		self.init_offset = offset
 		self.sdb_structure = []
 		self._fw_version = None
+		self._fw_version_date = None
 
-		self._debug = debug
-		self._debuglevel = None
-		self._specsimulated = False
-		# Get default configuration from config file
-		self.getConfigData()
-		
-		#try:
-			#subprocess.call(['modprobe -a','spec.ko'])
-		#except:
-			#pass
-		
+		self.cached_values = {}		
 		
 		if self._specsimulated:
 			self.spec = SimulatedSpec()
@@ -76,42 +74,8 @@ class AlinSDB(AlinLog):
 		# Logging
 		self.setLogLevel(self._debuglevel)
 		self.logEnable(self._debug)
-	
-	def getConfigData(self):
-		# Get config File
-		config_folder = get_python_lib()+"/alin/config/"
-		config_file = config_folder+__CONFIG_FILE__
-		
-		try:
-			with open(config_file, 'r') as f:
-				lines = f.readlines()
-				f.close()
-				
-			comp = [ln.split(__CONFIG_MASK__)[1].replace(" ","").replace("\t","").replace("\n","") for ln in lines if ln.startswith(__CONFIG_MASK__)]
-			if comp != []:
-				for cm in comp:
-					if cm.startswith("DEBUG_"):
-						try:
-							self._debug = True if cm.split("=")[1].lower() == "true" else False
-							self.logMessage("%s::getConfigData(): DEBUG set to %s"%(__CONFIG_MASK__, self._debug),self.INFO)
-						except Exception, e:
-							self.logMessage("%s::getConfigData(): Can't get DEBUG flag %s"%(__CONFIG_MASK__, self._debug, str(e)),self.ERROR)
-					elif cm.startswith("DEBUGLEVEL_"):
-						try:
-							self._debuglevel = int(cm.split("=")[1])
-							self.logMessage("%s::getConfigData(): DEBUGLEVEL set to %d"%(__CONFIG_MASK__,self._debuglevel),self.INFO)
-						except Exception, e:
-							self.logMessage("%s::getConfigData(): Can't get DEBUGLEVEL %s"%(__CONFIG_MASK__, self._debug, str(e)),self.ERROR)
-					elif cm.startswith("SIMULATED_"):
-						try:
-							self._specsimulated = True if cm.split("=")[1].lower() == "true" else False
-							self.logMessage("%s::getConfigData(): SIMULATED set to %s"%(__CONFIG_MASK__,self._specsimulated),self.INFO)
-						except Exception, e:
-							self.logMessage("%s::getConfigData(): Can't get SIMULATED flag %s"%(__CONFIG_MASK__, self._debug, str(e)),self.ERROR)
-					 
-		except Exception, e:
-			self.logMessage("%s::getConfigData():: Not possible to get config file due to:"%__CONFIG_MASK__,self.ERROR)
-			self.logMessage(str(e),self.ERROR)
+
+		self.logMessage("__init__() Initialized ", self.DEBUG)	
 			
 	def setLogLevel(self, level):
 		self._debuglevel = level
@@ -120,7 +84,11 @@ class AlinSDB(AlinLog):
 	def getFWVersion(self):
 		self.logMessage("getFWVersion:: Version=%s"%self._fw_version, self.DEBUG)
 		return self._fw_version
-
+	
+	def getFWVersionDate(self):
+		self.logMessage("getFWVersionDate:: Date=%s"%self._fw_version_date, self.DEBUG)
+		return self._fw_version_date
+		
 	## getData(address=0).
 	#  This function reads the memory searching for the SDB structure. The result is stored in the sdb_structure
 	#  @param address (not mandatory) Start address where the SDB structure is located in memory
@@ -155,10 +123,18 @@ class AlinSDB(AlinLog):
 	#  This function reads a 4-byte block in a given memory position.
 	#  @param address Address to read. It should be multiple of 4
 	#  @return Data read
-	def readAddress(self,address):
+	def readAddress(self,address, cache=False):
 		if address % 4:
 			address -= (address % 4)
-		rdata = self.spec.specReadL(address, hexformat=False)
+		if cache:
+			if address in self.cached_values.keys():
+				rdata = self.cached_values[address]
+			else:
+				self.logMessage("readAddress:: Address=%s not cached yet %s"%(hex(address),str(e)), self.ERROR)
+				return 0x0000
+		else:
+			rdata = self.spec.specReadL(address, hexformat=False)
+			self.cached_values[address] = rdata			
 		self.logMessage("readAddress:: Address=%s Value=%s"%(hex(address),hex(rdata)), self.DEBUG)
 		return rdata
 		
@@ -238,8 +214,9 @@ class AlinSDB(AlinLog):
 	#  @param init_address Initial address to read from 
 	#  @param end_address End address to read to
 	#  @return The data memory block for te specified device
-	def getDeviceMemory(self,devname="",vend="", prod=""):
+	def getDeviceMemory(self,devname="",vend="", prod="", devnum=0):
 		self.logMessage("getDeviceMemory:: Read device  Memory for device vendor=%s prodcut=%s"%(hex(vend),hex(prod)), self.DEBUG)
+		dev_count = 0
 		for el in self.sdb_structure:
 			if (el['interconnect'] == self.SDB_RECORD_BRIDGE) or\
 				(el['interconnect'] == self.SDB_RECORD_INTERCONNECT) or\
@@ -250,22 +227,25 @@ class AlinSDB(AlinLog):
 				if (devname != "" and devname.lower() in name.lower()) or \
 					((vend != "" and vend == int(vendor,16)) and \
 					(prod != "" and prod == int(device,16))):
-					data = {}
-					init_add = self.getAddress(el['first_address'])+el['base_address']
-					end_add =  self.getAddress(el['last_address'])+el['base_address']
-					
-					if init_add % 4:
-						init_add -= (init_add % 4)
-					if end_add % 4:
-						end_add -= (end_add % 4)
-					block = []
-					for add in range(init_add, end_add+4, 4):
-						rdata = self.spec.specReadL(add, hexformat=False)
-						block.append(rdata)			
-					data['init_add'] = init_add
-					data['end_add'] = end_add
-					data['data'] = block
-					return data
+					if int(devnum) == int(dev_count): 
+						data = {}
+						init_add = self.getAddress(el['first_address'])+el['base_address']
+						end_add =  self.getAddress(el['last_address'])+el['base_address']
+						
+						if init_add % 4:
+							init_add -= (init_add % 4)
+						if end_add % 4:
+							end_add -= (end_add % 4)
+						block = []
+						for add in range(init_add, end_add+4, 4):
+							rdata = self.spec.specReadL(add, hexformat=False)
+							block.append(rdata)			
+						data['init_add'] = init_add
+						data['end_add'] = end_add
+						data['data'] = block
+						return data
+					else:
+						dev_count +=1
 		self.logMessage("getDeviceMemory:: Nothing to show", self.DEBUG)
 		return None
 
@@ -286,7 +266,7 @@ class AlinSDB(AlinLog):
 	def __check(self):
 		# Read SDB Magic #
 		rdata = self.spec.specReadL(self.base_address, hexformat=False)
-		if (rdata==self.SDB_MAGIC):
+		if (rdata==_SDB_MAGIC):
 			self.logMessage("__check:: SDB Magic number found at %s address"%hex(self.base_address), self.DEBUG)
 			return True
 		else:
@@ -358,6 +338,7 @@ class AlinSDB(AlinLog):
 			
 			if sdb_component['interconnect'] == self.SDB_RECORD_INTEGRATION:
 				self._fw_version = "".join([str(a) for a in sdb_component['version'][:2]])+"."+"".join([str(a) for a in sdb_component['version'][2:]])
+				self._fw_version_date =  "".join(['%02x'%a for a in sdb_component['date']])
 
 			if sdb_component['interconnect'] == self.SDB_RECORD_BRIDGE:
 				self.device_bridges.append(self.devices_counter)

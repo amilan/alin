@@ -1,0 +1,551 @@
+peripheral {
+  name = "WB-EM2-DIGITAL_IO  ";
+  vendor_id = "000000000000a1ba";
+  device_id = "10856d31";
+  version   = "00000001";
+  date      = "20160404";
+  description = "This block is the implementation of a counter block for trigger generation";
+  hdl_entity = "em2_digitalIO_csr";
+
+  prefix = "cnt_block";
+	reg {
+		name = "Digital input output Setup";
+		
+		prefix = "DIO_STP";		 
+		field {
+		  name = "Digital input Polarity";
+		  description = "If it is 1 the signal is polarity is changed. The bit 0 refers to DIO1 and bit 4 to DIFF_IO_1.";
+		  prefix = "IOP";
+		  type = SLV;
+		  size = 13;
+		  align = 8;
+		  access_bus = READ_WRITE;
+		  access_dev = READ_ONLY;
+		};
+		field {
+		  name = "Setup Digital input output.";
+		  description = "Sets if GPIO is an input(1) or output(0).  The bit 0 refers to DIO1 and bit 4 to DIFF_IO_1.";
+		  prefix = "IO";
+		  type = SLV;
+		  size = 13;
+		  align = 8;
+		  access_bus = READ_WRITE;
+		  access_dev = READ_ONLY;
+		};
+		
+		field {
+		  name = "harmony overflow";
+		  description = "Indicates that and overflow was produced trying to send a harmony message.";
+		  prefix = "HO";
+		  type = BIT;
+		  access_bus = READ_ONLY;
+		  access_dev = WRITE_ONLY;
+		};
+		field {
+		  name = "Reset";
+		  description = "Reset the flags of em2_digital_io.";
+		  type = MONOSTABLE;
+		  prefix = "RST";
+		  size = 1;
+		  access_bus = WRITE_ONLY;
+		  access_dev = READ_ONLY;
+		};
+	};
+    
+	reg {
+    name = "Digital input output Value";
+	
+    prefix = "DIO_V";
+    field {
+      name = "Digital input output Mask";
+      description = "Digital output mask, first the DIO1..4 and then DiffIO1..9. If this register is set to '1' the value of next value written at DIO_V, it is written at the output, and the output logic is disabled. DO NOT WRITE IN NORMAL OPERATION, WRITE ONLY FOR TEST PROCEDURES!!";
+      prefix = "D_Mask";
+      type = SLV;
+      size = 13;
+	  align = 8;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    }; 
+	 
+    field {
+      name = "Digital input output Value";
+      description = "Digital input output Value, first the DIO1..4 and then DiffIO1..9. The output value will only work if D_Mask is set to '1'. DO NOT WRITE IN NORMAL OPERATION, WRITE ONLY FOR TEST PROCEDURES!!";
+      prefix = "DIO_V";
+      type = SLV;
+      size = 13;
+	  align = 8;
+	  load = LOAD_EXT;
+      access_bus = READ_WRITE;
+      access_dev = READ_WRITE;
+    };
+	};
+	
+	reg {
+    name = "Harmony counter disable setup";
+	
+    prefix = "DIS_STP";
+     
+	field {
+      name = "Disable1 ID";
+      description = "ID of the message that generates the disable signal";
+      prefix = "DIS1_ID";
+      type = SLV;
+      size = 8;
+	  align = 8;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    };
+	field {
+      name = "Disable1 Mode";
+      description = "Functionality mode of Harmony disable 1:\n 00: Each ID recieved changes the disable signal.\n 01: the ID recieved always enables the disable\n 10: the ID recieved always disables the disable\n 11: Manual control";
+      prefix = "DIS1_M";
+      type = SLV;
+      size = 2;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    };
+	
+	field {
+	  name = "disable1";
+	  description = "Indicates the state of Harmony Disable line1.";
+	  prefix = "DIS1";
+      type = BIT;
+      access_bus = READ_ONLY;
+      access_dev = WRITE_ONLY;
+	  };
+	  
+	field {
+	  name = "Write DIS1";
+	  description = "When disable Mode is '11', this bit it is changes the disable state. '1' enable and '0' disable.";
+	  prefix = "WD1";
+      type = BIT;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+	  };
+	
+	field {
+      name = "Disable2 ID";
+      description = "ID of the message that generates the disable signal";
+      prefix = "DIS2_ID";
+      type = SLV;
+      size = 8;
+	  align = 8;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    };
+	field {
+      name = "Disable2 Mode";
+      description = "Functionality mode of Harmony disable 1:\n 00: Each ID recieved changes the disable signal.\n 01: the ID recieved always enables the disable\n 10: the ID recieved always disables the disable\n 11: Manual control";
+      prefix = "DIS2_M";
+      type = SLV;
+      size = 2;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    };
+	
+	field {
+	  name = "disable2";
+	  description = "Indicates the state of Harmony Disable line2.";
+	  prefix = "DIS2";
+      type = BIT;
+      access_bus = READ_ONLY;
+      access_dev = WRITE_ONLY;
+	  };
+	
+	field {
+	  name = "Write DIS1";
+	  description = "When disable Mode is '11', this bit it changes the disable state. '1' enable and '0' disable.";
+	  prefix = "WD2";
+      type = BIT;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+	  };
+	};
+ 
+ 
+     reg {
+    name = "Counter0 setup";
+    prefix = "cnt0_stp";
+         
+	field {
+      name = "Input source";
+      description = "This is the input signal of the counter:\n 0: Sys_Clk/2\n1: DIO1\n2: DIO2\n3: DIO3\n4: DIO4\n5: DiffIO1\n6: DiffIO2\n7: DiffIO3\n8: DiffIO4\n9: DiffIO5\n10: DiffIO6\n11: DiffIO7\n12: DiffIO8\n13: DiffIO9\n14: Hrmy ID";
+      prefix = "SRC";
+      type = SLV;
+      size = 4;
+      align = 4;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    };
+
+	 field {
+      name = "Trigger source";
+      description = "This is the trigger signal of the counter, each time this trigger arrive a Harmony message is generated with 'Output ID' and the current counter value:\n 0: Counter 1\n1: Counter 2\n2: Counter 3\n3: Counter 4\n4: Counter 5\n5: Counter 6\n6: Counter 7\n7: Counter 8\n8: Counter 9\n9: Counter 10\n10 Counter 11\n11: Counter 12\n12: Counter 13\n13: Counter 14\n14: Counter 15\n15: Counter 16";
+      prefix = "TRIG";
+      type = SLV;
+      size = 4;
+      align = 4;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    };
+	field {
+      name = "Disable source";
+      description = "This is the input signal of the counter disable:\n 0: Disabled\n1: Harmony Disable1\n2: Harmony Disable2\n3: DIO3\n4: DIO4\n5: DiffIO8\n6: DiffIO9\n7: enabled";
+      prefix = "DIS";
+      type = SLV;
+      size = 3;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    };
+	field {
+      name = "Use sign";
+      description = "This if this bit is 0, the module is just a counter. If this bit is '1' the following input source indicates if the counter will be increased or decreased.(DiffIO9 src uses as a sign DIO1).";
+      prefix = "SIG";
+      type = BIT;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    };
+    field {
+      name = "SRC ID";
+      description = "This is the ID used as a counter's source, if it is selected in the 'Input source' field.";
+      prefix = "SRC_ID";
+      type = SLV;
+      size = 8;
+      align = 8;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    };	
+    field {
+      name = "Output ID";
+      description = "This is the ID of output message generated each rising of trigger source";
+      prefix = "OUT_ID";
+      type = SLV;
+      size = 8;
+      align = 8;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    };
+  };
+
+  reg {
+    name = "Internal Trigger generator Counter Value";
+    prefix = "TRG0_V";
+     
+    field {
+      name = "Trigger on discrepancy";
+      description = "After an increase of this value trigger is generated, when 0 functionality is not clear. On writing this register trigger is generated.";
+      prefix = "CNT_V";
+      type = SLV;
+      size = 32;
+	  load = LOAD_EXT;
+      access_bus = READ_WRITE;
+      access_dev = READ_WRITE;
+    };
+  };
+  
+  reg {
+    name = "Counter Value";
+    prefix = "CNT0_V";
+     
+    field {
+      name = "Counter Value";
+      description = "This is the Value of counter.  On writing this register trigger is generated.";
+      prefix = "CNT_V";
+      type = SLV;
+      size = 32;
+	  load = LOAD_EXT;
+      access_bus = READ_WRITE;
+      access_dev = READ_WRITE;
+    };
+  };
+ 
+    reg {
+    name = "Counter1 setup";
+    prefix = "cnt1_stp";
+         
+	field {
+      name = "Input source";
+      description = "This is the input signal of the counter:\n 0: Sys_Clk/2\n1: DIO1\n2: DIO2\n3: DIO3\n4: DIO4\n5: DiffIO1\n6: DiffIO2\n7: DiffIO3\n8: DiffIO4\n9: DiffIO5\n10: DiffIO6\n11: DiffIO7\n12: DiffIO8\n13: DiffIO9\n14: Hrmy ID";
+      prefix = "SRC";
+      type = SLV;
+      size = 4;
+      align = 4;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    };
+
+	 field {
+      name = "Trigger source";
+      description = "This is the trigger signal of the counter, each time this trigger arrive a Harmony message is generated with 'Output ID' and the current counter value:\n 0: Counter 1\n1: Counter 2\n2: Counter 3\n3: Counter 4\n4: Counter 5\n5: Counter 6\n6: Counter 7\n7: Counter 8\n8: Counter 9\n9: Counter 10\n10 Counter 11\n11: Counter 12\n12: Counter 13\n13: Counter 14\n14: Counter 15\n15: Counter 16";
+      prefix = "TRIG";
+      type = SLV;
+      size = 4;
+      align = 4;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    };
+	field {
+      name = "Disable source";
+      description = "This is the input signal of the counter disable:\n 0: Disabled\n1: Harmony Disable1\n2: Harmony Disable2\n3: DIO3\n4: DIO4\n5: DiffIO8\n6: DiffIO9\n7: enabled";
+      prefix = "DIS";
+      type = SLV;
+      size = 3;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    };
+	field {
+      name = "Use sign";
+      description = "This if this bit is 0, the module is just a counter. If this bit is '1' the following input source indicates if the counter will be increased or decreased.(DiffIO9 src uses as a sign DIO1).";
+      prefix = "SIG";
+      type = BIT;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    };
+    field {
+      name = "SRC ID";
+      description = "This is the ID used as a counter's source, if it is selected in the 'Input source' field.";
+      prefix = "SRC_ID";
+      type = SLV;
+      size = 8;
+      align = 8;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    };	
+    field {
+      name = "Output ID";
+      description = "This is the ID of output message generated each rising of trigger source";
+      prefix = "OUT_ID";
+      type = SLV;
+      size = 8;
+      align = 8;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    };
+  };
+
+  reg {
+    name = "Internal Trigger generator Counter Value";
+    prefix = "TRG1_V";
+     
+    field {
+      name = "Trigger on discrepancy";
+      description = "After an increase of this value trigger is generated.  On writing this register trigger is generated.";
+      prefix = "CNT_V";
+      type = SLV;
+      size = 32;
+	  load = LOAD_EXT;
+      access_bus = READ_WRITE;
+      access_dev = READ_WRITE;
+    };
+  };
+  
+  reg {
+    name = "Counter Value";
+    prefix = "CNT1_V";
+     
+    field {
+      name = "Counter Value";
+      description = "This is the Value of counter. On writing this register trigger is generated.";
+      prefix = "CNT_V";
+      type = SLV;
+      size = 32;
+	  load = LOAD_EXT;
+      access_bus = READ_WRITE;
+      access_dev = READ_WRITE;
+    };
+  };
+  
+reg {
+    name = "Counter2 setup";
+    prefix = "cnt2_stp";
+         
+    field {
+      name = "Input source";
+      description = "This is the input signal of the counter:\n 0: Sys_Clk\n1: DIO1\n2: DIO2\n3: DIO3\n4: DIO4\n5: DiffIO1\n6: DiffIO2\n7: DiffIO3\n8: DiffIO4\n9: DiffIO5\n10: DiffIO6\n11: DiffIO7\n12: DiffIO8\n13: DiffIO9\n14: Hrmy ID";
+      prefix = "SRC";
+      type = SLV;
+      size = 4;
+      align = 4;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    };
+
+	 field {
+      name = "Trigger source";
+      description = "This is the trigger signal of the counter, each time this trigger arrive a Harmony message is generated with 'Output ID' and the current counter value:\n 0: Counter 1\n1: Counter 2\n2: Counter 3\n3: Counter 4\n4: Counter 5\n5: Counter 6\n6: Counter 7\n7: Counter 8\n8: Counter 9\n9: Counter 10\n10 Counter 11\n11: Counter 12\n12: Counter 13\n13: Counter 14\n14: Counter 15\n15: Counter 16";
+      prefix = "TRIG";
+      type = SLV;
+      size = 4;
+      align = 4;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    };
+	field {
+      name = "Disable source";
+      description = "This is the input signal of the counter disable:\n 0: Disabled\n1: Harmony Disable1\n2: Harmony Disable2\n3: DIO3\n4: DIO4\n5: DiffIO8\n6: DiffIO9\n7: enabled";
+      prefix = "DIS";
+      type = SLV;
+      size = 3;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    };
+	field {
+      name = "Use sign";
+      description = "This if this bit is 0, the module is just a counter. If this bit is '1' the following input source indicates if the counter will be increased or decreased.(DiffIO9 src uses as a sign DIO1).";
+      prefix = "SIG";
+      type = BIT;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    };
+    field {
+      name = "SRC ID";
+      description = "This is the ID used as a counter's source, if it is selected in the 'Input source' field.";
+      prefix = "SRC_ID";
+      type = SLV;
+      size = 8;
+      align = 8;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    };	
+    field {
+      name = "Output ID";
+      description = "This is the ID of output message generated each rising of trigger source";
+      prefix = "OUT_ID";
+      type = SLV;
+      size = 8;
+      align = 8;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    };
+  };
+
+  reg {
+    name = "Internal Trigger generator Counter2 Value";
+    prefix = "TRG2_V";
+     
+    field {
+      name = "Trigger on discrepancy";
+      description = "After an increase of this value trigger is generated. On writing this register trigger is generated.";
+      prefix = "CNT_V";
+      type = SLV;
+      size = 32;
+	  load = LOAD_EXT;
+      access_bus = READ_WRITE;
+      access_dev = READ_WRITE;
+    };
+  };
+  
+  reg {
+    name = "Counter2 Value";
+    prefix = "CNT2_V";
+     
+    field {
+      name = "Counter Value";
+      description = "This is the Value of counter. On writing this register trigger is generated.";
+      prefix = "CNT_V";
+      type = SLV;
+      size = 32;
+	  load = LOAD_EXT;
+      access_bus = READ_WRITE;
+      access_dev = READ_WRITE;
+    };
+  };
+  
+  
+  reg {
+    name = "Counter3 setup";
+    prefix = "cnt3_stp";
+         
+    field {
+      name = "Input source";
+      description = "This is the input signal of the counter:\n 0: Sys_Clk\n1: DIO1\n2: DIO2\n3: DIO3\n4: DIO4\n5: DiffIO1\n6: DiffIO2\n7: DiffIO3\n8: DiffIO4\n9: DiffIO5\n10: DiffIO6\n11: DiffIO7\n12: DiffIO8\n13: DiffIO9\n14: Hrmy ID";
+      prefix = "SRC";
+      type = SLV;
+      size = 4;
+      align = 4;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    };
+
+	 field {
+      name = "Trigger source";
+      description = "This is the trigger signal of the counter, each time this trigger arrive a Harmony message is generated with 'Output ID' and the current counter value:\n 0: Counter 1\n1: Counter 2\n2: Counter 3\n3: Counter 4\n4: Counter 5\n5: Counter 6\n6: Counter 7\n7: Counter 8\n8: Counter 9\n9: Counter 10\n10 Counter 11\n11: Counter 12\n12: Counter 13\n13: Counter 14\n14: Counter 15\n15: Counter 16";
+      prefix = "TRIG";
+      type = SLV;
+      size = 4;
+      align = 4;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    };
+	field {
+      name = "Disable source";
+      description = "This is the input signal of the counter disable:\n 0: Disabled\n1: Harmony Disable1\n2: Harmony Disable2\n3: DIO3\n4: DIO4\n5: DiffIO8\n6: DiffIO9\n7: enabled";
+      prefix = "DIS";
+      type = SLV;
+      size = 3;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    };
+	field {
+      name = "Use sign";
+      description = "This if this bit is 0, the module is just a counter. If this bit is '1' the following input source indicates if the counter will be increased or decreased.(DiffIO9 src uses as a sign DIO1).";
+      prefix = "SIG";
+      type = BIT;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    };
+    field {
+      name = "SRC ID";
+      description = "This is the ID used as a counter's source, if it is selected in the 'Input source' field.";
+      prefix = "SRC_ID";
+      type = SLV;
+      size = 8;
+      align = 8;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    };	
+    field {
+      name = "Output ID";
+      description = "This is the ID of output message generated each rising of trigger source";
+      prefix = "OUT_ID";
+      type = SLV;
+      size = 8;
+      align = 8;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    };
+  };
+
+  reg {
+    name = "Internal Trigger generator Counter3 Value";
+    prefix = "TRG3_V";
+     
+    field {
+      name = "Trigger on discrepancy";
+      description = "After an increase of this value trigger is generated. On writing this register trigger is generated.";
+      prefix = "CNT_V";
+      type = SLV;
+      size = 32;
+	  load = LOAD_EXT;
+      access_bus = READ_WRITE;
+      access_dev = READ_WRITE;
+    };
+  };
+  
+  reg {
+    name = "Counter3 Value";
+    prefix = "CNT3_V";
+     
+    field {
+      name = "Counter Value";
+      description = "This is the Value of counter. On writing this register trigger is generated.";
+      prefix = "CNT_V";
+      type = SLV;
+      size = 32;
+	  load = LOAD_EXT;
+      access_bus = READ_WRITE;
+      access_dev = READ_WRITE;
+    };  
+  };
+  
+};

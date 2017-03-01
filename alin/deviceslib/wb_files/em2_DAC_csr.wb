@@ -1,0 +1,171 @@
+peripheral {
+	name = "EM2_DAC            ";
+	vendor_id = "000000000000a1ba";
+	device_id = "9eb04e14";
+	version   = "00000001";
+	date      = "20160420";
+	description = "This block controls de DAC (AD5686R) module on FPGA";
+	hdl_entity = "em2_DAC_csr";
+	prefix = "DAC";
+  
+  reg {
+	name = "DAC Config";
+	prefix = "CFG";
+	 
+
+	 
+	field {
+	  name = "Write Value";
+	  description = "Value to write in the DAC. The output depends on the GAIN pin controlled by em# SPI, when GAIN=0 a value 0 means an em# output of 0V and 0xFFFF 10V. when GAIN=1 a value 0 means an out of -10V and 0xFFFF is 10V.";
+	  prefix = "wValue";
+	  type = SLV;
+	  size = 16;
+	  align = 16;
+	  access_bus = READ_WRITE;
+	  access_dev = READ_ONLY;
+	  };
+	  
+	field {
+	  name = "DAC CHANNEL to Write";
+	  description = "DAC Channel where 'Value' will be write. 00=channel 1.";
+	  prefix = "wch";
+	  type = SLV;
+	  size = 2;
+	  align = 2;
+	  access_bus = READ_WRITE;
+	  access_dev = READ_ONLY;
+	  };
+	field {
+	  name = "write";
+	  description = "When this bit is '0', the output value is the one written in Value, else the DAC output will be set by HARMONY messages with 'HARMONY ID in'.";
+	  prefix = "WR";
+      type = MONOSTABLE;
+      size = 1;
+      access_bus = WRITE_ONLY;
+      access_dev = READ_ONLY;
+	  };
+	  
+	field {
+	  name = "reset";
+	  description = "Reset the Write Overflow flags";
+	  prefix = "RST";
+      type = MONOSTABLE;
+      size = 1;
+      access_bus = WRITE_ONLY;
+      access_dev = READ_ONLY;
+	  };
+	  
+	field {
+	  name = "DAC Overwrite";
+	  description = "At least one DAC value is lost. First bit, first DAC channel.";
+	  prefix = "OW";
+	  type = SLV;
+	  size = 4;
+	  align = 8;
+	  access_bus = READ_ONLY;
+	  access_dev = WRITE_ONLY;
+	  };
+	};	
+ 
+ 	reg {
+	name = "Harmony IDs";
+	prefix = "id";
+  
+	field {
+	  name = "DAC1 HARMONY ID in";
+	  description = "Harmony ID that sets the DAC1 output value. Only the 16 bits more significant are used.";
+	  prefix = "1";
+	  type = SLV;
+	  size = 8;
+	  align = 8;
+	  access_bus = READ_WRITE;
+	  access_dev = READ_ONLY;
+	  };
+	field {
+	  name = "DAC2 HARMONY ID in";
+	  description = "Harmony ID that sets the DAC2 output value. Only the 16 bits more significant are used.";
+	  prefix = "2";
+	  type = SLV;
+	  size = 8;
+	  align = 8;
+	  access_bus = READ_WRITE;
+	  access_dev = READ_ONLY;
+	  };
+	field {
+	  name = "DAC3 HARMONY ID in";
+	  description = "Harmony ID that sets the DAC3 output value. Only the 16 bits more significant are used.";
+	  prefix = "3";
+	  type = SLV;
+	  size = 8;
+	  align = 8;
+	  access_bus = READ_WRITE;
+	  access_dev = READ_ONLY;
+	  };
+	field {
+	  name = "DAC4 HARMONY ID in";
+	  description = "Harmony ID that sets the DAC4 output value. Only the 16 bits more significant are used.";
+	  prefix = "4";
+	  type = SLV;
+	  size = 8;
+	  align = 8;
+	  access_bus = READ_WRITE;
+	  access_dev = READ_ONLY;
+	  };
+
+	};
+	
+	reg {
+	name = "Last values send to DAC1 and DAC2";
+	prefix = "RD12";
+	 
+	field {
+	  name = "Value CH1";
+	  description = "On read the last value sent to DAC1.";
+	  prefix = "V1";
+	  type = SLV;
+	  size = 16;
+	  align = 16;
+	  access_bus = READ_ONLY;
+	  access_dev = WRITE_ONLY;
+	  };
+	  
+	field {
+	  name = "Value CH2";
+	  description = "On read the last value sent to DAC2.";
+	  prefix = "V2";
+	  type = SLV;
+	  size = 16;
+	  align = 16;
+	  access_bus = READ_ONLY;
+	  access_dev = WRITE_ONLY;
+	  };
+	};
+	
+	reg {
+	name = "Last values send to DAC3 and DAC4";
+	prefix = "RD34";
+	 
+	field {
+	  name = "Value CH3";
+	  description = "On read the last value sent to DAC3.";
+	  prefix = "V3";
+	  type = SLV;
+	  size = 16;
+	  align = 16;
+	  access_bus = READ_ONLY;
+	  access_dev = WRITE_ONLY;
+	  };
+	  
+	field {
+	  name = "Value CH4";
+	  description = "On read the last value sent to DAC4.";
+	  prefix = "V4";
+	  type = SLV;
+	  size = 16;
+	  align = 16;
+	  access_bus = READ_ONLY;
+	  access_dev = WRITE_ONLY;
+	  };
+	};
+    
+};

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title> ALBA EM#</title>
+    <link rel="shortcut icon" href="{{ static_url('images/favicon.gif') }}">
+    <link rel="stylesheet" type="text/css" href="{{ static_url('default.css') }}">
+    <script  type="text/javascript" src="{{ static_url('jslibs/jquery-3.1.1.js') }} "></script>         
+    
+    <script type="text/javascript" src="{{ static_url('jslibs/DataFPGA.js') }}"></script>    
+</head>
+
+<body>
+    <p></p>
+    <div style="display: inline;">
+        <div class="img-wrapper"><img src="{{ static_url('images/official_logo.gif') }}" alt="Site" title="ALBA" align="left" height="86" width="212" style="vertical-align: middle;"/></div>
+        <div class="img-wrapper-right" >
+            <a id="portal-logo" title="Español" accesskey="1" href="http://www.cells.es/es">    
+                <img src="{{ static_url('images/ALBALogo.gif') }}" alt="Site" title="ALBA" align="right" height="74" width="136" style="vertical-align: botom;"/></a>    
+        </div>
+        <div class="img-wrapper-right"><img  src="{{ static_url('images/ComputingLogo.gif') }}" alt="Computing" align="right" height="53" width="120"/></div>
+    </div>
+    
+    <div class="topmenu">
+    <span id="time" ></span>
+    &nbsp
+    <a class="info" href="usermanual.html" title="User Manual"><img src="static/images/question.png" height="25" width="25" style="background-color: #222225;"/></a>
+    &nbsp
+    <a class="info" href="index.html" title="Go to Main Page"><img src="static/images/home.gif" height="25" width="25" style="background-color: #222225;"/></a>
+    </div> 
+    <p class="info" style="font-size: 22px;padding: 10px 12px;text-align: left">FPGA Data</p>    
+    <div id="data"></div>    
+    <div align="center"><table class="fpga_table" id="content" style="background-color: #222225"> </table></div>
+</body>
+</html>

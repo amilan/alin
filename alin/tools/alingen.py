@@ -19,11 +19,12 @@ class Generator():
 	def getInstallationPath(self):
 		return self.default_path
 
-	def processWBData(self,wb_filename=''):
+	def processWBData(self,filename=''):
 		
 		self.fread = []
+		self.wb_filename = filename
 		try:
-			with open(wb_filename) as f:
+			with open(self.wb_filename) as f:
 				self.fread = [" ".join(l.split()) for l in f]
 		except Exception, e:
 			print "Error while opening in wb file: %s"%str(e)
@@ -93,18 +94,17 @@ class Generator():
 									reg = reg_name+"_"+field_name
 								else:
 									reg = reg_name
-								data[reg]={}
-								data[reg]["bit_position"] = bit_position
-								data[reg]["size"] = size
-								data[reg]["access"] = access
-								data[reg]["description"] = description
+								data["bit_position"] = bit_position
+								data["size"] = size
+								data["access"] = access
+								data["description"] = description
 								bit_position += size
-								data[reg]["address"] = offset
+								data["address"] = offset
 	
 								if "regs" not in self.wboutput.keys():
-									self.wboutput["regs"]=[data]
-								else:
-									self.wboutput["regs"].append(data)
+									self.wboutput["regs"]={}
+								
+								self.wboutput["regs"][reg.upper()] = data
 								
 						l+=1
 					
@@ -141,8 +141,8 @@ class Generator():
 			
 		if vendorID == None:
 			while not vendorID:
-				vendorID = raw_input ("VendorID not found in file. nEnter VENDOR ID code (hex format, max. 8 bytes)" \
-					"(i.e: a1ba for Alba or ce42 for CERN) or enter 'Q' to quit: ")
+				vendorID = raw_input ("VendorID not found in file %s.\nEnter VENDOR ID code (hex format, max. 8 bytes)" \
+					"(i.e: a1ba for Alba or ce42 for CERN) or enter 'Q' to quit: "%self.wb_filename)
 				if vendorID.lower() == "q":
 					print "\nProgram aborted!!!\n"
 					sys.exit()
@@ -169,8 +169,8 @@ class Generator():
 			
 		if product == None:
 			while not product:
-				product = raw_input ("\nProduct not found in file: Enter PRODUCT (hex format, max 4 bytes)" \
-					"or enter 'Q' to quit: ")
+				product = raw_input ("\nProduct not found in file %s.\nEnter PRODUCT (hex format, max 4 bytes)" \
+					"or enter 'Q' to quit: "%self.wb_filename)
 				if product.lower() == "q":
 					print "\nProgram aborted!!!\n"
 					sys.exit()
@@ -192,14 +192,14 @@ class Generator():
 
 		for ln in self.fread:
 			if "name = " in ln:
-				devname = re.search('"(.*)"',ln.split("=")[1]).group(1).rstrip()
+				devname = re.search('"(.*)"',ln.split("=")[1]).group(1).rstrip().upper()
 				break
 			if "reg {" in ln:
 				break
 		
 		if devname == None:
 			while not devname:
-				devname = raw_input ("\nDevice Name not found. Enter assigned DEVICE_NAME (max. lenght 10 chars) or enter 'Q' to quit: ")
+				devname = raw_input ("\nDevice Name not found in file%s.\nEnter assigned DEVICE_NAME (max. lenght 10 chars) or enter 'Q' to quit: "%self.wb_filename)
 				if devname.lower() == "q":
 					print "\nProgram aborted!!!\n"
 					sys.exit()
@@ -229,6 +229,19 @@ def help():
 	print BOLD+"\t-d <devname> or --delete=<devname>:"+END
 	print "\t\tDeletes an specific device pickle file."
 	print "\n"
+	
+def generate_wb_file(file):
+	if not file.endswith(".wb"):
+		print "\nIncorrect filename selected: %s"%file
+	else:
+		name = gen.processWBData(file)
+		if name is not None:
+			print "\nDevice file generated succesfully!!"			
+			print "* Generated device name ==>\t%s\n"%name
+			print "* Located in: ==>\t\t%s\n"%gen.getInstallationPath()
+		else:
+			print "\nPROCESS ABORTED: Error while writing the output file!!\n"
+
 
 if __name__ == "__main__":
 	import os.path
@@ -271,18 +284,14 @@ if __name__ == "__main__":
 		wb_file = opts_dict["-g"]
 	elif "--generate=" in opts_dict.keys():
 		wb_file = opts_dict["--generate="]
-
+		
 	if wb_file is not None:
-		if not wb_file.endswith(".wb"):
-			print "\nIncorrect filename selected: %s"%wb_file
+		if os.path.isdir(wb_file):
+			wb_file_list = os.listdir(wb_file)
+			for el in wb_file_list:
+				generate_wb_file(wb_file+"/"+el)
 		else:
-			name = gen.processWBData(wb_file)
-			if name is not None:
-				print "\nDevice file generated succesfully!!"			
-				print "* Generated device name ==>\t%s\n"%name
-				print "* Located in: ==>\t\t%s\n"%gen.getInstallationPath()
-			else:
-				print "\nPROCESS ABORTED: Error while writing the output file!!\n"
+			generate_wb_file(wb_file)
 	else:
 		help()
 

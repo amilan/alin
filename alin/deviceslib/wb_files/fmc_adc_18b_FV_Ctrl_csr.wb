@@ -1,7 +1,9 @@
 peripheral {
-  name = "FV_CTRL";
+  name = "WB-FMC-FV-CONTROL";
   vendor_id = "000000000000a1ba";
   device_id = "7565c07b";
+  version   = "00000001";
+  date      = "20160304";  
   description = "Wishbone slave for FMC ADC 18bits 400kS/s FV control registers";
   hdl_entity = "fmc_adc_18b_FV_Ctrl_csr";
 

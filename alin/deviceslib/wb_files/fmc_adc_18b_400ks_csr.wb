@@ -1,7 +1,9 @@
 peripheral {
-  name = "ADC_CORE";
+  name = "WB-FMC-ADC-Core    ";
   vendor_id = "000000000000a1ba";
   device_id = "00000608";
+  version   = "00000003";
+  date      = "20160304";
   description = "Wishbone slave for FMC ADC 18bits 400kS/s core";
   hdl_entity = "fmc_adc_18b_400ks_csr";
 
@@ -10,21 +12,42 @@ peripheral {
   reg {
     name = "Control register";
     prefix = "ctl";
-
+   
     field {
-      name = "State machine commands (ignore on read)";
-      description = "1: ACQ_START (start acquisition, only when FSM is idle)\n2: ACQ_STOP (stop acquisition, anytime)";
-      prefix = "fsm_cmd";
+      name = "Trigger ID";
+      description = "Is the trigger ID that starts the adquisition.";
+      prefix = "TRIGID";
+      type = SLV;
+      size = 8;
+      align = 8;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    };
+    
+    field {
+      name = "Reset ADC";
+      description = "When this bit is set to 1 is done a Reset ADC and flags";
+      prefix = "RST";
+      type = MONOSTABLE;
+      size = 1;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    };	
+	
+    field {
+      name = "Adquisition mode. On TimeStampMode the 24-bits less significative of harmony message with the triggerID are the time when adquisiton will be triggered.";
+      description = "0: Continious adquisition\n1: On trigger\n2: TimeStamp\n3: no defined";
+      prefix = "adq_m";
       type = SLV;
       size = 2;
       access_bus = READ_WRITE;
       access_dev = READ_ONLY;
-    };
-
+    };    
+        
     field {
       name = "Range";
       description = "ADC voltage range:\n0: +/-5V\n1: +/-10V (default)";
-      prefix = "adc_volt_rage";
+      prefix = "range";
       type = BIT;
       access_bus = READ_WRITE;
       access_dev = READ_ONLY;
@@ -41,35 +64,27 @@ peripheral {
     };
 
     field {
-      name = "Double Rate Input";
-      description = "Sampling of adc (use only with adc_os=0)\n0: Sampling at 200kS/s\n1: Sampling at 400kS/s";
-      prefix = "adc_dbl_rate";
+      name = "not Double Rate Input";
+      description = "Sampling of adc (it is recomended to set to 1 only with adc_os=0, see datasheet)\n1: Sampling at 200kS/s\n0: Sampling at 400kS/s";
+      prefix = "dbl_rate";
       type = BIT;
       access_bus = READ_WRITE;
       access_dev = READ_ONLY;
-      clock = "adc_clk_i";
     };
-
-
-    field {
-      name = "Reserved";
-      description = "Ignore on read, write with 0's";
-      prefix = "reserved";
-      type = SLV;
-      size = 25;
-      access_bus = READ_ONLY;
-      access_dev = WRITE_ONLY;
+	
+	field {
+      name = "Read In Conversion";
+      description = "when '1' it allows the possibility to read while conversion is running.";
+      prefix = "ric";
+      type = BIT;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
     };
-  };
-
-  reg {
-    name = "Status register";
-    prefix = "sta";
 
     field {
       name = "State machine status";
-      description = "States:\n0: illegal\n1: IDLE\n2: PRE_TRIG\n3: WAIT_TRIG\n4: POST_TRIG\n5: TRIG_TAG\n6: DECR_SHOT\n7: illegal";
-      prefix = "fsm";
+      description = "States:\n0: ADC_RST\n1&5: IDLE\n2&6: inConversion\n3&7: reading\n8: illegal";
+      prefix = "adc_fsm";
       type = SLV;
       size = 3;
       access_bus = READ_ONLY;
@@ -77,23 +92,19 @@ peripheral {
     };
     
     field {
-      name = "ADC State machine status";
-      description = "States:\n0: ADC_RST\n1: IDLE\n2: inConversion\n3: reading\n4: illegal\n5: illegal\n6: illegal\n7: illegal";
-      prefix = "adc_fsm";
-      type = SLV;
-      size = 3;
+      name = "ADC FIFO overflow";
+      description = "ADC FIFO has and overflow";
+      prefix = "fifo_of";
+     type = BIT;
       access_bus = READ_ONLY;
       access_dev = WRITE_ONLY;
-      clock = "adc_clk_i";
     };
-
-
-    field {
-      name = "Reserved";
-      description = "Ignore on read, write with 0's";
-      prefix = "reserved";
-      type = SLV;
-      size = 26;
+	
+	field {
+      name = "Trigger error";
+      description = "Trigger tried to send but adc was not ready.";
+      prefix = "Trig_err";
+     type = BIT;
       access_bus = READ_ONLY;
       access_dev = WRITE_ONLY;
     };
@@ -119,7 +130,7 @@ peripheral {
 
     field {
       name = "ADC Chanel2";
-      description = "Reading of channel 1 of 18bit ADC AD7806";
+      description = "Reading of channel 2 of 18bit ADC AD7806";
       type = SLV;
       size = 32;
       access_bus = READ_ONLY;
@@ -133,7 +144,7 @@ peripheral {
 
     field {
       name = "ADC Chanel3";
-      description = "Reading of channel 1 of 18bit ADC AD7806";
+      description = "Reading of channel 3 of 18bit ADC AD7806";
       type = SLV;
       size = 32;
       access_bus = READ_ONLY;
@@ -147,7 +158,7 @@ peripheral {
 
     field {
       name = "ADC Chanel4";
-      description = "Reading of channel 1 of 18bit ADC AD7806";
+      description = "Reading of channel 4 of 18bit ADC AD7806";
       type = SLV;
       size = 32;
       access_bus = READ_ONLY;
@@ -222,6 +233,55 @@ peripheral {
       size = 32;
       access_bus = READ_ONLY;
       access_dev = WRITE_ONLY;
+    };
+  };
+
+  reg {
+    name = "ID assignation";
+    prefix = "ID";
+    
+    field {
+      name = "Cha1 ID";
+      description = "ID used to send the data adquiered on Channel 1. If it is 0 no data is generated.";
+      prefix = "CH1_ID";
+      type = SLV;
+      size = 8;
+      align = 8;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    };
+    
+    field {
+      name = "Cha2 ID";
+      description = "ID used to send the data adquiered on Channel 2. If it is 0 no data is generated.";
+      prefix = "CH2_ID";
+      type = SLV;
+      size = 8;
+      align = 8;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    };
+    
+    field {
+      name = "Cha3 ID";
+      description = "ID used to send the data adquiered on Channel 3. If it is 0 no data is generated.";
+      prefix = "CH3_ID";
+      type = SLV;
+      size = 8;
+      align = 8;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    };
+    
+    field {
+      name = "Cha4 ID";
+      description = "ID used to send the data adquiered on Channel 4. If it is 0 no data is generated.";
+      prefix = "CH4_ID";
+      type = SLV;
+      size = 8;
+      align = 8;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
     };
   };
 

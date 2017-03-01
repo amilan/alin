@@ -1,0 +1,720 @@
+(dp0
+S'vendorid'
+p1
+S'000000000000a1ba'
+p2
+sS'product'
+p3
+S'10856d31'
+p4
+sS'name'
+p5
+S'WB-EM2-DIGITAL_IO '
+p6
+sS'devname'
+p7
+S'WB-EM2-DIGITAL_IO'
+p8
+sS'regs'
+p9
+(dp10
+S'CNT3_V_CNT_V'
+p11
+(dp12
+S'access'
+p13
+S' READ_WRITE'
+p14
+sS'bit_position'
+p15
+I0
+sS'address'
+p16
+I14
+sS'description'
+p17
+S'This is the Value of counter. On writing this register trigger is generated.'
+p18
+sS'size'
+p19
+I32
+ssS'DIS_STP_DIS2_ID'
+p20
+(dp21
+g13
+S' READ_WRITE'
+p22
+sg15
+I16
+sg16
+I2
+sg17
+S'ID of the message that generates the disable signal'
+p23
+sg19
+I8
+ssS'DIS_STP_DIS2_M'
+p24
+(dp25
+g13
+S' READ_WRITE'
+p26
+sg15
+I24
+sg16
+I2
+sg17
+S'Functionality mode of Harmony disable 1:\\n 00: Each ID recieved changes the disable signal.\\n 01: the ID recieved always enables the disable\\n 10: the ID recieved always disables the disable\\n 11: Manual control'
+p27
+sg19
+I2
+ssS'CNT0_V_CNT_V'
+p28
+(dp29
+g13
+S' READ_WRITE'
+p30
+sg15
+I0
+sg16
+I5
+sg17
+S'This is the Value of counter. On writing this register trigger is generated.'
+p31
+sg19
+I32
+ssS'CNT1_STP_TRIG'
+p32
+(dp33
+g13
+S' READ_WRITE'
+p34
+sg15
+I4
+sg16
+I6
+sg17
+S"This is the trigger signal of the counter, each time this trigger arrive a Harmony message is generated with 'Output ID' and the current counter value:\\n 0: Counter 1\\n1: Counter 2\\n2: Counter 3\\n3: Counter 4\\n4: Counter 5\\n5: Counter 6\\n6: Counter 7\\n7: Counter 8\\n8: Counter 9\\n9: Counter 10\\n10 Counter 11\\n11: Counter 12\\n12: Counter 13\\n13: Counter 14\\n14: Counter 15\\n15: Counter 16"
+p35
+sg19
+I4
+ssS'CNT3_STP_SRC'
+p36
+(dp37
+g13
+S' READ_WRITE'
+p38
+sg15
+I0
+sg16
+I12
+sg17
+S'This is the input signal of the counter:\\n 0: Sys_Clk\\n1: DIO1\\n2: DIO2\\n3: DIO3\\n4: DIO4\\n5: DiffIO1\\n6: DiffIO2\\n7: DiffIO3\\n8: DiffIO4\\n9: DiffIO5\\n10: DiffIO6\\n11: DiffIO7\\n12: DiffIO8\\n13: DiffIO9\\n14: Hrmy ID'
+p39
+sg19
+I4
+ssS'CNT1_STP_SRC'
+p40
+(dp41
+g13
+S' READ_WRITE'
+p42
+sg15
+I0
+sg16
+I6
+sg17
+S'This is the input signal of the counter:\\n 0: Sys_Clk/2\\n1: DIO1\\n2: DIO2\\n3: DIO3\\n4: DIO4\\n5: DiffIO1\\n6: DiffIO2\\n7: DiffIO3\\n8: DiffIO4\\n9: DiffIO5\\n10: DiffIO6\\n11: DiffIO7\\n12: DiffIO8\\n13: DiffIO9\\n14: Hrmy ID'
+p43
+sg19
+I4
+ssS'CNT1_STP_OUT_ID'
+p44
+(dp45
+g13
+S' READ_WRITE'
+p46
+sg15
+I24
+sg16
+I6
+sg17
+S'This is the ID of output message generated each rising of trigger source'
+p47
+sg19
+I8
+ssS'CNT1_STP_SIG'
+p48
+(dp49
+g13
+S' READ_WRITE'
+p50
+sg15
+I11
+sg16
+I6
+sg17
+S"This if this bit is 0, the module is just a counter. If this bit is '1' the following input source indicates if the counter will be increased or decreased.(DiffIO9 src uses as a sign DIO1)."
+p51
+sg19
+I1
+ssS'DIO_STP_RST'
+p52
+(dp53
+g13
+S' WRITE_ONLY'
+p54
+sg15
+I30
+sg16
+I0
+sg17
+S'Reset the flags of em2_digital_io.'
+p55
+sg19
+I1
+ssS'CNT2_STP_TRIG'
+p56
+(dp57
+g13
+S' READ_WRITE'
+p58
+sg15
+I4
+sg16
+I9
+sg17
+S"This is the trigger signal of the counter, each time this trigger arrive a Harmony message is generated with 'Output ID' and the current counter value:\\n 0: Counter 1\\n1: Counter 2\\n2: Counter 3\\n3: Counter 4\\n4: Counter 5\\n5: Counter 6\\n6: Counter 7\\n7: Counter 8\\n8: Counter 9\\n9: Counter 10\\n10 Counter 11\\n11: Counter 12\\n12: Counter 13\\n13: Counter 14\\n14: Counter 15\\n15: Counter 16"
+p59
+sg19
+I4
+ssS'CNT3_STP_DIS'
+p60
+(dp61
+g13
+S' READ_WRITE'
+p62
+sg15
+I8
+sg16
+I12
+sg17
+S'This is the input signal of the counter disable:\\n 0: Disabled\\n1: Harmony Disable1\\n2: Harmony Disable2\\n3: DIO3\\n4: DIO4\\n5: DiffIO8\\n6: DiffIO9\\n7: enabled'
+p63
+sg19
+I3
+ssS'CNT1_V_CNT_V'
+p64
+(dp65
+g13
+S' READ_WRITE'
+p66
+sg15
+I0
+sg16
+I8
+sg17
+S'This is the Value of counter. On writing this register trigger is generated.'
+p67
+sg19
+I32
+ssS'DIS_STP_DIS1_M'
+p68
+(dp69
+g13
+S' READ_WRITE'
+p70
+sg15
+I8
+sg16
+I2
+sg17
+S'Functionality mode of Harmony disable 1:\\n 00: Each ID recieved changes the disable signal.\\n 01: the ID recieved always enables the disable\\n 10: the ID recieved always disables the disable\\n 11: Manual control'
+p71
+sg19
+I2
+ssS'CNT2_STP_SRC'
+p72
+(dp73
+g13
+S' READ_WRITE'
+p74
+sg15
+I0
+sg16
+I9
+sg17
+S'This is the input signal of the counter:\\n 0: Sys_Clk\\n1: DIO1\\n2: DIO2\\n3: DIO3\\n4: DIO4\\n5: DiffIO1\\n6: DiffIO2\\n7: DiffIO3\\n8: DiffIO4\\n9: DiffIO5\\n10: DiffIO6\\n11: DiffIO7\\n12: DiffIO8\\n13: DiffIO9\\n14: Hrmy ID'
+p75
+sg19
+I4
+ssS'CNT0_STP_SRC_ID'
+p76
+(dp77
+g13
+S' READ_WRITE'
+p78
+sg15
+I16
+sg16
+I3
+sg17
+S"This is the ID used as a counter's source, if it is selected in the 'Input source' field."
+p79
+sg19
+I8
+ssS'CNT0_STP_SRC'
+p80
+(dp81
+g13
+S' READ_WRITE'
+p82
+sg15
+I0
+sg16
+I3
+sg17
+S'This is the input signal of the counter:\\n 0: Sys_Clk/2\\n1: DIO1\\n2: DIO2\\n3: DIO3\\n4: DIO4\\n5: DiffIO1\\n6: DiffIO2\\n7: DiffIO3\\n8: DiffIO4\\n9: DiffIO5\\n10: DiffIO6\\n11: DiffIO7\\n12: DiffIO8\\n13: DiffIO9\\n14: Hrmy ID'
+p83
+sg19
+I4
+ssS'CNT3_STP_SIG'
+p84
+(dp85
+g13
+S' READ_WRITE'
+p86
+sg15
+I11
+sg16
+I12
+sg17
+S"This if this bit is 0, the module is just a counter. If this bit is '1' the following input source indicates if the counter will be increased or decreased.(DiffIO9 src uses as a sign DIO1)."
+p87
+sg19
+I1
+ssS'CNT0_STP_OUT_ID'
+p88
+(dp89
+g13
+S' READ_WRITE'
+p90
+sg15
+I24
+sg16
+I3
+sg17
+S'This is the ID of output message generated each rising of trigger source'
+p91
+sg19
+I8
+ssS'DIO_V_D_MASK'
+p92
+(dp93
+g13
+S' READ_WRITE'
+p94
+sg15
+I0
+sg16
+I1
+sg17
+S"Digital output mask, first the DIO1..4 and then DiffIO1..9. If this register is set to '1' the value of next value written at DIO_V, it is written at the output, and the output logic is disabled. DO NOT WRITE IN NORMAL OPERATION, WRITE ONLY FOR TEST PROCEDURES!!"
+p95
+sg19
+I13
+ssS'DIS_STP_WD1'
+p96
+(dp97
+g13
+S' READ_WRITE'
+p98
+sg15
+I11
+sg16
+I2
+sg17
+S"When disable Mode is '11', this bit it is changes the disable state. '1' enable and '0' disable."
+p99
+sg19
+I1
+ssS'TRG3_V_CNT_V'
+p100
+(dp101
+g13
+S' READ_WRITE'
+p102
+sg15
+I0
+sg16
+I13
+sg17
+S'After an increase of this value trigger is generated. On writing this register trigger is generated.'
+p103
+sg19
+I32
+ssS'CNT2_V_CNT_V'
+p104
+(dp105
+g13
+S' READ_WRITE'
+p106
+sg15
+I0
+sg16
+I11
+sg17
+S'This is the Value of counter. On writing this register trigger is generated.'
+p107
+sg19
+I32
+ssS'CNT3_STP_TRIG'
+p108
+(dp109
+g13
+S' READ_WRITE'
+p110
+sg15
+I4
+sg16
+I12
+sg17
+S"This is the trigger signal of the counter, each time this trigger arrive a Harmony message is generated with 'Output ID' and the current counter value:\\n 0: Counter 1\\n1: Counter 2\\n2: Counter 3\\n3: Counter 4\\n4: Counter 5\\n5: Counter 6\\n6: Counter 7\\n7: Counter 8\\n8: Counter 9\\n9: Counter 10\\n10 Counter 11\\n11: Counter 12\\n12: Counter 13\\n13: Counter 14\\n14: Counter 15\\n15: Counter 16"
+p111
+sg19
+I4
+ssS'DIS_STP_WD2'
+p112
+(dp113
+g13
+S' READ_WRITE'
+p114
+sg15
+I27
+sg16
+I2
+sg17
+S"When disable Mode is '11', this bit it changes the disable state. '1' enable and '0' disable."
+p115
+sg19
+I1
+ssS'DIO_STP_HO'
+p116
+(dp117
+g13
+S' READ_ONLY'
+p118
+sg15
+I29
+sg16
+I0
+sg17
+S'Indicates that and overflow was produced trying to send a harmony message.'
+p119
+sg19
+I1
+ssS'DIO_STP_IO'
+p120
+(dp121
+g13
+S' READ_WRITE'
+p122
+sg15
+I16
+sg16
+I0
+sg17
+S'Sets if GPIO is an input(1) or output(0). The bit 0 refers to DIO1 and bit 4 to DIFF_IO_1.'
+p123
+sg19
+I13
+ssS'TRG0_V_CNT_V'
+p124
+(dp125
+g13
+S' READ_WRITE'
+p126
+sg15
+I0
+sg16
+I4
+sg17
+S'After an increase of this value trigger is generated, when 0 functionality is not clear. On writing this register trigger is generated.'
+p127
+sg19
+I32
+ssS'DIO_STP_IOP'
+p128
+(dp129
+g13
+S' READ_WRITE'
+p130
+sg15
+I0
+sg16
+I0
+sg17
+S'If it is 1 the signal is polarity is changed. The bit 0 refers to DIO1 and bit 4 to DIFF_IO_1.'
+p131
+sg19
+I13
+ssS'DIO_V_DIO_V'
+p132
+(dp133
+g13
+S' READ_WRITE'
+p134
+sg15
+I16
+sg16
+I1
+sg17
+S"Digital input output Value, first the DIO1..4 and then DiffIO1..9. The output value will only work if D_Mask is set to '1'. DO NOT WRITE IN NORMAL OPERATION, WRITE ONLY FOR TEST PROCEDURES!!"
+p135
+sg19
+I13
+ssS'CNT2_STP_OUT_ID'
+p136
+(dp137
+g13
+S' READ_WRITE'
+p138
+sg15
+I24
+sg16
+I9
+sg17
+S'This is the ID of output message generated each rising of trigger source'
+p139
+sg19
+I8
+ssS'CNT2_STP_DIS'
+p140
+(dp141
+g13
+S' READ_WRITE'
+p142
+sg15
+I8
+sg16
+I9
+sg17
+S'This is the input signal of the counter disable:\\n 0: Disabled\\n1: Harmony Disable1\\n2: Harmony Disable2\\n3: DIO3\\n4: DIO4\\n5: DiffIO8\\n6: DiffIO9\\n7: enabled'
+p143
+sg19
+I3
+ssS'DIS_STP_DIS1_ID'
+p144
+(dp145
+g13
+S' READ_WRITE'
+p146
+sg15
+I0
+sg16
+I2
+sg17
+S'ID of the message that generates the disable signal'
+p147
+sg19
+I8
+ssS'CNT1_STP_DIS'
+p148
+(dp149
+g13
+S' READ_WRITE'
+p150
+sg15
+I8
+sg16
+I6
+sg17
+S'This is the input signal of the counter disable:\\n 0: Disabled\\n1: Harmony Disable1\\n2: Harmony Disable2\\n3: DIO3\\n4: DIO4\\n5: DiffIO8\\n6: DiffIO9\\n7: enabled'
+p151
+sg19
+I3
+ssS'CNT2_STP_SRC_ID'
+p152
+(dp153
+g13
+S' READ_WRITE'
+p154
+sg15
+I16
+sg16
+I9
+sg17
+S"This is the ID used as a counter's source, if it is selected in the 'Input source' field."
+p155
+sg19
+I8
+ssS'TRG1_V_CNT_V'
+p156
+(dp157
+g13
+S' READ_WRITE'
+p158
+sg15
+I0
+sg16
+I7
+sg17
+S'After an increase of this value trigger is generated. On writing this register trigger is generated.'
+p159
+sg19
+I32
+ssS'CNT3_STP_SRC_ID'
+p160
+(dp161
+g13
+S' READ_WRITE'
+p162
+sg15
+I16
+sg16
+I12
+sg17
+S"This is the ID used as a counter's source, if it is selected in the 'Input source' field."
+p163
+sg19
+I8
+ssS'CNT1_STP_SRC_ID'
+p164
+(dp165
+g13
+S' READ_WRITE'
+p166
+sg15
+I16
+sg16
+I6
+sg17
+S"This is the ID used as a counter's source, if it is selected in the 'Input source' field."
+p167
+sg19
+I8
+ssS'CNT2_STP_SIG'
+p168
+(dp169
+g13
+S' READ_WRITE'
+p170
+sg15
+I11
+sg16
+I9
+sg17
+S"This if this bit is 0, the module is just a counter. If this bit is '1' the following input source indicates if the counter will be increased or decreased.(DiffIO9 src uses as a sign DIO1)."
+p171
+sg19
+I1
+ssS'CNT0_STP_TRIG'
+p172
+(dp173
+g13
+S' READ_WRITE'
+p174
+sg15
+I4
+sg16
+I3
+sg17
+S"This is the trigger signal of the counter, each time this trigger arrive a Harmony message is generated with 'Output ID' and the current counter value:\\n 0: Counter 1\\n1: Counter 2\\n2: Counter 3\\n3: Counter 4\\n4: Counter 5\\n5: Counter 6\\n6: Counter 7\\n7: Counter 8\\n8: Counter 9\\n9: Counter 10\\n10 Counter 11\\n11: Counter 12\\n12: Counter 13\\n13: Counter 14\\n14: Counter 15\\n15: Counter 16"
+p175
+sg19
+I4
+ssS'CNT0_STP_DIS'
+p176
+(dp177
+g13
+S' READ_WRITE'
+p178
+sg15
+I8
+sg16
+I3
+sg17
+S'This is the input signal of the counter disable:\\n 0: Disabled\\n1: Harmony Disable1\\n2: Harmony Disable2\\n3: DIO3\\n4: DIO4\\n5: DiffIO8\\n6: DiffIO9\\n7: enabled'
+p179
+sg19
+I3
+ssS'TRG2_V_CNT_V'
+p180
+(dp181
+g13
+S' READ_WRITE'
+p182
+sg15
+I0
+sg16
+I10
+sg17
+S'After an increase of this value trigger is generated. On writing this register trigger is generated.'
+p183
+sg19
+I32
+ssS'DIS_STP_DIS1'
+p184
+(dp185
+g13
+S' READ_ONLY'
+p186
+sg15
+I10
+sg16
+I2
+sg17
+S'Indicates the state of Harmony Disable line1.'
+p187
+sg19
+I1
+ssS'DIS_STP_DIS2'
+p188
+(dp189
+g13
+S' READ_ONLY'
+p190
+sg15
+I26
+sg16
+I2
+sg17
+S'Indicates the state of Harmony Disable line2.'
+p191
+sg19
+I1
+ssS'CNT0_STP_SIG'
+p192
+(dp193
+g13
+S' READ_WRITE'
+p194
+sg15
+I11
+sg16
+I3
+sg17
+S"This if this bit is 0, the module is just a counter. If this bit is '1' the following input source indicates if the counter will be increased or decreased.(DiffIO9 src uses as a sign DIO1)."
+p195
+sg19
+I1
+ssS'CNT3_STP_OUT_ID'
+p196
+(dp197
+g13
+S' READ_WRITE'
+p198
+sg15
+I24
+sg16
+I12
+sg17
+S'This is the ID of output message generated each rising of trigger source'
+p199
+sg19
+I8
+sssS'description'
+p200
+S'This block is the implementation of a counter block for trigger generation'
+p201
+s.

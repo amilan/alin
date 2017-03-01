@@ -21,13 +21,13 @@ MAIN_INSTRUMENT_ = Electrometer 2
 
 # The SERIAL_ contains teh serial number assigned to thsi particular equipment
 
-MAIN_SERIAL_ = 000000000
+MAIN_SERIAL_ = 000000007
 
-# If the DEBUG_ flag is set to True, all scpi log information will be added to 
-# the log file and to the screen output. Setting this flag to False, will 
+# If the DEBUG_ flag is set to 1, all scpi log information will be added to 
+# the log file and to the screen output. Setting this flag to 0, will 
 # just disable the log information through screen
 
-MAIN_DEBUG_ = False
+MAIN_DEBUG_ = 0
 
 # The DEBUGLEVEL_ is an integer value which indicates the expected debug
 # level for the corresponding device. Expected values are:
@@ -37,47 +37,606 @@ MAIN_DEBUG_ = False
 #       40 = ERROR
 #       50 = CRITICAL
 
-MAIN_DEBUGLEVEL_ = 40
+MAIN_DEBUGLEVEL_ = 20
+
+
+#---------------------------------------------------------------------------
+#
+# Applications
+#
+#---------------------------------------------------------------------------
+
+#---------------------------------------------------------------------------
+# SCPI driver configuration
+#---------------------------------------------------------------------------
 
 # if the SCPI_AUTOOPEN_ flag is set, then the scpi module wil ltry to open the
 # defined communication PORT_ by itself. Otherwhise the port will have to be
 # opened manually 
 
-MAIN_SCPI_AUTOOPEN_ = True
+SCPI_AUTOOPEN_ = 1
 
 # If the SCPI_LOCAL_ flag is set, the scpi application will open the local 
 # addess as the default communication address, it means 0.0.0.0
 
-MAIN_SCPI_LOCAL_ = False
+SCPI_LOCAL_ = 0
 
 # The SCPI_PORT_ is an integer value that it is used to specify the port number
 # that will be used in the communications through telnet service. By default it
 # is set to localhost, port 5025
 
-MAIN_SCPI_PORT_ = 5025
+SCPI_PORT_ = 5025
 
-# If the SCPI_DEBUG_ flag is set to True, all scpi log information will be added to 
-# the log file and to the screen output. Setting this flag to False, will 
+# If the SCPI_DEBUG_ flag is set to 1, all scpi log information will be added to 
+# the log file and to the screen output. Setting this flag to 0, will 
 # just disable the log information through screen
 
-MAIN_SCPI_DEBUG_ = False
+SCPI_DEBUG_ = 1
 
+# The DEBUGLEVEL_ is an integer value which indicates the expected debug
+# level for the corresponding device. Expected values are:
+#       10 = DEBUG
+#       20 = INFO
+#       30 = WARNING
+#       40 = ERROR
+#       50 = CRITICAL
+
+SCPI_DEBUGLEVEL_ = 20
+SCPI_DRV_DEBUGLEVEL_ = 10
+
+#---------------------------------------------------------------------------
+# WebServer application
+#---------------------------------------------------------------------------
+
+# This setting is used to indicate the number of points to be displayed
+# in the current graphs, if they are enabled (with WEBSERVER_SHOWGRAPHS
+
+WEBSERVER_LENDATAELEMENTS_ = 50
+
+# This setting set the default port number to use in the webserver
+
+WEBSERVER_PORT_ = 8888
+
+# This setting fixes the data refresh time in the web.
+# Value is expressed in seconds unit
+
+WEBSERVER_REFRESH_TIME_ = 1
+
+# FPGA_DATA seetings enables the refresh of the FPGA data page
+# If this flag is False the FPGA data is not refreshed
+
+WEBSERVER_FPGA_DATA_ = True
+
+# This is the period in which the FPGA data is refresh, if enabled
+
+WEBSERVER_FPGA_DATA_REFRESH_PERIOD_ = 1
+
+# If the DEBUG_ flag is set to 1, all log information will be added to 
+# the log file and to the screen output. Setting this flag to 0, will 
+# just disable the log information through screen
+
+WEBSERVER_DEBUG_ = 1
+
+# The DEBUGLEVEL_ is an integer value which indicates the expected debug
+# level for the corresponding device. Expected values are:
+#       10 = DEBUG
+#       20 = INFO
+#       30 = WARNING
+#       40 = ERROR
+#       50 = CRITICAL
+
+WEBSERVER_DEBUGLEVEL_ = 20
+
+#---------------------------------------------------------------------------
+#
+# Middleware
+#
+#---------------------------------------------------------------------------
+
+#---------------------------------------------------------------------------
+# HARMONY_ device configuration
+#---------------------------------------------------------------------------
+
+# If the DEBUG_ flag is set to 1, all log information will be added to 
+# the log file and to the screen output. Setting this flag to 0, will 
+# just disable the log information through screen
+
+HARMONY_DEBUG_ = 1
+
+# The DEBUGLEVEL_ is an integer value which indicates the expected debug
+# level for the corresponding device. Expected values are:
+#       10 = DEBUG
+#       20 = INFO
+#       30 = WARNING
+#       40 = ERROR
+#       50 = CRITICAL
+
+HARMONY_DEBUGLEVEL_ = 20
+
+#---------------------------------------------------------------------------
+# DIAGNOSTICS device configuration
+#---------------------------------------------------------------------------
+
+# If the DEBUG_ flag is set to 1, all log information will be added to 
+# the log file and to the screen output. Setting this flag to 0, will 
+# just disable the log information through screen
+
+DIAGS_DEBUG_ = 1
+
+# The DEBUGLEVEL_ is an integer value which indicates the expected debug
+# level for the corresponding device. Expected values are:
+#       10 = DEBUG
+#       20 = INFO
+#       30 = WARNING
+#       40 = ERROR
+#       50 = CRITICAL
+
+DIAGS_DEBUGLEVEL_ = 20
+
+#---------------------------------------------------------------------------
+# Display device configuration
+#---------------------------------------------------------------------------
+
+# If the DEBUG_ flag is set to 1, all log information will be added to 
+# the log file and to the screen output. Setting this flag to 0, will 
+# just disable the log information through screen
+
+DISPLAY_DEBUG_ = 1
+
+# The DEBUGLEVEL_ is an integer value which indicates the expected debug
+# level for the corresponding device. Expected values are:
+#       10 = DEBUG
+#       20 = INFO
+#       30 = WARNING
+#       40 = ERROR
+#       50 = CRITICAL
+
+DISPLAY_DEBUGLEVEL_ = 20
+
+#---------------------------------------------------------------------------
+# MEMORYMW_ device configuration
+#---------------------------------------------------------------------------
+
+# If the DEBUG_ flag is set to 1, all log information will be added to 
+# the log file and to the screen output. Setting this flag to 0, will 
+# just disable the log information through screen
+
+MEMORYMW_DEBUG_ = 1
+
+# The DEBUGLEVEL_ is an integer value which indicates the expected debug
+# level for the corresponding device. Expected values are:
+#       10 = DEBUG
+#       20 = INFO
+#       30 = WARNING
+#       40 = ERROR
+#       50 = CRITICAL
+
+MEMORYMW_DEBUGLEVEL_ = 20
+
+#---------------------------------------------------------------------------
+# Power Supply Board device configuration
+#---------------------------------------------------------------------------
+
+# If the DEBUG_ flag is set to 1, all log information will be added to 
+# the log file and to the screen output. Setting this flag to 0, will 
+# just disable the log information through screen
+
+PSB_DEBUG_ = 1
+
+# The DEBUGLEVEL_ is an integer value which indicates the expected debug
+# level for the corresponding device. Expected values are:
+#       10 = DEBUG
+#       20 = INFO
+#       30 = WARNING
+#       40 = ERROR
+#       50 = CRITICAL
+
+PSB_DEBUGLEVEL_ = 40
+
+
+#---------------------------------------------------------------------------
+#
+# Drivers
+#
+#---------------------------------------------------------------------------
+
+#---------------------------------------------------------------------------
+# ADC FPGA device module configuration
+#---------------------------------------------------------------------------
+
+# The DEVICE_ parameter refers to the spec module name that will take care of the 
+# control for this device. It should match with the name of the devices defined
+# in the alin device list, included in the /alin/deviceslib folder
+
+ADCCORE_DEVICE_ = WB-FMC-ADC-CORE
+
+# If the DEBUG_ flag is set to 1, all log information will be added to 
+# the log file and to the screen output. Setting this flag to 0, will 
+# just disable the log information through screen
+
+ADCCORE_DEBUG_ = 1
+
+# The DEBUGLEVEL_ is an integer value which indicates the expected debug
+# level for the corresponding device. Expected values are:
+#       10 = DEBUG
+#       20 = INFO
+#       30 = WARNING
+#       40 = ERROR
+#       50 = CRITICAL
+
+ADCCORE_DEBUGLEVEL_ = 40
+
+
+#---------------------------------------------------------------------------
+# ADC driver to monitor status ofl PSB board
+#---------------------------------------------------------------------------
+
+# The I2C_ADDRESS_ contains the 7 MSB shifted 1 bit to the right address
+# of the device to control through I2C protocol.
+# I.e.: Display I2C address is 0x90 for reading and 0x91 for writing. In this
+# case the 7 MSB corresponds to 0x90 >> 1 = 0x4A
+
+ADS7828_I2C_ADDRESS_ = 0x48
+
+# The I2C_BUS_ contains the bus number to be used in the I2C communications.
+# Alin system can use one of the two different i2c-designware-pci buses for
+# the I2C protocol (I2C bus 0 or I2C bus 1). You can check the corresponding
+# numbers detected for these buses by executing the command i2cdetect -l
+# With this, display panel is using the I2C bus 0, that corresponds to I2C
+# bus number 8
+
+ADS7828_I2C_BUS_ = 8
+
+# If the DEBUG_ flag is set to 1, all log information will be added to 
+# the log file and to the screen output. Setting this flag to 0, will 
+# just disable the log information through screen
+
+ADS7828_DEBUG_ = 1
+
+# The DEBUGLEVEL_ is an integer value which indicates the expected debug
+# level for the corresponding device. Expected values are:
+#       10 = DEBUG
+#       20 = INFO
+#       30 = WARNING
+#       40 = ERROR
+#       50 = CRITICAL
+
+ADS7828_DEBUGLEVEL_ = 40
+
+#---------------------------------------------------------------------------
+# Average FPGA device module configuration
+#------------------------------------------------                print "MANOLO....%s"%_CONFIG_MASK, tmp_val
+---------------------------
+
+# The DEVICE_ parameter refers to the spec module name that will take care of the 
+# control for this device. It should match with the name of the devices defined
+# in the alin device list, included in the /alin/deviceslib folder
+
+AVERAGE_DEVICE_ = WB-HRMY-AVERAGE
+
+# If the DEBUG_ flag is set to 1, all log information will be added to 
+# the log file and to the screen output. Setting this flag to 0, will 
+# just disable the log information through screen
+
+AVERAGE_DEBUG_ = 1
+
+# The DEBUGLEVEL_ is an integer value which indicates the expected debug
+# level for the corresponding device. Expected values are:
+#       10 = DEBUG
+#       20 = INFO
+#       30 = WARNING
+#       40 = ERROR
+#       50 = CRITICAL
+
+AVERAGE_DEBUGLEVEL_ = 40
+
+#---------------------------------------------------------------------------
+# Crossbar FPGA device module configuration
+#---------------------------------------------------------------------------
+
+# The DEVICE_ parameter refers to the spec module name that will take care of the 
+# control for this device. It should match with the name of the devices defined
+# in the alin device list, included in the /alin/deviceslib folder
+
+CROSSBAR_DEVICE_ = WB-HRMY-CROSSBAR
+
+# If the DEBUG_ flag is set to 1, all log information will be added to 
+# the log file and to the screen output. Setting this flag to 0, will 
+# just disable the log information through screen
+
+CROSSBAR_DEBUG_ = 1
+
+# The DEBUGLEVEL_ is an integer value which indicates the expected debug
+# level for the corresponding device. Expected values are:
+#       10 = DEBUG
+#       20 = INFO
+#       30 = WARNING
+#       40 = ERROR
+#       50 = CRITICAL
+
+CROSSBAR_DEBUGLEVEL_ = 40
+
+#---------------------------------------------------------------------------
+# Crossbar DAC device module configuration
+#---------------------------------------------------------------------------
+
+# The DEVICE_ parameter refers to the spec module name that will take care of the 
+# control for this device. It should match with the name of the devices defined
+# in the alin device list, included in the /alin/deviceslib folder
+
+DAC_DEVICE_ = EM2_DAC
+
+# If the DEBUG_ flag is set to 1, all log information will be added to 
+# the log file and to the screen output. Setting this flag to 0, will 
+# just disable the log information through screen
+
+DAC_DEBUG_ = 1
+
+# The DEBUGLEVEL_ is an integer value which indicates the expected debug
+# level for the corresponding device. Expected values are:
+#       10 = DEBUG
+#       20 = INFO
+#       30 = WARNING
+#       40 = ERROR
+#       50 = CRITICAL
+
+DAC_DEBUGLEVEL_ = 30
+
+#---------------------------------------------------------------------------
+# Digitial IO FPGA device module configuration
+#---------------------------------------------------------------------------
+
+# The DEVICE_ parameter refers to the spec module name that will take care of the 
+# control for this device. It should match with the name of the devices defined
+# in the alin device list, included in the /alin/deviceslib folder
+
+DIGITALIO_DEVICE_ = WB-EM2-DIGITAL_IO
+
+# If the DEBUG_ flag is set to 1, all log information will be added to 
+# the log file and to the screen output. Setting this flag to 0, will 
+# just disable the log information through screen
+
+DIGITALIO_DEBUG_ = 1
+
+# The DEBUGLEVEL_ is an integer value which indicates the expected debug
+# level for the corresponding device. Expected values are:
+#       10 = DEBUG
+#       20 = INFO
+#       30 = WARNING
+#       40 = ERROR
+#       50 = CRITICAL
+
+DIGITALIO_DEBUGLEVEL_ = 40
+
+#---------------------------------------------------------------------------
+# eDIP128 display driver configuration
+#---------------------------------------------------------------------------
+
+# The I2C_ADDRESS_ contains the 7 MSB shifted 1 bit to the right address
+# of the device to control through I2C protocol.
+# I.e.: Display I2C address is 0x94 for reading and 0x95 for writing. In this
+# case the 7 MSB corresponds to 0x94 >> 1 = 0x4A
+
+EDIP128_I2C_ADDRESS_ = 0x4A
+
+# The I2C_BUS_ contains the bus number to be used in the I2C communications.
+# Alin system can use one of the two different i2c-designware-pci buses for
+# the I2C protocol (I2C bus 0 or I2C bus 1). You can check the corresponding
+# numbers detected for these buses by executing the command i2cdetect -r
+
+EDIP128_I2C_BUS_ = 7
+
+
+# If the DEBUG_ flag is set to 1, all log information will be added to 
+# the log file and to the screen output. Setting this flag to 0, will 
+# just disable the log information through screen
+
+EDIP128_DEBUG_ = 1
+
+# The DEBUGLEVEL_ is an integer value which indicates the expected debug
+# level for the corresponding device. Expected values are:
+#       10 = DEBUG
+#       20 = INFO
+#       30 = WARNING
+#       40 = ERROR
+#       50 = CRITICAL
+
+EDIP128_DEBUGLEVEL_ = 40
+
+#---------------------------------------------------------------------------
+# FIFO FPGA device module configuration
+#---------------------------------------------------------------------------
+
+# The DEVICE_ parameter refers to the spec module name that will take care of the 
+# control for this device. It should match with the name of the devices defined
+# in the alin device list, included in the /alin/deviceslib folder
+
+FIFO_DEVICE_ = WB-HRMY-FIFO
+
+# The MAXSIZE_ parameter defines the maximum defined size for the FIFO for  
+# each of the channels. This should be returned by the FPGA. This value is set 
+# just in case
+
+FIFO_MAXSIZE_ = 1000
+
+# If the DEBUG_ flag is set to 1, all log information will be added to 
+# the log file and to the screen output. Setting this flag to 0, will 
+# just disable the log information through screen
+
+FIFO_DEBUG_ = 1
+
+# The DEBUGLEVEL_ is an integer value which indicates the expected debug
+# level for the corresponding device. Expected values are:
+#       10 = DEBUG
+#       20 = INFO
+#       30 = WARNING
+#       40 = ERROR
+#       50 = CRITICAL
+
+FIFO_DEBUGLEVEL_ = 40
+
+
+#---------------------------------------------------------------------------
+# FVCTRL device module configuration
+#---------------------------------------------------------------------------
+
+# The DEVICE_ parameter refers to the spec module name that will take care of the 
+# control for this device. It should match with the name of the devices defined
+# in the alin device list, included in the /alin/deviceslib folder
+
+FVCTRL_DEVICE_ = WB-FMC-FV-CONTROL
+
+# If the DEBUG_ flag is set to 1, all log information will be added to 
+# the log file and to the screen output. Setting this flag to 0, will 
+# just disable the log information through screen
+
+FVCTRL_DEBUG_ = 1
+
+# The DEBUGLEVEL_ is an integer value which indicates the expected debug
+# level for the corresponding device. Expected values are:
+#       10 = DEBUG
+#       20 = INFO
+#       30 = WARNING
+#       40 = ERROR
+#       50 = CRITICAL
+
+FVCTRL_DEBUGLEVEL_ = 40
+
+
+#---------------------------------------------------------------------------
+# IDGen FPGA device module configuration
+#---------------------------------------------------------------------------
+
+# The DEVICE_ parameter refers to the spec module name that will take care of the 
+# control for this device. It should match with the name of the devices defined
+# in the alin device list, included in the /alin/deviceslib folder
+
+IDGEN_DEVICE_ = WB-HRMY-ID-GEN
+
+# If the DEBUG_ flag is set to 1, all log information will be added to 
+# the log file and to the screen output. Setting this flag to 0, will 1
+# just disable the log information through screen
+
+IDGEN_DEBUG_ = 1
+
+# The DEBUGLEVEL_ is an integer value which indicates the expected debug
+# level for the corresponding device. Expected values are:
+#       10 = DEBUG
+#       20 = INFO
+#       30 = WARNING
+#       40 = ERROR
+#       50 = CRITICAL
+
+IDGEN_DEBUGLEVEL_ = 40
+
+#---------------------------------------------------------------------------
+# MCP23008 Port Expander driver to configure PSB board
+#---------------------------------------------------------------------------
+
+# The I2C_ADDRESS_ contains the 7 MSB shifted 1 bit to the right address
+# of the device to control through I2C protocol.
+# I.e.: Display I2C address is 0x40 for reading and 0x41 for writing. In this
+# case the 7 MSB corresponds to 0x40 >> 1 = 0x20
+
+PEXPDRV_I2C_ADDRESS_ = 0x20
+
+# The I2C_BUS_ contains the bus number to be used in the I2C communications.
+# Alin system can use one of the two different i2c-designware-pci buses for
+# the I2C protocol (I2C bus 0 or I2C bus 1). You can check the corresponding
+# numbers detected for these buses by executing the command i2cdetect -r
+
+PEXPDRV_I2C_BUS_ = 8
+
+# If the DEBUG_ flag is set to 1, all log information will be added to 
+# the log file and to the screen output. Setting this flag to 0, will 
+# just disable the log information through screen
+
+PEXPDRV_DEBUG_ = 1
+
+# The DEBUGLEVEL_ is an integer value which indicates the expected debug
+# level for the corresponding device. Expected values are:
+#       10 = DEBUG
+#       20 = INFO
+#       30 = WARNING
+#       40 = ERROR
+#       50 = CRITICAL
+
+PEXPDRV_DEBUGLEVEL_ = 40
+
+#---------------------------------------------------------------------------
+# Harmony memory configuration
+#---------------------------------------------------------------------------
+
+# If the DEBUG_ flag is set to 1, all log information will be added to 
+# the log file and to the screen output. Setting this flag to 0, will 
+# just disable the log information through screen
+
+MEMORY_DEBUG_ = 1
+
+# The DEBUGLEVEL_ is an integer value which indicates the expected debug
+# level for the corresponding device. Expected values are:
+#       10 = DEBUG
+#       20 = INFO
+#       30 = WARNING
+#       40 = ERROR
+#       50 = CRITICAL
+
+MEMORY_DEBUGLEVEL_ = 20
+
+# The BUFFERSIZE_ is an integer that specifies the maximum buffer lenght for
+# of the channel id buffers that the harmony bus can have (up to 256 Id)
+
+MEMORY_BUFFERSIZE_ = 20000
+
+
+#---------------------------------------------------------------------------
+# SPI device configuration
+#---------------------------------------------------------------------------
+
+# The DEVICE_ parameter refers to the spec module name that will take care of the 
+# control for this device. It should match with the name of the devices defined
+# in the alin device list, included in the /alin/deviceslib folder
+
+SPI_DEVICE_ = SPI
+
+# If the DEBUG_ flag is set to 1, all log information will be added to 
+# the log file and to the screen output. Setting this flag to 0, will 
+# just disable the log information through screen
+
+SPI_DEBUG_ = 1
+
+# The DEBUGLEVEL_ is an integer value which indicates the expected debug
+# level for the corresponding device. Expected values are:
+#       10 = DEBUG
+#       20 = INFO
+#       30 = WARNING
+#       40 = ERROR
+#       50 = CRITICAL
+
+SPI_DEBUGLEVEL_ = 20
+
+
+#---------------------------------------------------------------------------
+#
+# Base Drivers
+#
+#---------------------------------------------------------------------------
 
 #---------------------------------------------------------------------------
 # AlIn driver configuration
 #---------------------------------------------------------------------------
 
-# If the SIMULATED_ flag is set to True, there will not be communication
+# If the SIMULATED_ flag is set to 1, there will not be communication
 # with the spec_pci card and all values returned will be simulated random
-# values. Default expected setting should be False
+# values. Default expected setting should be 0
  
-ALIN_SIMULATED = False
+ALIN_SIMULATED = 0
 
-# If the DEBUG_ flag is set to True, all log information will be added to 
-# the log file and to the screen output. Setting this flag to False, will 
+# If the DEBUG_ flag is set to 1, all log information will be added to 
+# the log file and to the screen output. Setting this flag to 0, will 
 # just disable the log information through screen
 
-ALIN_DEBUG_ = True
+ALIN_DEBUG_ = 0
 
 # The DEBUGLEVEL_ is an integer value which indicates the expected debug
 # level for the corresponding device. Expected values are:
@@ -94,11 +653,11 @@ ALIN_DEBUGLEVEL_ = 40
 # AlInDevice driver configuration
 #---------------------------------------------------------------------------
 
-# If the DEBUG_ flag is set to True, all log information will be added to 
-# the log file and to the screen output. Setting this flag to False, will 
+# If the DEBUG_ flag is set to 1, all log information will be added to 
+# the log file and to the screen output. Setting this flag to 0, will 
 # just disable the log information through screen
 
-ALINDEV_DEBUG_ = True
+ALINDEV_DEBUG_ = 0
 
 # The DEBUGLEVEL_ is an integer value which indicates the expected debug
 # level for the corresponding device. Expected values are:
@@ -109,95 +668,4 @@ ALINDEV_DEBUG_ = True
 #       50 = CRITICAL
 
 ALINDEV_DEBUGLEVEL_ = 40
-
-#---------------------------------------------------------------------------
-# SPI device configuration
-#---------------------------------------------------------------------------
-
-# The DEVICE_ parameter refers to the spec module name that will take care of the 
-# control for this device. It should match with the name of the devices defined
-# in the alin device list, included in the /alin/deviceslib folder
-
-SPI_DEVICE_ = SPI
-
-# If the DEBUG_ flag is set to True, all log information will be added to 
-# the log file and to the screen output. Setting this flag to False, will 
-# just disable the log information through screen
-
-SPI_DEBUG_ = True
-
-# The DEBUGLEVEL_ is an integer value which indicates the expected debug
-# level for the corresponding device. Expected values are:
-#       10 = DEBUG
-#       20 = INFO
-#       30 = WARNING
-#       40 = ERROR
-#       50 = CRITICAL
-
-SPI_DEBUGLEVEL_ = 40
-
-
-#---------------------------------------------------------------------------
-# ADC device configuration
-#---------------------------------------------------------------------------
-
-# The DEVICE_ parameter refers to the spec module name that will take care of the 
-# control for this device. It should match with the name of the devices defined
-# in the alin device list, included in the /alin/deviceslib folder
-
-ADCCORE_DEVICE_ = ADC_CORE
-
-# If the DEBUG_ flag is set to True, all log information will be added to 
-# the log file and to the screen output. Setting this flag to False, will 
-# just disable the log information through screen
-
-ADCCORE_DEBUG_ = True
-
-# The DEBUGLEVEL_ is an integer value which indicates the expected debug
-# level for the corresponding device. Expected values are:
-#       10 = DEBUG
-#       20 = INFO
-#       30 = WARNING
-#       40 = ERROR
-#       50 = CRITICAL
-
-ADCCORE_DEBUGLEVEL_ = 40
-
-
-#---------------------------------------------------------------------------
-# Display device configuration
-#---------------------------------------------------------------------------
-
-# The I2C_ADDRESS_ contains the 7 MSB shifted 1 bit to the right address
-# of the device to control through I2C protocol.
-# I.e.: Display I2C address is 0x94 for reading and 0x95 for writing. In this
-# case the 7 MSB corresponds to 0x94 >> 1 = 0x4A
-
-DISPLAY_I2C_ADDRESS_ = 0x4A
-
-# The I2C_BUS_ contains the bus number to be used in the I2C communications.
-# Alin system can use one of the two different i2c-designware-pci buses for
-# the I2C protocol (I2C bus 0 or I2C bus 1). You can check the corresponding
-# numbers detected for these buses by executing the command i2cdetect -l
-# With this, display panel is using the I2C bus 0, that corresponds to I2C
-# bus number 8
-
-DISPLAY_I2C_BUS_ = 8
-
-
-# If the DEBUG_ flag is set to True, all log information will be added to 
-# the log file and to the screen output. Setting this flag to False, will 
-# just disable the log information through screen
-
-DISPLAY_DEBUG_ = True
-
-# The DEBUGLEVEL_ is an integer value which indicates the expected debug
-# level for the corresponding device. Expected values are:
-#       10 = DEBUG
-#       20 = INFO
-#       30 = WARNING
-#       40 = ERROR
-#       50 = CRITICAL
-
-DISPLAY_DEBUGLEVEL_ = 40
 

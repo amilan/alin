@@ -17,110 +17,104 @@ S'WB-HRMY-CROSSBAR'
 p8
 sS'regs'
 p9
-(lp10
-(dp11
-S'ID_diagn_UploadMsg'
-p12
-(dp13
+(dp10
+S'ID_DIAGNJDRD_MREQ'
+p11
+(dp12
 S'access'
-p14
+p13
 S' READ_ONLY'
-p15
+p14
 sS'bit_position'
+p15
+I40
+sS'address'
 p16
 I0
-sS'address'
-p17
-I0
 sS'description'
+p17
+S'Maximum number of requests active simultaiusly'
 p18
-S'The number of messages raised in the current cycle'
-p19
 sS'size'
-p20
-I16
-ssa(dp21
-S'ID_diagn_DwLoadMsg'
-p22
-(dp23
-g14
-S' READ_ONLY'
-p24
-sg16
-I16
-sg17
-I0
-sg18
-S'The number of messages broadcasted in the current cycle'
-p25
-sg20
-I16
-ssa(dp26
-S'ID_diagnJD_MLen'
-p27
-(dp28
-g14
-S' READ_ONLY'
-p29
-sg16
-I32
-sg17
-I0
-sg18
-S'Maximum number of messages send without a free slot'
-p30
-sg20
+p19
 I8
-ssa(dp31
-S'ID_diagnJDRD_MReq'
+ssS'ID_DIAGN_DWLOADMSG'
+p20
+(dp21
+g13
+S' READ_ONLY'
+p22
+sg15
+I16
+sg16
+I0
+sg17
+S'The number of messages broadcasted in the current cycle'
+p23
+sg19
+I16
+ssS'ID_DIAGNJD_MLEN'
+p24
+(dp25
+g13
+S' READ_ONLY'
+p26
+sg15
+I32
+sg16
+I0
+sg17
+S'Maximum number of messages send without a free slot'
+p27
+sg19
+I8
+ssS'ID_DIAGNJDRDRD_MTREQ'
+p28
+(dp29
+g13
+S' READ_ONLY'
+p30
+sg15
+I48
+sg16
+I0
+sg17
+S'Maximum time device has request signal active.'
+p31
+sg19
+I8
+ssS'ID_DIAGNJDRDRD_RST_STA'
 p32
 (dp33
-g14
-S' READ_ONLY'
-p34
-sg16
-I40
-sg17
-I0
-sg18
-S'Maximum number of requests active simultaiusly'
-p35
-sg20
-I8
-ssa(dp36
-S'ID_diagnJDRDRD_MTReq'
-p37
-(dp38
-g14
-S' READ_ONLY'
-p39
-sg16
-I48
-sg17
-I0
-sg18
-S'Maximum time device has request signal active.'
-p40
-sg20
-I8
-ssa(dp41
-S'ID_diagnJDRDRD_rst_sta'
-p42
-(dp43
-g14
+g13
 S' WRITE_ONLY'
-p44
-sg16
+p34
+sg15
 I56
-sg17
+sg16
 I0
-sg18
+sg17
 S'This bit is resets the diagnositcs stadistics'
-p45
-sg20
+p35
+sg19
 I1
-ssasS'description'
-p46
+ssS'ID_DIAGN_UPLOADMSG'
+p36
+(dp37
+g13
+S' READ_ONLY'
+p38
+sg15
+I0
+sg16
+I0
+sg17
+S'The number of messages raised in the current cycle'
+p39
+sg19
+I16
+sssS'description'
+p40
 S'This block is the crossbar of harmony bus it can be used for diagnostics diagnostics'
-p47
+p41
 s.

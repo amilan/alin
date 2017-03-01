@@ -18,17 +18,16 @@ __version__ = "1.0"
 __email__ = "mbroseta@cells.es"
 __status__ = "Development"
 
-import os.path, pickle
-
-from distutils.sysconfig import get_python_lib
 
 from alin import *
 from alinlog import AlinLog
+from configdata import getConfigData
+import os.path
+import pickle
 
-__OFFSET__ = 0x00 #0x100
 
-__CONFIG_FILE__ = "Config"
-__CONFIG_MASK__ = "ALINDEV_"
+_CONFIG_MASK = "ALINDEV_"
+_OFFSET = 0x00 #0x100
 
 ## alinDevice class
 #
@@ -37,17 +36,18 @@ __CONFIG_MASK__ = "ALINDEV_"
 class AlinDevice(AlinLog):
 	## The constructor.
 	#  @param device (not mandatory) Device to controls
-	def __init__(self, device=None, number=0, debug=False):
-		AlinLog.__init__(self, debug=False, loggerName='AlinDevice')
+	def __init__(self, device=None, number=0, debug=False, logger='AlinDev'):
+		AlinLog.__init__(self, debug=False, loggerName=logger)
 		
-		self._debug = debug
-		self._debuglevel = None
 		# Get default configuration from config file
-		self.getConfigData()
+		configDict = getConfigData(_CONFIG_MASK)
+		self._debug = bool(configDict["DEBUG_"]) if "DEBUG_" in configDict.keys() else debug
+		self._debuglevel = int(configDict["DEBUGLEVEL_"]) if "DEBUGLEVEL_" in configDict.keys() else 40
 		
 		self._devMap = {}
-		self.sdbDrv = AlinSDB(__OFFSET__, debug=self._debuglevel)
-		self.sdbDrv.getData(__OFFSET__)
+
+		self.sdbDrv = AlinSDB(_OFFSET, debug=self._debuglevel)
+		self.sdbDrv.getData(_OFFSET)
 		
 		#self.__device_folder = os.path.abspath(os.path.dirname(__file__))+"/deviceslib/"
 		self.__device_folder = get_python_lib()+"/alin/deviceslib/"
@@ -59,36 +59,8 @@ class AlinDevice(AlinLog):
 		if device is not None:
 			self.setDevice(device, number)
 		
-	def getConfigData(self):
-		# Get config File
-		config_folder = get_python_lib()+"/alin/config/"
-		config_file = config_folder+__CONFIG_FILE__
+		self.logMessage("__init__() Initialized ", self.DEBUG)
 		
-		try:
-			with open(config_file, 'r') as f:
-				lines = f.readlines()
-				f.close()
-				
-			comp = [ln.split(__CONFIG_MASK__)[1].replace(" ","").replace("\t","").replace("\n","") for ln in lines if ln.startswith(__CONFIG_MASK__)]
-			if comp != []:
-				for cm in comp:
-					if cm.startswith("DEBUG_"):
-						try:
-							self._debug = True if cm.split("=")[1].lower() == "true" else False
-							self.logMessage("%s::getConfigData(): DEBUG set to %s"%(__CONFIG_MASK__, self._debug),self.INFO)
-						except Exception, e:
-							self.logMessage("%s::getConfigData(): Can't get DEBUG flag %s"%(__CONFIG_MASK__, self._debug, str(e)),self.ERROR)
-					elif cm.startswith("DEBUGLEVEL_"):
-						try:
-							self._debuglevel = int(cm.split("=")[1])
-							self.logMessage("%s::getConfigData(): DEBUGLEVEL set to %d"%(__CONFIG_MASK__,self._debuglevel),self.INFO)
-						except Exception, e:
-							self.logMessage("%s::getConfigData(): Can't get DEBUGLEVEL  %s"%(__CONFIG_MASK__, self._debug, str(e)),self.ERROR)
-					 
-		except Exception, e:
-			self.logMessage("%s::getConfigData():: Not possible to get config file due to:"%__CONFIG_MASK__,self.ERROR)
-			self.logMessage(str(e),self.ERROR)
-			
 	def setLogLevel(self, level):
 		self._debuglevel = level
 		self.logLevel(self._debuglevel)
@@ -132,6 +104,7 @@ class AlinDevice(AlinLog):
 			self.logMessage("setDevice::%s getting vendorID....: %s"%(devname,hex(self.vendorId)), self.DEBUG)
 			self.product = long(self._devMap["product"],16)
 			self.logMessage("setDevice::%s getting product....: %s"%(devname,hex(self.product)), self.DEBUG)
+			self.dev_number = devnum
 		
 			temp = []
 			temp = self.sdbDrv.readData()
@@ -159,7 +132,7 @@ class AlinDevice(AlinLog):
 			self._devMap = {}
 			self.logMessage("setDevice::%s Problem found, vendoID or product or device number not found"%devname, self.ERROR)
 			return None
-	
+		
 		return self._devMap
 
 				
@@ -196,40 +169,41 @@ class AlinDevice(AlinLog):
 	#  This function returns all device information included in the pickle file, including device name, description and register mapping
 	#  @return List containing all device data
 	def getDeviceData(self):
-		valueList = []
+		devValues = {}
 		rd_data = {}
-		rd_data = self.sdbDrv.getDeviceMemory(vend=self.vendorId, prod=self.product)
+		rd_data = self.sdbDrv.getDeviceMemory(vend=self.vendorId, prod=self.product, devnum=self.dev_number)
 		if rd_data and self._devMap:
-			for el in self._devMap['regs']:
-				regname = el.keys()[0]
-				address = el[el.keys()[0]]['address']
-				position = el[el.keys()[0]]['bit_position']
-				size = el[el.keys()[0]]['size']
+			for regname in self._devMap['regs'].keys():
+				address = self._devMap['regs'][regname]['address']
+				position = self._devMap['regs'][regname]['bit_position']
+				size = self._devMap['regs'][regname]['size']
+				
+				if address == 14:
+					continue
 				
 				mask = (2**size - 1) << position
 				
 				value = rd_data['data'][address]
 				value = (value&mask)>>position
 				
-				valueList.append((regname.upper(),hex(value)))
+				devValues[regname.upper()] = value
 			self.logMessage("getDeviceData::Read all device data list", self.DEBUG)
 		else:
 			if self._devMap:
-				for el in self._devMap['regs']:
-					regname = el.keys()[0]
+				for regname in self._devMap['regs'].keys():
 					value = None
-					valueList.append((regname.upper(),value))
+					
+					devValues[regname.upper()] = value
 			self.logMessage("getDeviceData:Not possible to get the data from Memory!!", self.ERROR)
 		
-		return valueList
+		return devValues
 
 	## getAttributesList()
 	#  This function returns the list of attributes defined in the pickle file
 	#  @return List containing the list of attributes defined in the pickle file
 	def getAttributesList(self):
-		valueList = []
 		if self._devMap:
-			valueList = [el.keys()[0] for el in self._devMap['regs']]
+			valueList = [el for el in self._devMap['regs']]
 			self.logMessage("getAttributesList::Attribute list read", self.DEBUG)
 		else:
 			self.logMessage("getAttributesList::No data found", self.ERROR)
@@ -243,29 +217,32 @@ class AlinDevice(AlinLog):
 	#  @param attrVal Num with the value to write in the aatribute
 	def writeAttribute(self,attrName,attrVal):
 		if attrName is not None and self._devMap:
-			for el in self._devMap['regs']:
-				if attrName.lower() == el.keys()[0].lower():
-					address = el[el.keys()[0]]['address']
-					sdb_address = self.initAddress+(address*4)
-					position = el[el.keys()[0]]['bit_position']
-					size = el[el.keys()[0]]['size']
-					access = el[el.keys()[0]]['access'].split()[0]
+			try:
+				attMap = self._devMap['regs'][attrName.upper()]
 
-					mask = (2**size - 1) << position
+				address = attMap['address']
+				sdb_address = self.initAddress+(address*4)
+				position = attMap['bit_position']
+				size = attMap['size']
+				access = attMap['access'].split()[0]
+
+				mask = (2**size - 1) << position
+				
+				value = self.sdbDrv.readAddress(sdb_address)
+
+				if access == "WRITE_ONLY" or access == "READ_WRITE":
+					inv_mask = 0xffffffff - mask
+					value = value & inv_mask
+					data = (attrVal&(2**size - 1)) << position
+					value = (value | data)
 					
-					value = self.sdbDrv.readAddress(sdb_address)
-
-					if access == "WRITE_ONLY" or access == "READ_WRITE":
-						inv_mask = 0xffffffff - mask
-						value = value & inv_mask
-						data = (attrVal&(2**size - 1)) << position
-						value = (value | data)
-						
-						self.sdbDrv.writeAddress(sdb_address,value)
-						
-						self.logMessage("writeAttribute::Attribute %s address: %s value=%s"%(attrName, hex(sdb_address), hex(value)), self.DEBUG)
-					else:
-						self.logMessage("writeAttribute::Attribute %s is %s type"%(attrName, access), self.ERROR)
+					self.sdbDrv.writeAddress(sdb_address,value)
+					
+					self.logMessage("writeAttribute::Attribute %s address: %s value=%s"%(attrName, hex(sdb_address), hex(value)), self.DEBUG)
+				else:
+					self.logMessage("writeAttribute::Attribute %s is %s type"%(attrName, access), self.ERROR)
+			except Exception, e:
+				self.logMessage("writeAttribute::Cannot write %s attribute due to %s"%(attrName, str(e)), self.ERROR)
 		else:
 			self.logMessage("writeAttribute::Cannot write %s attribute"%attrName, self.ERROR)
 
@@ -274,22 +251,25 @@ class AlinDevice(AlinLog):
 	#  functions. Then it uses the information in the pickle file to apply the proper mask and return the masked value
 	#  @param attrName String containing the attribute name to write
 	#  @return Numeric value for te selected attribute
-	def readAttribute(self,attrName):
+	def readAttribute(self,attrName, cache = False):
 		value = None
 		if attrName is not None and self._devMap:
-			for el in self._devMap['regs']:
-				if attrName.lower() == el.keys()[0].lower():
-					address = el[el.keys()[0]]['address']
-					sdb_address = self.initAddress+(address*4)
-					position = el[el.keys()[0]]['bit_position']
-					size = el[el.keys()[0]]['size']
-					access = el[el.keys()[0]]['access'].split()[0]
+			try:
+				attMap = self._devMap['regs'][attrName.upper()]
 
-					mask = (2**size - 1) << position
-					value = self.sdbDrv.readAddress(sdb_address)
-					value = (value&mask)>>position
-					
-					self.logMessage("readAttribute::Attribute %s address: %s value=%s"%(attrName, hex(sdb_address), hex(value)), self.DEBUG)
+				address = attMap['address']
+				sdb_address = self.initAddress+(address*4)
+				position = attMap['bit_position']
+				size = attMap['size']
+				access = attMap['access'].split()[0]
+
+				mask = (2**size - 1) << position
+				value = self.sdbDrv.readAddress(sdb_address, cache)
+				value = (value&mask)>>position
+				
+				self.logMessage("readAttribute::Attribute %s address: %s value=%s"%(attrName, hex(sdb_address), hex(value)), self.DEBUG)
+			except Exception, e:
+				self.logMessage("readAttribute::Cannot read %s attribute due to %s"%(attrName, str(e)), self.ERROR)
 		else:
 			self.logMessage("readAttribute::Cannot read %s attribute"%attrName, self.ERROR)
 		return value
@@ -303,32 +283,35 @@ class AlinDevice(AlinLog):
 	def getAttributeInfo(self,attrName):
 		valueDict = {}
 		if attrName is not None and self._devMap:
-			for el in self._devMap['regs']:
-				if attrName.lower() == el.keys()[0].lower():
-					address = el[el.keys()[0]]['address']
-					position = el[el.keys()[0]]['bit_position']
-					size = el[el.keys()[0]]['size']
-					access = el[el.keys()[0]]['access'].split()[0]
-					desc = el[el.keys()[0]]['description']
-					mask = (2**size - 1) << position
+			try:
+				attMap = self._devMap['regs'][attrName.upper()]
+
+				address = attMap['address']
+				position = attMap['bit_position']
+				size = attMap['size']
+				access = attMap['access'].split()[0]
+				desc = attMap['description']
+				mask = (2**size - 1) << position
+				
+				if self.initAddress is not None:
+					sdb_address = self.initAddress+(address*4)
+					value = self.sdbDrv.readAddress(sdb_address)
+					value = (value&mask)>>position
+				else:
+					sdb_address = None
+					value = None
 					
-					if self.initAddress is not None:
-						sdb_address = self.initAddress+(address*4)
-						value = self.sdbDrv.readAddress(sdb_address)
-						value = (value&mask)>>position
-					else:
-						sdb_address = None
-						value = None
-					
-					valueDict['name'] = attrName
-					valueDict['desc'] = desc 
-					valueDict['address'] = sdb_address
-					valueDict['regaddress'] = address
-					valueDict['position'] = position
-					valueDict['size'] = size
-					valueDict['access'] = access
-					valueDict['value'] = value
-			self.logMessage("getAttributeInfo::Attribute info %s dict read"%attrName, self.DEBUG )
+				valueDict['name'] = attrName
+				valueDict['desc'] = desc 
+				valueDict['address'] = sdb_address
+				valueDict['regaddress'] = address
+				valueDict['position'] = position
+				valueDict['size'] = size
+				valueDict['access'] = access
+				valueDict['value'] = value
+				self.logMessage("getAttributeInfo::Attribute info %s dict read"%attrName, self.DEBUG )
+			except Exception, e:
+				self.logMessage("getAttributeInfo::Cannot read %s attribute due to %s"%(attrName, str(e)), self.ERROR)
 		else:
 			self.logMessage("getAttributeInfo::Cannot get %s attribute info"%attrName, self.ERROR)
 		return valueDict

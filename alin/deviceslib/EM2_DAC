@@ -1,0 +1,225 @@
+(dp0
+S'vendorid'
+p1
+S'000000000000a1ba'
+p2
+sS'product'
+p3
+S'9eb04e14'
+p4
+sS'name'
+p5
+S'EM2_DAC '
+p6
+sS'devname'
+p7
+S'EM2_DAC'
+p8
+sS'regs'
+p9
+(dp10
+S'RD34_V3'
+p11
+(dp12
+S'access'
+p13
+S' READ_ONLY'
+p14
+sS'bit_position'
+p15
+I0
+sS'address'
+p16
+I3
+sS'description'
+p17
+S'On read the last value sent to DAC3.'
+p18
+sS'size'
+p19
+I16
+ssS'RD34_V4'
+p20
+(dp21
+g13
+S' READ_ONLY'
+p22
+sg15
+I16
+sg16
+I3
+sg17
+S'On read the last value sent to DAC4.'
+p23
+sg19
+I16
+ssS'CFG_WR'
+p24
+(dp25
+g13
+S' WRITE_ONLY'
+p26
+sg15
+I18
+sg16
+I0
+sg17
+S"When this bit is '0', the output value is the one written in Value, else the DAC output will be set by HARMONY messages with 'HARMONY ID in'."
+p27
+sg19
+I1
+ssS'ID_1'
+p28
+(dp29
+g13
+S' READ_WRITE'
+p30
+sg15
+I0
+sg16
+I1
+sg17
+S'Harmony ID that sets the DAC1 output value. Only the 16 bits more significant are used.'
+p31
+sg19
+I8
+ssS'RD12_V1'
+p32
+(dp33
+g13
+S' READ_ONLY'
+p34
+sg15
+I0
+sg16
+I2
+sg17
+S'On read the last value sent to DAC1.'
+p35
+sg19
+I16
+ssS'RD12_V2'
+p36
+(dp37
+g13
+S' READ_ONLY'
+p38
+sg15
+I16
+sg16
+I2
+sg17
+S'On read the last value sent to DAC2.'
+p39
+sg19
+I16
+ssS'ID_2'
+p40
+(dp41
+g13
+S' READ_WRITE'
+p42
+sg15
+I8
+sg16
+I1
+sg17
+S'Harmony ID that sets the DAC2 output value. Only the 16 bits more significant are used.'
+p43
+sg19
+I8
+ssS'ID_3'
+p44
+(dp45
+g13
+S' READ_WRITE'
+p46
+sg15
+I16
+sg16
+I1
+sg17
+S'Harmony ID that sets the DAC3 output value. Only the 16 bits more significant are used.'
+p47
+sg19
+I8
+ssS'CFG_WCH'
+p48
+(dp49
+g13
+S' READ_WRITE'
+p50
+sg15
+I16
+sg16
+I0
+sg17
+S"DAC Channel where 'Value' will be write. 00=channel 1."
+p51
+sg19
+I2
+ssS'CFG_RST'
+p52
+(dp53
+g13
+S' WRITE_ONLY'
+p54
+sg15
+I19
+sg16
+I0
+sg17
+S'Reset the Write Overflow flags'
+p55
+sg19
+I1
+ssS'CFG_OW'
+p56
+(dp57
+g13
+S' READ_ONLY'
+p58
+sg15
+I24
+sg16
+I0
+sg17
+S'At least one DAC value is lost. First bit, first DAC channel.'
+p59
+sg19
+I4
+ssS'ID_4'
+p60
+(dp61
+g13
+S' READ_WRITE'
+p62
+sg15
+I24
+sg16
+I1
+sg17
+S'Harmony ID that sets the DAC4 output value. Only the 16 bits more significant are used.'
+p63
+sg19
+I8
+ssS'CFG_WVALUE'
+p64
+(dp65
+g13
+S' READ_WRITE'
+p66
+sg15
+I0
+sg16
+I0
+sg17
+S'Value to write in the DAC. The output depends on the GAIN pin controlled by em# SPI, when GAIN=0 a value 0 means an em# output of 0V and 0xFFFF 10V. when GAIN=1 a value 0 means an out of -10V and 0xFFFF is 10V.'
+p67
+sg19
+I16
+sssS'description'
+p68
+S'This block controls de DAC (AD5686R) module on FPGA'
+p69
+s.

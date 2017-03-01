@@ -1,0 +1,430 @@
+body {
+     background-color: #222225;
+     margin: 0 auto;
+     width: 90%;
+     height: 100%;     
+     padding: 10px;
+     color: white;
+     font-size: 20px;
+     font-size-adjust: 0.58;    
+}
+ 
+h1 {
+    #background-color: #fe921f ;    
+    font-weight: bold;
+    letter-spacing: -1px;
+    text-align: left;
+    
+    font-family: helveticaneuelight, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 50px;
+    line-height: 1.428571429;
+    color: #f3f3f2;    
+}
+
+h2 {
+    
+    font-weight: normal;
+    font-family: helveticaneuelight, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    line-height: 1.428571429;
+    color: #f3f3f2;    
+    font-size: 3vh;
+    
+}
+
+h3 {
+    
+    font-weight: normal;
+    color: #f3f3f2;    
+    font-family: helveticaneuelight, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    line-height: 1.428571429;
+    color: #f3f3f2;    
+    font-size: 2.5vh;
+}
+
+h4 {
+    
+    font-weight: normal;
+    color: #f3f3f2;    
+    font-family: helveticaneuelight, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    line-height: 1.428571429;
+    color: #f3f3f2;    
+    font-size: 2vh;
+}
+
+p { 
+    font-family: helveticaneuelight, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    line-height: 1.428571429;
+    color: #f3f3f2;    
+    font-family: 'Helvetica Neue', sans-serif;
+    font-size: 14px;
+    margin: 0 0 24px;
+    text-align: justify;
+    text-justify: inter-word;
+}
+
+.img-wrapper {
+    display: inline-block;
+    vertical-align: middle;
+    text-align: left;  
+}
+
+.img-wrapper-right {
+    display: inline-block;
+    vertical-align: middle;
+    text-align: right;
+    float: right;
+}
+
+a { 
+    color: #ffffcc;    
+    text-decoration: underline;
+}
+
+
+a:hover {
+    color: #ffff00;
+}
+
+
+.topmenu {
+    color: #ffffff;
+    text-align: right;
+    font-size: 1.2vh;
+    font-weight: normal;
+    background-color: #222225;
+}
+
+/* Style the tab */
+div.tab {
+    overflow: hidden;
+    color: #f3f3f2;
+    background-color: #043569;    
+    /*background-color: #f1f1f1;*/
+}
+
+/* Style the links inside the tab */
+div.tab a {
+    float: left;
+    display: block;
+    color: #f3f3f2;
+    text-align: center;
+    padding: 10px 12px;
+    text-decoration: none;
+    transition: 0.3s;
+    font-size: 22px;
+    font-family: helveticaneuelight, "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+/* Change background color of links on hover */
+div.tab a:hover {
+    background-color: #89C0FF;
+}
+
+/* Create an active/current tablink class */
+div.tab a:focus, .active {
+    background-color: #0065D8;
+}
+
+/* Style the tab content */
+.tabcontent {
+    display: none;
+    padding: 6px 12px;
+    border: none;
+}
+
+
+table { 
+     background-color: #2e3338;
+     box-sizing: border-box;
+     font-family: helveticaneuelight, "Helvetica Neue", Helvetica, Arial, sans-serif;        
+     font-size: 14px;
+     font-size-adjust: 0.58;         
+     width: 100%;
+     border-collapse: collapse;
+     border-radius: 6px;
+     line-height: 1.428571429;
+     border: 2;
+     color: #f3f3f2; 
+ }
+ 
+th, td {
+    border-bottom: 1px solid #222225;
+}
+
+.selectable:hover {
+    background-color: #f5f5f5;
+}
+
+.fpga_table { 
+    background-color: #2e3338;
+    box-sizing: border-box;
+    font-family: helveticaneuelight, "Helvetica Neue", Helvetica, Arial, sans-serif;        
+    font-size: 14px;
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 6px;
+    line-height: 1.428571429;
+    border: 2;
+    color: #f3f3f2;   
+}
+
+.table_cell_title {
+    text-align: center;
+    color: #ffffcc;
+    font-weight: normal;    
+    font-size: 16px;    
+    font-size-adjust: 0.58;             
+    background-color: #043569;    
+}
+
+.table_cell_text_title {
+    vertical-align: top;
+    text-align: left;
+    color: #ffffcc;
+    font-weight: normal;    
+    font-size: 16px;    
+    font-size-adjust: 0.58;             
+    background-color: #043569;   
+    text-indent:.2in    
+}
+
+.table_cell_value {
+    color: #ccb95c;
+    font-weight: 200;    
+    font-size: 14px;    
+    font-size-adjust: 0.58;         
+    text-align: center;
+    min-width: 80px;
+}
+
+.table_cell_text {
+    color: #ffffcc;
+    font-weight: 200;    
+    font-size: 14px;    
+    font-size-adjust: 0.58;         
+    text-align: left;
+    min-width: 80px;
+    text-indent:.2in        
+}
+
+.table_cell_text2 {
+    vertical-align: top;    
+    color: #ffffcc;
+    font-weight: 200;    
+    font-size: 14px;    
+    font-size-adjust: 0.58;         
+    text-align: left;
+    min-width: 80px;        
+}
+
+.table_cell_title2 {
+    background-color: #2e3338;
+    text-align: left;
+    color: #b0b0b0;
+    font-size: 14px;    
+    font-size-adjust: 0.58;     
+    font-weight: bold;
+}
+
+.table_cell_title2_sub {
+    background-color: #2e3338;
+    text-align: left;
+    color: #b0b0b0;
+    font-size: 14px;    
+    font-size-adjust: 0.58;     
+    font-style: italic;
+}
+
+
+
+.table_cell_title3 {
+    font-size: 16px;    
+    font-size-adjust: 0.58;     
+    font-weight: normal;
+    text-align: left;
+    color: #ffe879;
+}
+
+.table_cell_value3 {
+    font-size: 16px;    
+    font-size-adjust: 0.58;     
+    color: #ffe879;    
+    font-weight: bold;    
+    text-align: right;
+    width: auto;
+}
+
+.table_cell_title4 {
+    background-color: #2e3338;
+    text-align: center;
+    color: #b0b0b0;
+    font-weight: bold;   
+    font-size: 14px;    
+    font-size-adjust: 0.58;     
+}
+
+.table_cell_setvalue {
+    color: #ccb95c;
+    font-size: 14px;    
+    font-size-adjust: 0.58;     
+    font-weight: 200;    
+    text-align: center;
+    min-width: 80px;
+}
+
+.info {
+    color: #ffffff;
+    background-color: #043569;
+    text-align: right;
+    font-size: 1.5vh;
+    font-weight: normal; 
+}
+
+.toggle1, .toggle2, .toggle3, .toggle4, .toggle5{
+    position: absolute;
+    right: 4%;
+    display:inline;
+    width: 100px;
+    margin: 0px 0 0;
+    font-size: 12px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.tools{
+    color: white;
+    cursor: pointer;
+    text-align: center;
+}
+
+.inputText {
+    font-family: helveticaneuelight, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 14px;    
+    font-size-adjust: 0.58;     
+    text-align: center;
+    min-width: 150px;
+    width: 100%;
+    background-color: #F7FAD9;    
+}
+
+.inputTextCell {
+    font-family: helveticaneuelight, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    width: 95%;
+    background-color: #F7FAD9;       
+    font-size: 14px;    
+    font-size-adjust: 0.58;     
+    font-weight: 200;    
+    text-align: center;
+    min-width: 80px;
+}
+
+.inputTextCh {
+    font-family: helveticaneuelight, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 14px;    
+    font-size-adjust: 0.58;     
+    text-align: center;
+    min-width: 90px;
+    width: 100%;
+    background-color: #F7FAD9;    
+}
+
+.normalButton {
+    font-family: helveticaneuelight, "Helvetica Neue", Helvetica, Arial, sans-serif;    
+    font-size: 1.1em;
+    font-size-adjust: 0.58;         
+    border-radius: 5px;
+}
+
+.myButtonPurple {
+    padding: 3px;
+    padding-left: 5px;
+    line-height: 1.428571429;
+    vertical-align: center;
+    font-family: helveticaneuelight, "Helvetica Neue", Helvetica, Arial, sans-serif;    
+    color: #ffffff;
+    font-size: 16px;    
+    font-size-adjust: 0.58;     
+    background-color: #9b007c;
+    border-radius: 5px;
+    width: 100%;
+}
+.myButtonPurple:hover:enabled{
+    background-color:#F582DE;
+}
+.myButtonPurple:active:enabled {
+    position:relative;
+    top:1px;
+}
+
+.myButtonPurple:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background-color:#FACAF0;    
+}
+
+.myButtonGreen {
+    padding: 6px;
+    padding-left: 10px;
+    line-height: 1.428571429;
+    vertical-align: center;
+    font-family: helveticaneuelight, "Helvetica Neue", Helvetica, Arial, sans-serif;    
+    color: #ffffff;
+    font-size: 14px;    
+    font-size-adjust: 0.58;     
+    background-color: #33cc00;
+    border-radius: 5px;
+    width: 100%;
+}
+.myButtonGreen:hover:enabled {
+    background-color:#ABED95;
+}
+.myButtonGreen:active:enabled {
+    position:relative;
+    top:1px;
+}
+
+.myButtonOrange {
+    padding: 6px;
+    padding-left: 10px;
+    line-height: 1.428571429;
+    vertical-align: center;
+    font-family: helveticaneuelight, "Helvetica Neue", Helvetica, Arial, sans-serif;    
+    color: white;
+    font-size: 14px;    
+    font-size-adjust: 0.58;     
+    background-color: #5AAAFA;
+    border-radius: 5px;
+    width: 100%;
+}
+.myButtonOrange:hover:enabled {
+    background-color:#B1D6FA;
+}
+.myButtonYellow:active:enabled {
+    position:relative;
+    top:1px;
+}
+
+.selCel {
+    color: black;
+    background-color: white;    
+    font-size: 1.3em;
+}
+
+
+.Message {
+    color: red;
+    font-family: helveticaneuelight, "Helvetica Neue", Helvetica, Arial, sans-serif;    
+    font-size: 16px;    
+    font-size-adjust: 0.58;     
+    font-style: italic;
+    text-align: right;
+}
+
+.alertmsg {
+    color: red;
+    font-family: helveticaneuelight, "Helvetica Neue", Helvetica, Arial, sans-serif;    
+    font-size: 12px;    
+    font-size-adjust: 0.58;      
+    font-style: italic;
+    text-align: left;
+}

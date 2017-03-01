@@ -42,7 +42,7 @@ peripheral {
 
     field {
       name = "Memory Overread";
-      description = "This bits indicates that a memory was red without data. So some of the data red could be not valid.";
+      description = "This bits indicates that a memory was red without valid data. So some of the data red could be not valid. This can be caused because readings are to fast or because there is no data in the buffer";
       prefix = "ROF";
       type = BIT;
       size = 1;

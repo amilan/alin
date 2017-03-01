@@ -2,8 +2,8 @@ peripheral {
   name = "WB-HRMY-ID-GEN     ";
   vendor_id = "000000000000a1ba";
   device_id = "0000fdaf";
-  version   = "00000001";
-  date      = "20151202";
+  version   = "00000002";
+  date      = "20160927";
   description = "This block is though to generate data with and ID. It can be used to setup memories or for diagnostics";
   hdl_entity = "hrmy_gen_id_block_csr";
 
@@ -43,11 +43,20 @@ peripheral {
       access_dev = READ_ONLY;
     };
 	field {
-      name = "CLKE";
-      description = "If it is set to 1, the mesage's timestamp is internally generated.";
-      prefix = "CLKE";
+      name = "DataSRC";
+      description = "If it is set to 1, the data field of out message is the data received from last TriggerID message received.";
+      prefix = "DSRC";
       type = BIT;
       size = 1;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    };
+	field {
+      name = "CLKE";
+      description = "The out message's timeStamp source is:\n * 0: SDB register TS_ID.TimeStamp.\n * 1:  Internally generated.\n * 2: The last TriggerID received.\n * 3: Reserved.";
+      prefix = "CLKE";
+      type = SLV;
+      size = 2;
       access_bus = READ_WRITE;
       access_dev = READ_ONLY;
     };
@@ -60,6 +69,39 @@ peripheral {
       access_bus = READ_ONLY;
       access_dev = WRITE_ONLY;
     };
+    field {
+      name = "IDGEN Error";
+      description = "This bits indicates that ID-Gen block has a error. The main reason for this is that a new message is required to be send when a previous message is still pending to be delivered.";
+      prefix = "Err";
+      type = BIT;
+      size = 1;
+      access_bus = READ_ONLY;
+      access_dev = WRITE_ONLY;
+    };
+    
+	field {
+      name = "ID-GEN Error Reset";
+      description = "Resets the IDGEN Error and the Ready fields. This may produce a lost of a message pending to be send.";
+      prefix = "Rst";
+      type = MONOSTABLE;
+      size = 1;
+      access_bus = WRITE_ONLY;
+      access_dev = READ_ONLY;
+    };
+  };
+  
+  reg {
+	name = "Wait Time";
+	prefix = "Wait";    
+	field {
+	  name = "time";
+	  description = "This is the time that message generated will be delayed in units of 1024*time nanoseconds";
+	  prefix = "time";
+	  type = SLV;
+	  size = 24;
+	  access_bus = READ_WRITE;
+	  access_dev = READ_ONLY;
+	};
   };
   
   reg {

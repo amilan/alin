@@ -1,0 +1,276 @@
+{
+    "Data": [
+        [
+            "WB-HRMY-CROSSBAR 0", 
+            {
+                "ID_DIAGNJDRDRD_MTREQ": 0, 
+                "ID_DIAGNJDRDRD_RST_STA": 0, 
+                "ID_DIAGNJDRD_MREQ": 0, 
+                "ID_DIAGNJD_MLEN": 0, 
+                "ID_DIAGN_DWLOADMSG": 46378, 
+                "ID_DIAGN_UPLOADMSG": 46378
+            }
+        ], 
+        [
+            "WB-HRMY-CROSSBAR 1", 
+            {
+                "ID_DIAGNJDRDRD_MTREQ": 0, 
+                "ID_DIAGNJDRDRD_RST_STA": 0, 
+                "ID_DIAGNJDRD_MREQ": 0, 
+                "ID_DIAGNJD_MLEN": 0, 
+                "ID_DIAGN_DWLOADMSG": 4966, 
+                "ID_DIAGN_UPLOADMSG": 4966
+            }
+        ], 
+        [
+            "WB-HRMY-CROSSBAR 2", 
+            {
+                "ID_DIAGNJDRDRD_MTREQ": 0, 
+                "ID_DIAGNJDRDRD_RST_STA": 0, 
+                "ID_DIAGNJDRD_MREQ": 0, 
+                "ID_DIAGNJD_MLEN": 0, 
+                "ID_DIAGN_DWLOADMSG": 22254, 
+                "ID_DIAGN_UPLOADMSG": 22254
+            }
+        ], 
+        [
+            "WB-FMC-FV-CONTROL 0", 
+            {
+                "CTRL_STA_FV": 513, 
+                "CTRL_STA_LED": 0, 
+                "CTRL_STA_READ_MODE": 0, 
+                "CTRL_STA_RELAY": 0, 
+                "CTRL_STA_SP1": 0, 
+                "LIM_MAX": 520, 
+                "LIM_MIN": 502
+            }
+        ], 
+        [
+            "WB-HRMY-AVERAGE 0", 
+            {
+                "ACC_H_H": 4294967295, 
+                "ACC_L_L": 4294965492, 
+                "AVG_CTL_AOF": 0, 
+                "AVG_CTL_ENA": 0, 
+                "AVG_CTL_OOF": 0, 
+                "AVG_CTL_PRE_DIV": 0, 
+                "AVG_CTL_WB_RST": 0, 
+                "ID_CFG_ID_IN": 0, 
+                "ID_CFG_ID_IP": 0, 
+                "ID_CFG_ID_OUT": 0
+            }
+        ], 
+        [
+            "WB-HRMY-AVERAGE 1", 
+            {
+                "ACC_H_H": 4294967295, 
+                "ACC_L_L": 4294966318, 
+                "AVG_CTL_AOF": 0, 
+                "AVG_CTL_ENA": 0, 
+                "AVG_CTL_OOF": 0, 
+                "AVG_CTL_PRE_DIV": 0, 
+                "AVG_CTL_WB_RST": 0, 
+                "ID_CFG_ID_IN": 0, 
+                "ID_CFG_ID_IP": 0, 
+                "ID_CFG_ID_OUT": 0
+            }
+        ], 
+        [
+            "WB-HRMY-AVERAGE 2", 
+            {
+                "ACC_H_H": 0, 
+                "ACC_L_L": 16996643, 
+                "AVG_CTL_AOF": 0, 
+                "AVG_CTL_ENA": 0, 
+                "AVG_CTL_OOF": 0, 
+                "AVG_CTL_PRE_DIV": 0, 
+                "AVG_CTL_WB_RST": 0, 
+                "ID_CFG_ID_IN": 0, 
+                "ID_CFG_ID_IP": 0, 
+                "ID_CFG_ID_OUT": 0
+            }
+        ], 
+        [
+            "WB-HRMY-AVERAGE 3", 
+            {
+                "ACC_H_H": 4294967295, 
+                "ACC_L_L": 4294965412, 
+                "AVG_CTL_AOF": 0, 
+                "AVG_CTL_ENA": 0, 
+                "AVG_CTL_OOF": 0, 
+                "AVG_CTL_PRE_DIV": 0, 
+                "AVG_CTL_WB_RST": 0, 
+                "ID_CFG_ID_IN": 0, 
+                "ID_CFG_ID_IP": 0, 
+                "ID_CFG_ID_OUT": 0
+            }
+        ], 
+        [
+            "WB-HRMY-FIFO 0", 
+            {
+                "FIFO_SIZE_MAXSIZE": 1024, 
+                "FIFO_SIZE_SIZE": 0, 
+                "MEM_CTL_ID_IN": 0, 
+                "MEM_CTL_ID_OUT": 0
+            }
+        ], 
+        [
+            "WB-HRMY-FIFO 1", 
+            {
+                "FIFO_SIZE_MAXSIZE": 1024, 
+                "FIFO_SIZE_SIZE": 0, 
+                "MEM_CTL_ID_IN": 0, 
+                "MEM_CTL_ID_OUT": 0
+            }
+        ], 
+        [
+            "WB-HRMY-FIFO 2", 
+            {
+                "FIFO_SIZE_MAXSIZE": 1024, 
+                "FIFO_SIZE_SIZE": 0, 
+                "MEM_CTL_ID_IN": 0, 
+                "MEM_CTL_ID_OUT": 0
+            }
+        ], 
+        [
+            "WB-HRMY-FIFO 3", 
+            {
+                "FIFO_SIZE_MAXSIZE": 1024, 
+                "FIFO_SIZE_SIZE": 0, 
+                "MEM_CTL_ID_IN": 0, 
+                "MEM_CTL_ID_OUT": 0
+            }
+        ], 
+        [
+            "WB-FMC-ADC-CORE 0", 
+            {
+                "ADC_CH1": 4294967292, 
+                "ADC_CH2": 1, 
+                "ADC_CH3": 27239, 
+                "ADC_CH4": 4294967292, 
+                "ADC_CH5": 4294967294, 
+                "ADC_CH6": 27237, 
+                "ADC_CH7": 0, 
+                "ADC_CH8": 4294967295, 
+                "CTL_ADC_FSM": 2, 
+                "CTL_ADC_OS": 6, 
+                "CTL_ADQ_M": 0, 
+                "CTL_DBL_RATE": 0, 
+                "CTL_FIFO_OF": 0, 
+                "CTL_RANGE": 1, 
+                "CTL_RIC": 0, 
+                "CTL_RST": 0, 
+                "CTL_TRIGID": 0, 
+                "CTL_TRIG_ERR": 0, 
+                "ID_CH1_ID": 0, 
+                "ID_CH2_ID": 0, 
+                "ID_CH3_ID": 0, 
+                "ID_CH4_ID": 0, 
+                "SAMPLES_CNT": 431439348
+            }
+        ], 
+        [
+            "WB-HRMY-MEMORY 0", 
+            {
+                "CTL_ID": 33, 
+                "CTL_IDMASK": 0, 
+                "CTL_MOF": 0, 
+                "CTL_ONTRIGGER": 0, 
+                "CTL_ROF": 0, 
+                "CTL_RST": 0, 
+                "CTL_SAVE": 0, 
+                "CTL_TRIGID": 1, 
+                "LEN_MAXDATA": 4000, 
+                "LEN_NDATA": 0, 
+                "V_ID": 34, 
+                "V_T_STAMP": 0
+            }
+        ], 
+        [
+            "WB-HRMY-ID-GEN 0", 
+            {
+                "DATA_GEN_DATA": 0, 
+                "ID_GEN_CTL_CLKE": 0, 
+                "ID_GEN_CTL_ERR": 0, 
+                "ID_GEN_CTL_ETI": 0, 
+                "ID_GEN_CTL_MTRIG": 0, 
+                "ID_GEN_CTL_RDY": 0, 
+                "ID_GEN_CTL_RST": 0, 
+                "ID_GEN_CTL_TRIGGERID": 81, 
+                "TS_ID_ID_OUT": 240, 
+                "TS_ID_TIMESTAMP": 0, 
+                "WAIT_TIME": 0
+            }
+        ], 
+        [
+            "SPI 0", 
+            {
+                "CTL_RX": 1, 
+                "CTL_RX_DATA": 744, 
+                "CTL_RX_DATA_LENGTH": 13, 
+                "CTL_SPI_ADDR": 20, 
+                "CTL_START": 0, 
+                "CTL_TX": 0, 
+                "CTL_TX_DATA": 0, 
+                "CTL_TX_DATA_LENGTH": 0, 
+                "STAT_ERROR_CODE": 0, 
+                "STAT_READY": 1, 
+                "STAT_STATE_MACHINE": 0
+            }
+        ], 
+        [
+            "WB-EM2-DIGITAL_IO 0", 
+            {
+                "CNT0_STP_DIS": 0, 
+                "CNT0_STP_OUT_ID": 0, 
+                "CNT0_STP_SIG": 0, 
+                "CNT0_STP_SRC": 0, 
+                "CNT0_STP_SRC_ID": 0, 
+                "CNT0_STP_TRIG": 0, 
+                "CNT0_V_CNT_V": 0, 
+                "CNT1_STP_DIS": 0, 
+                "CNT1_STP_OUT_ID": 0, 
+                "CNT1_STP_SIG": 0, 
+                "CNT1_STP_SRC": 0, 
+                "CNT1_STP_SRC_ID": 0, 
+                "CNT1_STP_TRIG": 0, 
+                "CNT1_V_CNT_V": 0, 
+                "CNT2_STP_DIS": 0, 
+                "CNT2_STP_OUT_ID": 0, 
+                "CNT2_STP_SIG": 0, 
+                "CNT2_STP_SRC": 0, 
+                "CNT2_STP_SRC_ID": 0, 
+                "CNT2_STP_TRIG": 0, 
+                "CNT2_V_CNT_V": 0, 
+                "CNT3_STP_DIS": 0, 
+                "CNT3_STP_OUT_ID": 0, 
+                "CNT3_STP_SIG": 0, 
+                "CNT3_STP_SRC": 0, 
+                "CNT3_STP_SRC_ID": 0, 
+                "CNT3_STP_TRIG": 0, 
+                "DIO_STP_HO": 1, 
+                "DIO_STP_IO": 8191, 
+                "DIO_STP_IOP": 0, 
+                "DIO_STP_RST": 0, 
+                "DIO_V_DIO_V": 15, 
+                "DIO_V_D_MASK": 0, 
+                "DIS_STP_DIS1": 0, 
+                "DIS_STP_DIS1_ID": 0, 
+                "DIS_STP_DIS1_M": 0, 
+                "DIS_STP_DIS2": 0, 
+                "DIS_STP_DIS2_ID": 0, 
+                "DIS_STP_DIS2_M": 0, 
+                "DIS_STP_WD1": 0, 
+                "DIS_STP_WD2": 0, 
+                "TRG0_V_CNT_V": 0, 
+                "TRG1_V_CNT_V": 0, 
+                "TRG2_V_CNT_V": 0, 
+                "TRG3_V_CNT_V": 0
+            }
+        ]
+    ], 
+    "Last update": {
+        "DATE": "23/11/2016", 
+        "TIME": "00:40:09"
+    }
+}

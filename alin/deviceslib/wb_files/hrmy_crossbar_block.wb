@@ -2,8 +2,8 @@ peripheral {
   name = "WB-HRMY-CROSSBAR   ";
   vendor_id = "000000000000a1ba";
   device_id = "0000fd11";
-  version   = "00000002";
-  date      = "20160216";
+  version   = "00000001";
+  date      = "20151211";
   description = "This block is the crossbar of harmony bus it can be used for diagnostics diagnostics";
   hdl_entity = "hrmy_crossbar_block_csr";
 

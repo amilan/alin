@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title> ALBA EM#</title>
+    <link rel="shortcut icon" href="{{ static_url('images/favicon.gif') }}">
+    <link rel="stylesheet" type="text/css" href="{{ static_url('default.css') }}">
+
+    
+    <!--<script  type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.1/jquery.min.js"></script>-->
+    <script  type="text/javascript" src="{{ static_url('jslibs/jquery-3.1.1.js') }}"></script>     
+    <script type="text/javascript" src="{{ static_url('jslibs/DataDiags.js') }}"></script>
+    <link rel="stylesheet" type="text/css" href="{{ static_url('jqplot/jquery.jqplot.css') }}"/>
+    <style type="text/css">
+  </style>    
+</head>
+
+<body>
+    <table  border=1 frame=hsides rules=rows bordercolor="#222225"><caption>&nbsp;</caption>
+    <tbody>
+        <tr>
+            <th class="table_cell_title" colspan="2">&nbspFV Data Reset&nbsp</th>
+        </tr>
+        <tr>
+            <td class="table_cell_value" width="200px"></td>
+            <td><button type="button" class="myButtonPurple" id="FVResetButton">Reset</button></td>
+        </tr>
+    </tbody>
+    </table>
+    <table  border=1 frame=hsides rules=rows bordercolor="#222225"><caption>&nbsp;</caption>
+    <tbody>
+        <tr>
+            <th class="table_cell_title" colspan="2">&nbspFV Maximum Limit&nbsp</th>
+        </tr>
+        <tr>
+            <td class="table_cell_value" id="fv_maxlim" width="200px"></td>
+            <td><input type="number" min="-1250" max="1250" class="inputText" name="fvmaxlim" id="fvmaxlim"></select></td>
+        </tr>
+    </tbody>
+    </table>
+    <br>
+    <table  border=1 frame=hsides rules=rows bordercolor="#222225"><caption>&nbsp;</caption>
+    <tbody>
+        <tr>
+            <th class="table_cell_title" colspan="2">&nbspFV Minimum Limit&nbsp</th>
+        </tr>
+        <tr>
+            <td class="table_cell_value" id="fv_minlim" width="200px"></td>
+            <td><input type="number" min="-1250" max="1250" class="inputText" name="fvminlim" id="fvminlim"></td>
+        </tr>
+    </tbody>
+    </table>
+    <br>
+    <table  border=1 frame=hsides rules=rows bordercolor="#222225"><caption>&nbsp;</caption>
+    <tbody>
+        <tr>
+            <th class="table_cell_title" colspan="2">&nbspFV Relay&nbsp</th>
+        </tr>
+        <tr>
+            <td class="table_cell_value" id="fv_relay" width="200px"></td>
+            <td><select class="inputText" id="fvrelay"></select></td>
+        </tr>
+    </tbody>
+    </table>
+    <br>
+    <button onclick="window.close()" type="button" class="myButtonOrange">Close</button>    
+    <p class="Message" id="Message"></p>    
+</body>
+</html>

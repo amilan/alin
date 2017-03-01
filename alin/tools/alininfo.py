@@ -14,22 +14,108 @@ __version__ = "1.0"
 __email__ = "mbroseta@cells.es"
 __status__ = "Development"
 
+from alin.base import *
+
+import getopt
+import json
 import os
 import pickle
-import getopt, sys
 import select
-
-from alin.base import *
+import sys
+import threading
+import time
 
 OFFSET = 0x00 #0x100
 #DEVICE_FOLDER = "/home/projects/alba-em/deviceslib/"
 
 
+class FPGADataSaving(threading.Thread):
+	def __init__(self, period= 1, count=0):
+		threading.Thread.__init__(self)
+		
+		self.period = period
+		self.count = count
+		
+		self._endProcess = False
+		self._processEnded = False
+		
+				
+	def end(self):
+		self._endProcess = True
+				
+	def getProcessEnded(self):
+		return self._processEnded
+	
+	def saveFPGAData(self):
+		dev_list = [('WB-HRMY-CROSSBAR', 0), 
+					('WB-HRMY-CROSSBAR', 1), 
+					('WB-HRMY-CROSSBAR', 2), 
+					('WB-FMC-FV-CONTROL', 0),
+					('WB-HRMY-AVERAGE', 0), 
+					('WB-HRMY-AVERAGE', 1), 
+					('WB-HRMY-AVERAGE', 2), 
+					('WB-HRMY-AVERAGE', 3), 
+					('WB-HRMY-FIFO', 0), 
+					('WB-HRMY-FIFO', 1), 
+					('WB-HRMY-FIFO', 2), 
+					('WB-HRMY-FIFO', 3),
+					('WB-FMC-ADC-CORE', 0), 
+					('WB-HRMY-MEMORY', 0), 
+					('WB-HRMY-ID-GEN', 0), 
+					('SPI', 0), 
+					('WB-EM2-DIGITAL_IO', 0),
+					]
+
+		out_dict = {}
+		dev_dict = []
+		for dev in dev_list:
+			d = AlinDevice(device=dev[0], number=dev[1], debug=False)
+			if dev[0] == 'WB-HRMY-MEMORY':
+				att_list = d.getAttributesList()
+				temp = {}
+				for att in att_list:
+					if att != "V_DATA":
+						val = d.readAttribute(att)
+						temp[att] = val
+			else:
+				temp = d.getDeviceData()
+			dev_dict.append([dev[0]+" "+str(dev[1]), temp])
+			
+		out_dict['Last update'] = {'DATE': time.strftime("%d/%m/%Y"), 'TIME': time.strftime("%H:%M:%S")}
+		out_dict['Data'] = dev_dict
+
+		jsondata = json.dumps(out_dict, indent=4, skipkeys=True, sort_keys=True)
+		with open("/var/www/static/fpga_data.json","w") as out_file:
+			out_file.write(jsondata)
+		out_file.close()
+
+
+	def run(self): 
+		data_dict = {}
+		count = 0
+		i = []
+		print "\nPress <ENTER> to abort or stop file generation!!\n"
+		while i==[] and not self._endProcess:
+			try:
+				print "Generating File count: %s out of %s"%(str(count),str(self.count))
+				self.saveFPGAData()
+				count += 1
+				if (self.count == 0) or (self.count != 0 and count<self.count):
+					i, o, e = select.select( [sys.stdin], [], [], self.period )
+				else:
+					self._endProcess = True
+			except KeyboardInterrupt:
+				self._endProcess = True
+				break
+				
+		self._processEnded = True
+
 class AlinInfo():
 	def __init__(self, offset=0):
 		
-		self.app = AlinSDB()
+		self.app = AlinSDB(debug=False)
 		self.app.getData(offset)
+		self.jsonThread = None
 		
 	def showDevice(devfile=""):
 		dev_map = {}
@@ -48,7 +134,8 @@ class AlinInfo():
 			elif el['interconnect'] == self.app.SDB_RECORD_REPO_URL: #Empty record
 				print "Record type\t\tRepository-Url"
 				print "Url\t\t\t0x00: %s"%''.join([chr(a) for a in el['repo_url']])
-				print "Record Type\t\t0x3f: %s\n"%hex(el['interconnect'])
+				print "Record Type\t\t0x3f: %s\n"%hex(el['interconnect']) 
+
 				continue
 			elif el['interconnect'] == self.app.SDB_RECORD_SYNTHESIS: #Empty record
 				print "Record type\t\tSynthesis Record"
@@ -97,7 +184,8 @@ class AlinInfo():
 		print "#\tBusPath\tVendorId\tProduct\t\tAddress range(hex)\tDescription"
 
 		sdb_data = self.app.readData()
-		for el in sdb_data:
+		for el in sdb_data: 
+
 			add_val = "..........."
 			if el['interconnect']==self.app.SDB_RECORD_REPO_URL:
 				vendor_device = "..<< Repository-url >>.."
@@ -123,6 +211,7 @@ class AlinInfo():
 
 	def loadFile(self,filename=None):
 		if filename is not None and os.path.isfile(filename):
+
 			ret = self.app.loadFile(filename)
 			if ret:
 				print('\nThe bitstream has been successfully loaded\n')
@@ -152,7 +241,7 @@ class AlinInfo():
 			print "%06x"%el[0],
 			print ' '.join([("%02x"%el[a]) for a in range(1,17)]),
 			print " >",''.join([chr(el[a]) if el[a]>0x1F and el[a]<0x80 else c86hr(0x2E) for a in range(1,17)]),"<"
-			
+
 	def showDeviceMemory(self):
 		print "Select device from the list:\n"
 		self.showTree()
@@ -187,7 +276,7 @@ class AlinInfo():
 			
 	def writeDeviceReg(self, dev=None, devnum=0, reg=None, data=0):
 		if dev is not None and reg is not None:
-			device = AlinDevice(dev, devnum)
+			device = AlinDevice(dev, devnum, debug=False)
 			device.writeAttribute(reg,data)
 			
 			value = device.readAttribute(reg)
@@ -198,7 +287,7 @@ class AlinInfo():
 			
 	def readDeviceReg(self, dev=None, devnum=0, reg=None):
 		if dev is not None and reg is not None:
-			device = AlinDevice(dev, devnum)
+			device = AlinDevice(dev, devnum, debug=False)
 			value = device.readAttribute(reg)
 			txt = "%s "%reg.upper()
 			txt = txt.ljust(30,'.')
@@ -208,7 +297,7 @@ class AlinInfo():
 	def infoDeviceReg(self, dev=None, devnum=0, reg=None):
 		if dev is not None and reg is not None:
 			temp = {}
-			device = AlinDevice(dev, devnum)
+			device = AlinDevice(dev, devnum, debug=False)
 			temp = device.getAttributeInfo(reg)
 			try:
 				print "\nDescriptrion:"
@@ -236,7 +325,7 @@ class AlinInfo():
 
 	def infoDevice(self, dev=None, devnum=0):
 		if dev is not None:
-			device = AlinDevice()
+			device = AlinDevice(debug=False)
 			devinfo = device.setDevice(dev, devnum)
 			if devinfo is not None:
 				temp = []
@@ -249,10 +338,10 @@ class AlinInfo():
 				print "Last Address:\t%s"%hex(devinfo['last_address'])
 				print "Description:\t%s\n"%devinfo['description']
 				
-				for el in temp:
-					txt = "%s "%el[0]
+				for idx,el in sorted(temp.items()):
+					txt = "%s "%idx
 					txt = txt.ljust(30,'.')
-					txt += ": %s"%el[1]
+					txt += ": %s"%hex(el)
 					print txt
 				print "\n"
 			else:
@@ -275,6 +364,10 @@ class AlinInfo():
 		else:
 			print "ALINPATH not set\n"
 			
+			
+	def generateFPGADataFile(self, period, time):
+		self.jsonThread = FPGADataSaving(period=period, count=time)
+		self.jsonThread.start()
 		
 def help():
 	BOLD = '\033[1m'
@@ -293,6 +386,10 @@ def help():
 	print "\t\tTo display the detailed SDB structure.\n"
 	print BOLD+"\t-t or --tree:"+END
 	print "\t\tShort list of SDB structure.\n"	
+	print BOLD+"\t-f <period>,<times>"+END
+	print "\t\tGenerates the FPGA json file to used in the fpga-html page\n"
+	print "\t\tI.e.: alin -f 20  --> This will generate files continuosly every 20 seconds\n"
+	print "\t\tI.e.: alin -b 20, 5 --> this will generate just 5 files every 20 secons\n"
 	print BOLD+"\t--help:"+END
 	print "\t\tShows this help\n"
 	print BOLD+"\t-l <filename.bin> or --load=<filename.bin>:"+END
@@ -319,7 +416,7 @@ def help():
 	
 def main():
 	try:
-		short_cmds = "o:l:r:w:g:s:b:itmd:v:"
+		short_cmds = "o:l:r:w:g:s:b:f:itmd:v:"
 		long_cmds = ["help","offset=","load=","read=","write=","block=","info","tree","map","dev=","list"]
 		opts, args = getopt.getopt(sys.argv[1:], short_cmds, long_cmds)
 	except getopt.GetoptError as err:
@@ -463,6 +560,21 @@ def main():
 	if "-m" in opts_dict.keys() or "--map" in opts_dict.keys():
 		al.showDeviceMemory()
 		sys.exit()
+
+	# 8- generate the FPGA file to used in the FPGA.html web page
+	if "-f" in opts_dict.keys():
+		try:
+			period = int(opts_dict["-f"].split(",")[0])
+			times = int(opts_dict["-f"].split(",")[1])
+		except:
+			try:
+				period = int(opts_dict["-f"].split(",")[0])
+			except:
+				period = 1
+			times = 0
+		al.generateFPGADataFile(period,times)
+		sys.exit()
+
 		
 	# X- Reads a block of memory
 	if "-i" in opts_dict.keys() or "--info" in opts_dict.keys():

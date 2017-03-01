@@ -5,11 +5,11 @@ S'000000000000a1ba'
 p2
 sS'product'
 p3
-S'00000568'
+S'b379b5a4'
 p4
 sS'name'
 p5
-S'WB-HRMY-AVERAGE'
+S'WB-HRMY-AVERAGE '
 p6
 sS'devname'
 p7
@@ -17,174 +17,164 @@ S'WB-HRMY-AVERAGE'
 p8
 sS'regs'
 p9
-(lp10
-(dp11
-S'avg_ctl_wb_Trig'
-p12
-(dp13
+(dp10
+S'AVG_CTL_OOF'
+p11
+(dp12
 S'access'
+p13
+S' READ_ONLY'
 p14
-S' WRITE_ONLY'
-p15
 sS'bit_position'
+p15
+I8
+sS'address'
 p16
 I0
-sS'address'
-p17
-I0
 sS'description'
+p17
+S'This bit indicates that acoumulator has a bigger value than the output send.'
 p18
-S'If there is data in the FIFO, a rise on this bit forces a data output and FIFO is emptied one position.'
-p19
 sS'size'
-p20
+p19
 I1
-ssa(dp21
-S'avg_ctl_ENA'
+ssS'AVG_CTL_AOF'
+p20
+(dp21
+g13
+S' READ_ONLY'
 p22
-(dp23
-g14
-S' READ_WRITE'
+sg15
+I7
+sg16
+I0
+sg17
+S'This bit indicates that FIFO is full and it is ready to send output data.'
+p23
+sg19
+I1
+ssS'ID_CFG_ID_IP'
 p24
+(dp25
+g13
+S' READ_WRITE'
+p26
+sg15
+I0
 sg16
 I1
 sg17
-I0
-sg18
-S'These bits indicates, when output data will be generated.\\n 00: Data is never send.\\n 01: Data is send after receive a positive input. \\n 10: Data is send after receive a negative input. \\n 11: Data is send after receive a both positive and negative inputs.'
-p25
-sg20
-I2
-ssa(dp26
-S'avg_ctl_AOF'
+S'This is the ID data that will be added at the acomulator. If it is set to 0 no data is added.'
 p27
-(dp28
-g14
+sg19
+I8
+ssS'ACC_H_H'
+p28
+(dp29
+g13
 S' READ_ONLY'
-p29
+p30
+sg15
+I0
+sg16
+I2
+sg17
+S'Value of accomulator internal register, high part.'
+p31
+sg19
+I32
+ssS'ID_CFG_ID_IN'
+p32
+(dp33
+g13
+S' READ_WRITE'
+p34
+sg15
+I8
+sg16
+I1
+sg17
+S'This is the ID data that will be substracted at the acomulator. If it is set to 0 no data is sustracted.'
+p35
+sg19
+I8
+ssS'ACC_L_L'
+p36
+(dp37
+g13
+S' READ_ONLY'
+p38
+sg15
+I0
 sg16
 I3
 sg17
-I0
-sg18
-S'This bit indicates that FIFO is full and it is ready to send output data.'
-p30
-sg20
-I1
-ssa(dp31
-S'avg_ctl_OOF'
-p32
-(dp33
-g14
-S' READ_ONLY'
-p34
-sg16
-I4
-sg17
-I0
-sg18
-S'This bit indicates that FIFO is full and it is ready to send output data.'
-p35
-sg20
-I1
-ssa(dp36
-S'avg_ctl_ID_OUT'
-p37
-(dp38
-g14
-S' READ_WRITE'
+S'Value of accomulator internal register, low part.'
 p39
-sg16
-I5
-sg17
-I0
-sg18
-S'This bit indicates the number of bits that output is shifted respect to acomulator register.'
+sg19
+I32
+ssS'AVG_CTL_PRE_DIV'
 p40
-sg20
-I4
-ssa(dp41
-S'ID_CFG_ID_IP'
-p42
-(dp43
-g14
+(dp41
+g13
 S' READ_WRITE'
-p44
+p42
+sg15
+I0
 sg16
 I0
 sg17
-I1
-sg18
-S'This is the ID data that will be added at the acomulator.'
-p45
-sg20
-I8
-ssa(dp46
-S'ID_CFG_ID_IN'
-p47
-(dp48
-g14
+S'This bit indicates the number of bits that output is shifted respect to acomulator register.'
+p43
+sg19
+I5
+ssS'ID_CFG_ID_OUT'
+p44
+(dp45
+g13
 S' READ_WRITE'
-p49
+p46
+sg15
+I16
 sg16
-I8
-sg17
 I1
-sg18
-S'This is the ID data that will be substracted at the acomulator.'
-p50
-sg20
+sg17
+S'This is the ID of the output data generated the Timestamp of Output is the timestamp of the last input. If it is set to 0 no data is generated.'
+p47
+sg19
 I8
-ssa(dp51
-S'ID_CFG_ID_OUT'
+ssS'AVG_CTL_ENA'
+p48
+(dp49
+g13
+S' READ_WRITE'
+p50
+sg15
+I5
+sg16
+I0
+sg17
+S'These bits indicates, when output data will be generated.\\n 00: Data is send for each ID_IP or ID_IN is received.\\n 01: Data is send after receive a positive input. \\n 10: Data is send after receive a negative input. \\n 11: Data is send after receive both positive and negative inputs.'
+p51
+sg19
+I2
+ssS'AVG_CTL_WB_RST'
 p52
 (dp53
-g14
-S' READ_WRITE'
+g13
+S' WRITE_ONLY'
 p54
-sg16
-I16
-sg17
-I1
-sg18
-S'This is the ID of the delayed data generated, when new data arrives and FIFO is full or when , the first element of FIFO is generated keeping the original data and time, but with this new ID. If the ID_OUT=0 then FIFO do not send anything. Timestamp of Output is the timestamp of the last input.'
-p55
-sg20
-I8
-ssa(dp56
-S'FIFO_SIZE_size'
-p57
-(dp58
-g14
-S' READ_WRITE'
-p59
+sg15
+I9
 sg16
 I0
 sg17
-I2
-sg18
-S'Number that indicates the delay elements of the FIFO. It must be smaller than maxSize.'
-p60
-sg20
-I16
-ssa(dp61
-S'FIFO_SIZE_maxSize'
-p62
-(dp63
-g14
-S' READ_ONLY'
-p64
-sg16
-I16
-sg17
-I2
-sg18
-S'Maximum number of FIFO elements'
-p65
-sg20
-I16
-ssasS'description'
-p66
+S'Resets the acomulator registers to 0 and clear the flags Acumulator overflow and Output overflow'
+p55
+sg19
+I1
+sssS'description'
+p56
 S'This block is though to calculate the dynamic mean of data in 32-bit 2-Complement format.'
-p67
+p57
 s.

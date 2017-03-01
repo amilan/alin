@@ -17,142 +17,194 @@ S'WB-HRMY-ID-GEN'
 p8
 sS'regs'
 p9
-(lp10
-(dp11
-S'ID_gen_ctl_TriggerID'
-p12
-(dp13
+(dp10
+S'ID_GEN_CTL_RDY'
+p11
+(dp12
 S'access'
+p13
+S' READ_ONLY'
 p14
-S' READ_WRITE'
-p15
 sS'bit_position'
+p15
+I13
+sS'address'
 p16
 I0
-sS'address'
-p17
-I0
 sS'description'
+p17
+S'this bit indicates that data is still not send to the Harmony Bus and an error can be generated if a new data request is generated.'
 p18
-S'if EnTrigID is set to 1, each time this ID is received a message is generated in Harmony BUS'
-p19
 sS'size'
+p19
+I1
+ssS'ID_GEN_CTL_ETI'
 p20
-I8
-ssa(dp21
-S'ID_gen_ctl_mTrig'
-p22
-(dp23
-g14
-S' WRITE_ONLY'
-p24
-sg16
-I8
-sg17
-I0
-sg18
-S'Sends the Data Message when it is set.'
-p25
-sg20
-I1
-ssa(dp26
-S'ID_gen_ctl_ETI'
-p27
-(dp28
-g14
+(dp21
+g13
 S' READ_WRITE'
-p29
-sg16
+p22
+sg15
 I9
-sg17
+sg16
 I0
-sg18
+sg17
 S'If it is set to 1, the data mesage is send in Harmony bus each time a Trigger ID is received.'
-p30
-sg20
+p23
+sg19
 I1
-ssa(dp31
-S'ID_gen_ctl_CLKE'
+ssS'DATA_GEN_DATA'
+p24
+(dp25
+g13
+S' READ_WRITE'
+p26
+sg15
+I0
+sg16
+I3
+sg17
+S'This is the data value of the data generated.'
+p27
+sg19
+I32
+ssS'ID_GEN_CTL_TRIGGERID'
+p28
+(dp29
+g13
+S' READ_WRITE'
+p30
+sg15
+I0
+sg16
+I0
+sg17
+S'if EnTrigID is set to 1, each time this ID is received a message is generated in Harmony BUS'
+p31
+sg19
+I8
+ssS'ID_GEN_CTL_RST'
 p32
 (dp33
-g14
-S' READ_WRITE'
+g13
+S' WRITE_ONLY'
 p34
+sg15
+I15
 sg16
-I10
-sg17
 I0
-sg18
-S"If it is set to 1, the mesage's timestamp is internally generated."
+sg17
+S'Resets the IDGEN Error and the Ready fields. This may produce a lost of a message pending to be send.'
 p35
-sg20
+sg19
 I1
-ssa(dp36
-S'ID_gen_ctl_RDY'
-p37
-(dp38
-g14
-S' READ_ONLY'
-p39
-sg16
-I11
-sg17
-I0
-sg18
-S'this bit indicates that data is still not send to the Harmony Bus and an error can be generated if a new data request is generated.'
-p40
-sg20
-I1
-ssa(dp41
-S'TS_ID_ID_OUT'
-p42
-(dp43
-g14
+ssS'TS_ID_TIMESTAMP'
+p36
+(dp37
+g13
 S' READ_WRITE'
-p44
-sg16
-I0
-sg17
-I1
-sg18
-S'This is the ID of data generated.'
-p45
-sg20
+p38
+sg15
 I8
-ssa(dp46
-S'TS_ID_TimeStamp'
-p47
-(dp48
-g14
-S' READ_WRITE'
-p49
 sg16
-I8
+I2
 sg17
-I1
-sg18
 S'This is the TimeStamp of data generated.'
-p50
-sg20
+p39
+sg19
 I24
-ssa(dp51
-S'DATA_GEN_DATA'
+ssS'ID_GEN_CTL_ERR'
+p40
+(dp41
+g13
+S' READ_ONLY'
+p42
+sg15
+I14
+sg16
+I0
+sg17
+S'This bits indicates that ID-Gen block has a error. The main reason for this is that a new message is required to be send when a previous message is still pending to be delivered.'
+p43
+sg19
+I1
+ssS'WAIT_TIME'
+p44
+(dp45
+g13
+S' READ_WRITE'
+p46
+sg15
+I0
+sg16
+I1
+sg17
+S'This is the time that message generated will be delayed in units of 1024*time nanoseconds'
+p47
+sg19
+I24
+ssS'ID_GEN_CTL_MTRIG'
+p48
+(dp49
+g13
+S' WRITE_ONLY'
+p50
+sg15
+I8
+sg16
+I0
+sg17
+S'Sends the Data Message when it is set.'
+p51
+sg19
+I1
+ssS'TS_ID_ID_OUT'
 p52
 (dp53
-g14
+g13
 S' READ_WRITE'
 p54
+sg15
+I0
+sg16
+I2
+sg17
+S'This is the ID of data generated.'
+p55
+sg19
+I8
+ssS'ID_GEN_CTL_CLKE'
+p56
+(dp57
+g13
+S' READ_WRITE'
+p58
+sg15
+I11
 sg16
 I0
 sg17
+S"The out message's timeStamp source is:\\n * 0: SDB register TS_ID.TimeStamp.\\n * 1: Internally generated.\\n * 2: The last TriggerID received.\\n * 3: Reserved."
+p59
+sg19
 I2
-sg18
-S'This is the data value of the data generated.'
-p55
-sg20
-I32
-ssasS'description'
-p56
+ssS'ID_GEN_CTL_DSRC'
+p60
+(dp61
+g13
+S' READ_WRITE'
+p62
+sg15
+I10
+sg16
+I0
+sg17
+S'If it is set to 1, the data field of out message is the data received from last TriggerID message received.'
+p63
+sg19
+I1
+sssS'description'
+p64
 S'This block is though to generate data with and ID. It can be used to setup memories or for diagnostics'
-p57
+p65
 s.

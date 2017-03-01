@@ -16,115 +16,86 @@ __version__ = "1.0"
 __email__ = "mbroseta@cells.es"
 __status__ = "Development"
 
-import scpi
-import threading
-import os, sys, time
+from alin.base import AlinDevice
+from alin.base import AlinLog
+from alin.base import AlinSDB
+from alin.base import getConfigData
+from alin.base import version
 
-from alin.drivers.display import Display, DisplayDriver
-from alin.drivers.spi import SpiCtrl
-from alin.drivers.harmony import Harmony
+from alin.applications.diagnostics import Diagnostics
+from alin.applications.display import Display
+from alin.applications.harmony import Harmony
+from alin.applications.mem import MemoryMW
+from alin.applications.psb import Psb
+from alin.applications.scpiapp import ScpiApp
+from alin.applications.webserver import WebServer
 
-from alin.base import AlinLog, AlinSDB, AlinDevice
+import os
+import select
+import sys
 
-from channel import *
-from general import *
-from displayui import DisplayUIClass
-from distutils.sysconfig import get_python_lib
-
-__CONFIG_FILE__ = "Config"
-__CONFIG_MASK__ = "MAIN_"
+_CONFIG_MASK = "MAIN_"
 
 class AlinMainClass():
-    DEFAULT_SCPI_PORT = 5025
-    DEFAULT_SCPI_AUTOOPEN = True
-    DEFAULT_SCPI_LOCAL = True
-    
     def __init__(self):
         # Logging
-        self._log = AlinLog(debug=True, loggerName='MAIN')
+        self._log = AlinLog(debug=True, loggerName='MAIN   ')
+        
+        # Get default configuration from config file
+        configDict = getConfigData(_CONFIG_MASK)
+        self._debug = bool(configDict["DEBUG_"]) if "DEBUG_" in configDict.keys() else debug
+        self._debuglevel = int(configDict["DEBUGLEVEL_"]) if "DEBUGLEVEL_" in configDict.keys() else 40
         
         self.mainflag = True
         self.mainprocess_ended = False
         
-                # Print Welcome Message
+        self.main_version = version.version()
+        
+        # Print Welcome Message
+        self.setLogMessage("", self._log.INFO)
         self.setLogMessage("**************************************", self._log.INFO)
         self.setLogMessage("*                                    *", self._log.INFO)
-        self.setLogMessage("*    ALIN MAIN SOFTWARE V %s     *"%version.version(), self._log.INFO)
+        self.setLogMessage("*    ALIN MAIN SOFTWARE V %s     *"%self.main_version, self._log.INFO)
         self.setLogMessage("*   Wellcome and enjoy the sesion!   *", self._log.INFO)
         self.setLogMessage("*                                    *", self._log.INFO)
         self.setLogMessage("**************************************", self._log.INFO)
-
-        self._debug = True
-        self._debuglevel = 10
-        self._scpiport = self.DEFAULT_SCPI_PORT
-        self._scpiautoopen = self.DEFAULT_SCPI_AUTOOPEN
-        self._scpilocal = self.DEFAULT_SCPI_LOCAL
-        self._scpi_debug = self._debug
-        # Get default configuration from config file
-        self.getConfigData()
+        self.setLogMessage("", self._log.INFO)
         
-        self._device_list = [{'name':'DISPLAY',
-                             'class':Display,
-                             'pointer':None
-                             },
-                             {'name':'HARMONY',
-                             'class':Harmony,
-                             'pointer':None
-                             },
-                             {'name':'SPI',
-                             'class':SpiCtrl,
-                             'pointer':None
-                             },
-                             ]
-        
-        # Connect & start devices
-        self.connectDevices()
-        self.startDevices()
-
         self.setLogDebugLevel(self._debuglevel)
         self._log.logEnable(self._debug)
-        
-        # Creates Panel Thread & Start it
-        self._display = DisplayUIClass(self, debug=self._debug)
-        self._display.start()
 
-        # Create communication SCPI
-        self.startSCPI()
+        # Initializes and Start Applications
+        self.startApplications()
+        
+        self.setLogMessage("__init__() Initialized ", self._log.INFO)
         
     def __del__(self):
         self.mainflag = False
         while not self.mainprocess_ended:
             self.setLogMessage("Waiting Main process to fininsh", self._log.INFO)
 
-        self.setLogMessage("Stopping SCPI", self._log.INFO)
-        self.stopSCPI()
+        # Ends applications
+        self.EndApplications()
         
-        self._display.end()
-        while not self._display.getProcessEnded():
-            pass
-
-        # Stop devices
-        self.setLogMessage("Stopping devices", self._log.INFO)
-        self.stopDevices()
-
         self.setLogMessage("*** Bye bye cocodrile!!! ***", self._log.INFO)
+        self.setLogMessage("***********************************************************", self._log.INFO)
 
 
     def setLogDebugLevel(self, debuglevel):
         if debuglevel is not None and self._log is not None:
-            if debuglevel == 0:
+            if debuglevel == 10:
                 # 0 = DEBUG
                 dbg = self._log.DEBUG
-            elif debuglevel == 1:
+            elif debuglevel == 20:
                 # 0 = DEBUG
                 dbg = self._log.INFO
-            elif debuglevel == 2:
+            elif debuglevel == 30:
                 # 0 = DEBUG
                 dbg = self._log.WARNING
-            elif debuglevel == 3:
+            elif debuglevel == 40:
                 # 0 = DEBUG
                 dbg = self._log.ERROR
-            elif debuglevel == 4:
+            elif debuglevel == 50:
                 # 0 = DEBUG
                 dbg = self._log.CRITICAL
             else:
@@ -136,224 +107,76 @@ class AlinMainClass():
     def setLogMessage(self, msg, debuglevel):
         if self._log is not None: 
             self._log.logMessage(msg, debuglevel)
-    
-    def getConfigData(self):
-        # Get config File
-        config_folder = get_python_lib()+"/alin/config/"
-        config_file = config_folder+__CONFIG_FILE__
+            
+    def startApplications(self):
+        self._applications = {'PSB':         {'class':Psb,'pointer':None},
+                             'DISPLAY':     {'class':Display,'pointer':None},
+                             'HARMONY':     {'class':Harmony, 'pointer':None},
+                             'DIAGNOSTICS': {'class':Diagnostics, 'pointer':None},
+                             'MEMORY_APP':  {'class':MemoryMW, 'pointer':None},
+                             'SCPI_APP':    {'class':ScpiApp,'pointer':None},
+                             'WEBSERVER':   {'class':WebServer, 'pointer':None},
+                             }
         
-        try:
-            with open(config_file, 'r') as f:
-                lines = f.readlines()
-                f.close()
-                
-            comp = [ln.split(__CONFIG_MASK__)[1].replace(" ","").replace("\t","").replace("\n","") for ln in lines if ln.startswith(__CONFIG_MASK__)]
-            if comp != []:
-                for cm in comp:
-                    if cm.startswith("DEBUG_"):
-                        try:
-                            self._debuf = True if cm.split("=")[1].lower() == "true" else False
-                            self._log.logMessage("%s::getConfigData(): DEBUG set to %s"%(__CONFIG_MASK__, self._debug),self._log.INFO)
-                        except Exception, e:
-                            self._log.logMessage("%s::getConfigData(): Can't get DEBUG flag %s"%(__CONFIG_MASK__, self._debug, str(e)),self._log.ERROR)
-                    elif cm.startswith("DEBUGLEVEL_"):
-                        try:
-                            self._debuglevel = int(cm.split("=")[1])
-                            self._log.logMessage("%s::getConfigData(): DEBUGLEVEL set to %s"%(__CONFIG_MASK__,self._debuglevel),self._log.INFO)
-                        except Exception, e:
-                            self._log.logMessage("%s::getConfigData(): Can't get DEBUGLEVEL flag %s"%(__CONFIG_MASK__, self._debug, str(e)),self._log.ERROR)
-                    elif cm.startswith("SCPI_AUTOOPEN_"):
-                        try:
-                            self._scpiautoopen = True if cm.split("=")[1].lower() == "true" else False
-                            self._log.logMessage("%s::getConfigData(): SCPI_AUTOOPEN_ set to %s"%(__CONFIG_MASK__,self._scpiautoopen),self._log.INFO)
-                        except Exception, e:
-                            self._log.logMessage("%s::getConfigData(): Can't get SCPI_AUTOOPEN_ flag %s"%(__CONFIG_MASK__, self._debug, str(e)),self._log.ERROR)
-                    elif cm.startswith("SCPI_LOCAL_"):
-                        try:
-                            self._scpilocal = True if cm.split("=")[1].lower() == "true" else False
-                            self._log.logMessage("%s::getConfigData(): SCPI_LOCAL_ set to %s"%(__CONFIG_MASK__,self._scpilocal),self._log.INFO)
-                        except Exception, e:
-                            self._log.logMessage("%s::getConfigData(): Can't get SCPI_LOCAL_ flag %s"%(__CONFIG_MASK__, self._debug, str(e)),self._log.ERROR)
-                    elif cm.startswith("SCPI_PORT_"):
-                        try:
-                            self._scpiport = int(cm.split("=")[1])
-                            self._log.logMessage("%s::getConfigData(): SCPI_PORT_ set to %d"%(__CONFIG_MASK__,self._scpiport),self._log.INFO)
-                        except Exception, e:
-                            self._log.logMessage("%s::getConfigData(): Can't get SCPI_PORT_ %s"%(__CONFIG_MASK__, self._debug, str(e)),self._log.ERROR)
-                    elif cm.startswith("SCPI_DEBUG_"):
-                        try:
-                            self._scpi_debug = True if cm.split("=")[1].lower() == "true" else False
-                            self._log.logMessage("%s::getConfigData(): SCPI_DEBUG_ set to %s"%(__CONFIG_MASK__,self._scpi_debug),self._log.INFO)
-                        except Exception, e:
-                            self._log.logMessage("%s::getConfigData(): Can't get SCPI_DEBUG_ %s"%(__CONFIG_MASK__, self._debug, str(e)),self._log.ERROR)
-        
-        except Exception, e:
-            self._log.logMessage("%s::getConfigData():: Not possible to get config file due to:"%__CONFIG_MASK__,self._log.ERROR)
-            self._log.logMessage(str(e),self._log.ERROR)
-        
-    def connectDevices(self):
-        for idx,dev in enumerate(self._device_list):
+        powerup_order = ['PSB','HARMONY','DIAGNOSTICS', 'MEMORY_APP', 'DISPLAY', 'SCPI_APP', 'WEBSERVER']
+
+        for key in powerup_order:
+            el = self._applications[key]
             try:
-                dev_pointer = dev['class'](debug=self._debug)
-                self.setLogMessage("connectDevices() %s Object created %s"%(dev['name'],dev_pointer), self._log.DEBUG)
-                self._device_list[idx]['pointer'] = dev_pointer
+                dev_pointer = el['class'](debug=self._debug)
+                self._applications[key]['pointer'] = dev_pointer
+                
+                self.setLogMessage("InitializeApplications() %s Object created%s"%(key,dev_pointer), self._log.INFO)
             except Exception, e:
-                self.setLogMessage("Failed to create %s device due to: %s"%(dev['name'],str(e)), self._log.ERROR)
-                self._device_list[idx]['pointer'] = None
-    
-    def startDevices(self):
-        for dev in self._device_list:
+                self.setLogMessage("Failed to create Applications %s device due to: %s"%(key,str(e)), self._log.ERROR)
+                self._applications[key]['pointer'] = None
+                
+        for key in powerup_order:
+            el = self._applications[key]
             try:
-                if dev['pointer'] != 'DISPLAY':
-                    dev['pointer'].start()
-                    self.setLogMessage("startDevices() Start device %s"%(dev['name']), self._log.DEBUG)
+                el['pointer'].shareApplications(self._applications)
+                el['pointer'].start()
+                
+                self.setLogMessage("InitializeApplications() shared middleware table and start %s"%key, self._log.INFO)
             except Exception, e:
-                self.setLogMessage("Failed to start %s device due to: %s"%(dev['name'],str(e)), self._log.ERROR)
-            
-    def stopDevices(self):
-        for dev in self._device_list:
+                self.setLogMessage("Failed to share Applications %s device due to: %s"%(key,str(e)), self._log.WARNING)
+    
+    def stopApplications(self):
+        for key, el in self._applications.iteritems():
             try:
-                dev['pointer'].stop()
-                self.setLogMessage("startDevices() Start device %s"%(dev['name']), self._log.DEBUG)
+                el['pointer'].stop()
+                self.setLogMessage("EndApplications() Applications ended %s"%key, self._log.INFO)
             except Exception, e:
-                self.setLogMessage("Failed to start %s device due to: %s"%(dev['name'],str(e)), self._log.ERROR)
-    
-    def getDeviceList(self):
-        return self._device_list
-    
-    def getDisplayUIClass(self):
-        return self._display
-
-    def getLogDevice(self):
-        return self._log
-    
-    def startSCPI(self): 
-        try:
-            self._scpiObj = scpi.scpi(local=self._scpilocal, port=self._scpiport, autoOpen=self._scpiautoopen, debug=self._scpi_debug)
-            self.setLogMessage("createSCPIObject() Object created %s"%self._scpiObj, self._log.DEBUG)
-
-            # Create classes
-            self._general = GeneralClass(self)
-            self._channels = ChannelClass(self)
-            
-            # Build scpi command list
-            self._help_cmd_list = ''
-            
-            
-            self.createSCPISystemCommandList()
-            self.createSCPISpecialsList()
-            self.createSCPIFunctionList()
-            
-        except Exception, e:
-            self.setLogMessage("FAILED TO Create scpi Obj due to: %s"%str(e), self._log.ERROR)
-            self._scpiObj = None
-    
-    def stopSCPI(self): 
-        if self._scpiObj is not None:
-            self._scpiObj = None
-        self.setLogMessage("destroyedSCPIObject %s"%self._scpiObj, self._log.DEBUG)
-    
-    def createSCPISystemCommandList(self):
-        self.scpiAddSpecialCommand('rst',fwrite=self.resetCommand)
-        self.scpiAddSpecialCommand('hlp',fread=self.helpCommand)
-        self.scpiAddSpecialCommand('sht',fread=self.shutdownCommand)
-    
-    def createSCPISpecialsList(self):
-        specialList = self._general.getSCPISpecialsList()
-        
-        if specialList is not None and specialList != []:
-            for spEl in specialList:
-                self.scpiAddSpecialCommand(spEl['command'],fread=spEl['fread'])
-    
-    def createSCPIFunctionList(self):
-        generalList = self._general.getSCPIFunctionList()
-        if generalList is not None and generalList != []:
-            for spEl in generalList:
-                
-                if spEl['component'] is not None:
-                    compName = spEl['component']
-                    attrName = spEl['command']
-                    cmd = '%s:%s'%(compName,attrName)
-                else:
-                    attrName = spEl['command']
-                    cmd='%s'%attrName
-                    
-                self.scpiAddCommand(cmd=cmd, fread=spEl['fread'], fwrite=spEl['fwrite'])
-
-        n_channels = self._channels.getNumChannels()
-        if n_channels >0 and n_channels is not None:
-            for channel in range(0,n_channels):
-                
-                baseCompName = self._channels.getChannelName(channel)
-                channelList = self._channels.getSCPIFunctionList(channel)
-                
-                if channelList is not None and channelList != []:
-                    for spEl in channelList:
-                        if spEl['component'] is not None:
-                            compName = spEl['component']
-                            attrName = spEl['command']
-                            cmd = '%s:%s:%s'%(baseCompName,compName,attrName)
-                        else:
-                            attrName = spEl['command']
-                            cmd = '%s:%s'%(baseCompName,attrName)
-                        
-                        self.scpiAddCommand(cmd=cmd, fread=spEl['fread'], fwrite=spEl['fwrite'], default=spEl['default'])
-
-                            
-    def scpiAddCommand(self,cmd='',fread=None,fwrite=None,default=False):
-        self._scpiObj.addCommand(cmd, readcb=fread, writecb=fwrite, default=default)
-        self._help_cmd_list += cmd.upper()+"\n"
-        self.setLogMessage("scpi general command ==> %s"%cmd.upper(), self._log.DEBUG)
-
-    def scpiAddSpecialCommand(self,cmd='',fread=None,fwrite=None):
-        self._scpiObj.addSpecialCommand(cmd, readcb=fread, writecb=fwrite)
-        self._help_cmd_list += cmd.upper()+"\n"
-        self.setLogMessage("scpi special command ==> %s"%cmd.upper(), self._log.DEBUG)
-
-    def helpCommand(self):
-        self.setLogMessage("SCPI - helpCommand()", self._log.DEBUG)
-        # Only to test problems
-        print self._scpiObj.commands        
-        return self._help_cmd_list
-    
-    def resetCommand(self):
-        self.setLogMessage("RESET_COMMAND ==>", self._log.INFO)
-        self._display.end()
-        while not self._display.getProcessEnded():
-            pass
-
-        # Stop devices
-        self.stopDevices()
-        
-        self.setLogMessage("RESET_COMMAND ==> Panel process ended", self._log.INFO)
-        self.setLogMessage("RESET_COMMAND ==> Rebooting System...............bye, bye!!", self._log.INFO)
-        self.setLogMessage("***********************************************************", self._log.INFO)
-
-        # restart system
-        os.system('reboot -f -t 0')
-
-    def shutdownCommand(self):
-        self.setLogMessage("SHUTDOWN_COMMAND ==>", self._log.INFO)
-        self._display.end()
-        while not self._display.getProcessEnded():
-            pass
-        
-        # Stop devices
-        self.stopDevices()
-        
-        self.setLogMessage("SHUTDOWN_COMMAND ==> Panel process ended", self._log.INFO)
-        self.setLogMessage("SHUTDOWN_COMMAND ==> Shuting System...............bye, bye!!", self._log.INFO)
-        self.setLogMessage("***********************************************************", self._log.INFO)
-
-        # restart system
-        os.system('shutdown -f -t o')
-
+                self.setLogMessage("Failed to end Applications %s device due to: %s"%(key,str(e)), self._log.ERROR)
     
     def start(self):
-        while (self.mainflag):
-            pass
+        self._end_type = 'NORMAL'
+        try:
+            while (self.mainflag):
+                pass
+        except KeyboardInterrupt:
+            self.mainflag = False
         
+        # Ends Applications
+        self.stopApplications()
+
+        self.setLogMessage("*** Bye bye cocodrile!!! ***", self._log.INFO)
+        self.setLogMessage("***********************************************************", self._log.INFO)
+
         self.mainprocess_ended = True
+        if self._end_type == 'REBOOT':
+            # Reboot system
+            os.system('/sbin/shutdown -f -r now')
+        elif self._end_type == 'SHUTDOWN':
+            os.system('/sbin/shutdown -f now')
+        else:
+            pass
+        sys.exit(-1)
+
+    def end(self, type='NORMAL'):
+        self.mainflag = False
+        
+        self._end_type = type
 
 if __name__ == "__main__":
     Work = AlinMainClass()

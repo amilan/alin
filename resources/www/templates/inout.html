@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title> ALBA EM#</title>
+    <link rel="shortcut icon" href="{{ static_url('images/favicon.gif') }}">
+    <link rel="stylesheet" type="text/css" href="{{ static_url('default.css') }}">
+
+    
+    <!--<script  type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.1/jquery.min.js"></script>-->
+    <script  type="text/javascript" src="{{ static_url('jslibs/jquery-3.1.1.js') }}"></script>     
+    <script type="text/javascript" src="{{ static_url('jslibs/DataInOut.js') }}"></script>
+    <link rel="stylesheet" type="text/css" href="{{ static_url('jqplot/jquery.jqplot.css') }}"/>
+    <style type="text/css">
+  </style>    
+</head>
+
+<body>
+    <table border=1 frame=hsides rules=rows bordercolor="#222225"><caption>&nbsp;</caption>
+    <tbody>
+        <tr>
+            <th class="table_cell_title" colspan="11">&nbsp Analog Output &nbsp</th>
+        </tr>
+        <tr>
+            <th class="table_cell_title2">&nbspDAC Gain </th>
+            <td class="table_cell_setvalue" id="dac_gain"></td>
+            <td><select class="inputTextCh" id="dacgain"></select></td>            
+            <th class="table_cell_title2" colspan="6"></th>            
+        </tr>
+        <tr>
+            <th class="table_cell_title4" width='100px' style="text-align: center"></th>
+            <th class="table_cell_title4" colspan="2">Channel 1</th>
+            <th class="table_cell_title4" colspan="2">Channel 2</th>
+            <th class="table_cell_title4" colspan="2">Channel 3</th>
+            <th class="table_cell_title4" colspan="2">Channel 4</th>
+        </tr>
+        <tr>
+            <th class="table_cell_title2">&nbspValue </th>
+            <td class="table_cell_setvalue" id="chn1_aout"></td>
+            <td><input type="number" min="-10" max="10" step="0.1" class="inputTextCell" name="chn1aout" id="chn1aout" ></td>
+            <td class="table_cell_setvalue" id="chn2_aout"></td>
+            <td><input type="number" min="-10" max="10" step="0.1" class="inputTextCell" name="chn2aout" id="chn2aout" ></td>
+            <td class="table_cell_setvalue" id="chn3_aout"></td>
+            <td><input type="number" min="-10" max="10" step="0.1" class="inputTextCell" name="chn3aout" id="chn3aout" ></td>
+            <td class="table_cell_setvalue" id="chn4_aout"></td>
+            <td><input type="number" min="-10" max="10" step="0.1" class="inputTextCell" name="chn4aout" id="chn4aout" ></td>
+        </tr>
+    </tbody>
+    </table>
+    
+    <table border=1 frame=hsides rules=rows bordercolor="#222225"><caption>&nbsp;</caption>
+    <tbody>
+        <tr>
+            <th class="table_cell_title" colspan="14">&nbsp High Speed IOPorts &nbsp</th>
+        </tr>
+        <tr>
+            <th class="table_cell_title4" width='100px' style="text-align: center"></th>
+            <th style="background-color: #222225; "></th>
+            <th class="table_cell_title4" colspan="2" id="ioport_1_name"></th>
+            <th style="background-color: #222225; "></th>
+            <th class="table_cell_title4" colspan="2" id="ioport_2_name"></th>
+            <th style="background-color: #222225; "></th>
+            <th class="table_cell_title4" colspan="2" id="ioport_3_name"></th>
+            <th style="background-color: #222225; "></th>
+            <th class="table_cell_title4" colspan="2" id="ioport_4_name"></th>
+        </tr>
+        <tr>
+            <th class="table_cell_title2">&nbspConfig </th>
+            <th style="background-color: #222225; "></th>            
+            <td class="table_cell_setvalue" id="ioport1config"></td>
+            <td><select class="inputTextCh" id="ioport1_config"></select></td>
+            <th style="background-color: #222225; "></th>            
+            <td class="table_cell_setvalue" id="ioport2config"></td>
+            <td><select class="inputTextCh" id="ioport2_config"></select></td>
+            <th style="background-color: #222225; "></th>            
+            <td class="table_cell_setvalue" id="ioport3config"></td>
+            <td><select class="inputTextCh" id="ioport3_config"></select></td>
+            <th style="background-color: #222225; "></th>            
+            <td class="table_cell_setvalue" id="ioport4config"></td>
+            <td><select class="inputTextCh" id="ioport4_config"></select></td>
+        </tr>
+        <tr>
+            <th class="table_cell_title2">&nbspValue </th>        
+            <th style="background-color: #222225; "></th>            
+            <td class="table_cell_setvalue" id="ioport1value"></td>
+            <td><select class="inputTextCh" id="ioport1_value"></select></td>
+            <th style="background-color: #222225; "></th>            
+            <td class="table_cell_setvalue" id="ioport2value"></td>
+            <td><select class="inputTextCh" id="ioport2_value"></select></td>
+            <th style="background-color: #222225; "></th>            
+            <td class="table_cell_setvalue" id="ioport3value"></td>
+            <td><select class="inputTextCh" id="ioport3_value"></select></td>
+            <th style="background-color: #222225; "></th>            
+            <td class="table_cell_setvalue" id="ioport4value"></td>
+            <td><select class="inputTextCh" id="ioport4_value"></select></td>
+        </tr>
+    </tbody>
+    </table>
+    
+    <table border=1 frame=hsides rules=rows bordercolor="#222225"><caption>&nbsp;</caption>
+    <tbody>
+        <tr>
+            <th class="table_cell_title" colspan="11">&nbsp Supply Ports &nbsp</th>
+        </tr>
+        <tr>
+            <th class="table_cell_title4" width='100px' style="text-align: center"></th>
+            <th class="table_cell_title4" colspan="2">DIO_5 (pin 19)</th>
+            <th class="table_cell_title4" colspan="2">DIO_5 (pin 21)</th>
+            <th class="table_cell_title4" colspan="2">DIO_5 (pin 23)</th>
+            <th class="table_cell_title4" colspan="2">DIO_5 (pin 25)</th>
+        </tr>
+        <tr>
+            <th class="table_cell_title2">&nbspValue </th>
+            <td class="table_cell_setvalue" id="supplyport_1"></td>
+            <td><select class="inputTextCh" id="supplyport1"></select></td>
+            <td class="table_cell_setvalue" id="supplyport_2"></td>
+            <td><select class="inputTextCh" id="supplyport2"></select></td>
+            <td class="table_cell_setvalue" id="supplyport_3"></td>
+            <td><select class="inputTextCh" id="supplyport3"></select></td>
+            <td class="table_cell_setvalue" id="supplyport_4"></td>
+            <td><select class="inputTextCh" id="supplyport4"></select></td>
+        </tr>
+    </tbody>
+    </table>    
+    <br>
+    <button onclick="window.close()" type="button" class="myButtonOrange">Close</button>    
+    <p class="Message" id="Message"></p>    
+</body>
+</html>
