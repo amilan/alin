@@ -88,6 +88,7 @@ class ScpiApp():
     def shareApplications(self, applications):
         self._log.logMessage("shareApplications(): Getting needed applications layers", self._log.INFO)
         
+        self._MAIN = applications['MAIN']['pointer']
         self._DIAGS = applications['DIAGNOSTICS']['pointer']
         self._PSB = applications['PSB']['pointer']
         self._HARMONY = applications['HARMONY']['pointer']
@@ -264,6 +265,12 @@ class ScpiApp():
                              'component':'ACQUisition',
                              'fread':self._HARMONY.getAcqTime,
                              'fwrite':self._HARMONY.setAcqTime,
+                             'default':False,
+                             },
+                            {'command':'NTRIggers',
+                             'component':'ACQUisition',
+                             'fread':self._HARMONY.getAcqNTriggers,
+                             'fwrite':self._HARMONY.setAcqNTriggers,
                              'default':False,
                              },
                             # DIAGNOSTICS COMMANDS
@@ -573,14 +580,14 @@ class ScpiApp():
         self._log.logMessage("RESET_COMMAND ==> Rebooting System...............bye, bye!!", self._log.INFO)
 
         # restart system
-        self._parent.end(type='REBOOT')
+        self._MAIN.end(type='REBOOT')
         
         
     def shutdownCommand(self):
         self._log.logMessage("SHUTDOWN_COMMAND ==> Shuting System...............bye, bye!!", self._log.INFO)
 
         # restart system
-        self._parent.end(type='SHUTDOWN')
+        self._MAIN.end(type='SHUTDOWN')
         
     def factoryResetCommand(self):
         # Reset Diagnostics
@@ -592,7 +599,7 @@ class ScpiApp():
         self._log.logMessage("RESET_COMMAND ==> Rebooting System...............bye, bye!!", self._log.INFO)
 
         # restart system
-        self._parent.end(type='REBOOT')        
+        self._MAIN.end(type='REBOOT')        
         
     def getIdetification(self):
         # Get config File
@@ -600,8 +607,12 @@ class ScpiApp():
         identification_manufacturer = configDict["MANUFACTURER_"] if "MANUFACTURER_" in configDict.keys() else ""
         identification_instrument = configDict["INSTRUMENT_"] if "INSTRUMENT_" in configDict.keys() else ""
         identification_serial = configDict["SERIAL_"] if "SERIAL_" in configDict.keys() else ""
+        try:
+            identification_fwversion = self._HARMONY.getFWVersion()
+        except:
+            identification_fwversion = ''
         
-        identification = identification_manufacturer +","+ identification_instrument +","+ identification_serial
+        identification = identification_manufacturer +","+ identification_instrument +","+ identification_serial + ", " + identification_fwversion
         identification.replace("\n",", ")
         self._log.logMessage("getIdetification() value=%s"%identification, self._log.DEBUG)
         return identification 
@@ -614,12 +625,14 @@ class ScpiApp():
         return mac_format
     
     def reconfigure(self, attr):
-        for key, el in self._parent._applicationss.iteritems():
+        for key, el in self._MAIN._applications.iteritems():
             try:
-                dev_pointer = el['pointer']
-                dev_pointer.reconfigure()
+                excluded_apps = ['MAIN','SCPI_APP']
+                if key not in excluded_apps:
+                    dev_pointer = el['pointer']
+                    dev_pointer.reconfigure()
             except Exception, e:
-                self.setLogMessage("Failed to reconfigure %s due to: %s"%(key,str(e)), self._log.WARNING)
+                self._log.logMessage("Failed to reconfigure %s due to: %s"%(key,str(e)), self._log.WARNING)
             
         self._log.logMessage("GeneralClass.reconfigure() Config data file reloaded", self._log.INFO)                
         

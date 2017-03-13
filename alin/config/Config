@@ -233,6 +233,41 @@ PSB_DEBUG_ = 1
 
 PSB_DEBUGLEVEL_ = 40
 
+# The VSENSE_I_ISO_LIMIT_ indicates the threshold limit to switch off the 
+# ISO power supply
+
+PSB_VSENSE_I_ISO_LIMIT_ = 3183 
+
+# The VSENSE_I_VCC_LIMIT_ indicates the threshold limit to switch off the 
+# VCC power supply
+
+PSB_VSENSE_I_VCC_LIMIT_ = 2818 
+
+# The VSENSE_I_VS_LIMIT_ indicates the threshold limit to switch off the 
+# VS power supply
+
+PSB_VSENSE_I_VS_LIMIT_ = 3148
+
+# The VSENSE_I_AUX_LIMIT_ indicates the threshold limit to switch off the 
+# AUX power supply
+
+PSB_VSENSE_I_AUX_LIMIT_ = 2861
+
+# The VSENSE_I_SPEC_LIMIT_ indicates the threshold limit to switch off the 
+# SPEC power supply
+
+PSB_VSENSE_I_SPEC_LIMIT_ = 2731
+
+# The LOOPTIME_ is the sampling period used in the analog power supplies 
+# diagnostics. Each period the status of the power supplies is checkd. 
+# This is expressed in seconds
+
+PSB_LOOPTIME_ = 0.5
+
+# The REPETITIONS_ is the number of confirmations needed to switch off a 
+# power supply which is giving a sensed value above the limit.
+
+PSB_REPETITIONS_ = 3
 
 #---------------------------------------------------------------------------
 #

@@ -32,6 +32,7 @@ from alin.drivers.spi import Spi
 
 import os
 from random import uniform
+import signal
 import threading
 import time
 
@@ -39,8 +40,9 @@ _CONFIG_MASK = "HARMONY_"
 
 _STATES = {"STATE_INIT":0,
            "STATE_ON": 1,
-           "STATE_ACQUIRING":2,
-           "STATE_FAULT":3,
+           "STATE_RUNNING":2,
+           "STATE_ACQUIRING":3,
+           "STATE_FAULT":4,
            }
 
 _FILTER = ['3200hz', '100hz', '10hz', '1hz', '0.5hz']
@@ -171,6 +173,10 @@ class AcquisitionThread(threading.Thread):
         self._processEnded = False
         
         self._acquiring_flag = False
+        self._saving_data_enabled = False
+        self._num_triggers = None        
+        
+        self._acq_ch_completed = [False]*len(_CHANNELS)
         
         self.clearTemporalBuffers()
 
@@ -180,11 +186,15 @@ class AcquisitionThread(threading.Thread):
         
     def getProcessEnded(self):
         return self._processEnded
+
+    def saveDataEnable(self, value=False):
+        self._saving_data_enabled = value
     
     def clearTemporalBuffers(self):
         self._temporal_readdata = [[] for x in range(0,4)]
         self._temporal_counter = 1
         self._partial_data_acquired = False
+        self._acq_ch_completed = [False]*len(_CHANNELS)
            
     def calculateAVG(self, channel):
         calculated_avg = 0
@@ -194,8 +204,27 @@ class AcquisitionThread(threading.Thread):
 
         return calculated_avg
     
+    def setNumTriggers(self, value=None):
+        if value is not None and value >=1 and value != "":
+            self._num_triggers = value
+        else:
+            self._num_triggers = None
+            
     def setAcquiringFlag(self, value):
         self._acquiring_flag = value
+        if value:
+            self._parent.setState('STATE_ACQUIRING')
+            self._acq_ch_completed = [False]*len(_CHANNELS)
+        else:
+            if self._acq_ch_completed.count(False) == 0:
+                self._parent.setState('STATE_RUNNING')
+                if self._num_triggers is not None:
+                    self._num_triggers = self._num_triggers - 1
+                    if self._num_triggers <= 0:
+                        self._num_triggers = None
+                        self._parent.stopAcq()
+                        self.end()
+                        
         
     def getAcquiringFlag(self):        
         return self._acquiring_flag
@@ -247,14 +276,16 @@ class AcquisitionThread(threading.Thread):
                                 avg_data = self.calculateAVG(channel)
                                 
                                 self._parent._ch_readdata[channel].append([data_ts,avg_data])
+                                self._acq_ch_completed[channel] = True
                                 self._parent.logMessage("AcquisitionThread(): Acquisition COMPLETED (Channel %s, Counts=%s)"%(str(channel+1),str(tmp_buff_len)), self._parent.INFO)
                                 
-                                self._acquiring_flag = False
+                                self.setAcquiringFlag(False)
                         else:
                             self._parent._general_buffer.append([data_id, data_ts,data_val])
                             
                             if data_id == _IDGEN_ID:
                                 self.clearTemporalBuffers()
+                                self.setAcquiringFlag(True)
                             if data_id == _CNT1_ID:
                                 self._temporal_counter += 1
                                 if self._temporal_counter > acq_partial_counts:
@@ -262,14 +293,18 @@ class AcquisitionThread(threading.Thread):
                                         self._parent.partialAcquisitionReset()
                                     self._partial_data_acquired = True
                     else:
+                        if data_id == _IDGEN_ID:
+                            self.setAcquiringFlag(True)
                         if data_id in _id_to_buffer.keys():
-                            channel = _id_to_buffer[data_id]                            
+                            channel = _id_to_buffer[data_id]
+                            
                             data_val = self._parent.convertVoltToCurr(channel, self.calculateCurrent(data_val))
 
                             self._parent._ch_readdata[channel].append([data_ts,data_val])
+                            self._acq_ch_completed[channel] = True
                             self._parent.logMessage("AcquisitionThread(): Acquisition COMPLETED (channel %s)"%str(channel+1), self._parent.INFO)
                             
-                            self._acquiring_flag = False
+                            self.setAcquiringFlag(False)
                         else:
                             self._parent._general_buffer.append([data_id, data_ts,data_val])
             
@@ -322,6 +357,7 @@ class Harmony(AlinLog):
         self._trigpol = None
         self._acqtime = None
         self._acqtime_counts = None
+        self._acqntriggers = None
         self._trigdelay = None
         self._triginput = None
         
@@ -383,10 +419,21 @@ class Harmony(AlinLog):
             
     def getState(self):
         return self._state
+    
+    def isAcquiring(self):
+        st = self.getState()
+        if st == "STATE_RUNNING" or st == "STATE_ACQUIRING":
+            return True
+        else:
+            return False
 
     def clearDataBuffers(self):
         self._ch_readdata = [[] for x in range(0,4)]
         self._general_buffer = []
+        
+        if self._acq_thread is not None:
+            self._acq_thread.setNumTriggers(self._acqntriggers)
+
         self.logMessage("clearDataBuffers()", self.INFO)
 
     def partialAcquisitionReset(self):
@@ -443,7 +490,7 @@ class Harmony(AlinLog):
     def stop(self):
         self.logMessage("stop(): End Harmony control module", self.INFO)
         
-        if self.getState() == "STATE_ACQUIRING":
+        if self.isAcquiring():
             if self._acq_thread is not None:
                 self.stopAcq()
             self._acq_thread = None
@@ -459,8 +506,7 @@ class Harmony(AlinLog):
     
     @handleError
     def setRange(self, range):
-        st = self.getState()
-        if st != "STATE_ACQUIRING" and (range.lower() in _RANGE or range.lower() == "auto"):
+        if not self.isAcquiring() and (range.lower() in _RANGE or range.lower() == "auto"):
             self._range = range
             for ch in _CHANNELS:
                 self.caSetRange(ch, self._range)
@@ -476,8 +522,7 @@ class Harmony(AlinLog):
         
     @handleError
     def setFilter(self, filter):
-        st = self.getState()
-        if st != "STATE_ACQUIRING" and filter.lower() in _FILTER:
+        if not self.isAcquiring() and filter.lower() in _FILTER:
             self._filter = filter
             
             for ch in _CHANNELS:
@@ -494,9 +539,8 @@ class Harmony(AlinLog):
     
     @handleError
     def setTrigMode(self, value):
-        st = self.getState()
         trigmode = int(value)
-        if st != "STATE_ACQUIRING" and trigmode<len(_TRIGGERMODE):
+        if not self.isAcquiring() and trigmode<len(_TRIGGERMODE):
             self._trigmode = _TRIGGERMODE[trigmode]
             
             self.logMessage("setTrigMode(): Trigger mode set to %s"%str(self._trigmode), self.INFO)
@@ -511,9 +555,8 @@ class Harmony(AlinLog):
     
     @handleError
     def setTrigPol(self, value):
-        st = self.getState()
         trigpol = int(value)
-        if st != "STATE_ACQUIRING" and trigpol<len(_POLARITY):
+        if not self.isAcquiring() and trigpol<len(_POLARITY):
             self._trigpol = _POLARITY[trigpol]
             self.logMessage("setTrigPol(): Trigger polarity set to %s"%str(self._trigpol), self.INFO)
             
@@ -528,9 +571,8 @@ class Harmony(AlinLog):
     @handleError
     def setAcqTime(self, value):
         # Acqtime in miliseconds
-        st = self.getState()
         acqtime = int(value)
-        if st != "STATE_ACQUIRING":
+        if not self.isAcquiring():
             self._acqtime = acqtime
             self.logMessage("setAcqTime(): Acquisition time set to %s miliseconds"%str(self._acqtime), self.INFO)
 
@@ -544,9 +586,8 @@ class Harmony(AlinLog):
     
     @handleError
     def setTrigDelay(self, value):
-        st = self.getState()
         trigdelay = int(value)        
-        if st != "STATE_ACQUIRING":
+        if not self.isAcquiring():
             self._trigdelay = trigdelay
             self.logMessage("setTrigDelay(): Trigger delay set to %s"%str(self._trigdelay), self.INFO)
 
@@ -560,9 +601,8 @@ class Harmony(AlinLog):
     
     @handleError
     def setTrigInput(self, value):
-        st = self.getState()
         triginput = int(value)        
-        if st != "STATE_ACQUIRING" and triginput<len(_TRIGINPUTS):
+        if not self.isAcquiring() and triginput<len(_TRIGINPUTS):
             self._triginput =  _TRIGINPUTS[triginput]
             self.logMessage("setTrigInput(): Trigger input set to %s"%str(self._triginput), self.INFO)
 
@@ -574,6 +614,22 @@ class Harmony(AlinLog):
     def getTrigInput(self):
         return self._triginput    
     
+    @handleError
+    def setAcqNTriggers(self, value):
+        # Acqtime in miliseconds
+        if not self.isAcquiring():
+            self._acqntriggers = int(value)
+            self.logMessage("setAcqNTriggers(): Acquisition triggers set to %s "%str(self._acqntriggers), self.INFO)
+
+            self.saveUserData(item='acqntriggers', data=value)             
+        else:
+            self.logMessage("setAcqNTriggers(): Not possible set Acquisition triggers when State is %s"%str(st), self.ERROR)
+            
+    @handleError
+    def getAcqNTriggers(self):
+        return self._acqntriggers
+    
+    
     def startAcq(self, value):
         def calculateMask(*args):
             nor_value = ~reduce(lambda x, y: x|y, args)
@@ -584,8 +640,8 @@ class Harmony(AlinLog):
         self.logMessage("startAcq()", self.INFO)
         st = self.getState()
         
-        if st == "STATE_ON":
-            self.setState("STATE_ACQUIRING")            
+        if not self.isAcquiring():
+            self.setState("STATE_RUNNING")            
             
             #self.logMessage("startAcq(): Range set to %s"%self._range, self.INFO)
             #self.logMessage("startAcq(): Filter set to %s"%self._filter, self.INFO)
@@ -599,7 +655,9 @@ class Harmony(AlinLog):
                 # 1. Assure acquisition thread is stopped
                 if self._acq_thread is not None:
                     self.stopAcq()
-                    
+                    self._acq_thread.end()
+                    self._acq_thread.join()
+                    self._acq_thread = None
                     
                 self._dADCCORE.init()
                 self._dIDGEN.init()
@@ -837,15 +895,16 @@ class Harmony(AlinLog):
                 self.logMessage("startAcq() (13/14) Start acquisition thread",self.INFO)
                 self._acq_thread = AcquisitionThread(self)
                 self._acq_thread.setAcquiringFlag(False)
+                self._acq_thread.setNumTriggers(self._acqntriggers)
                 self._acq_thread.setDaemon(True)
                 self._acq_thread.start()
                 
-                # C/M to avoid frist data acquisition
+                # C/M to avoid first data acquisition
                 time.sleep(0.1)
                 self._dMEM.clearMemoryBuffer()
                 self.clearDataBuffers()
                             
-                self.setState("STATE_ACQUIRING")                                        
+                self.setState("STATE_RUNNING")                                        
                 self.logMessage("startAcq(): (14/14) Acquisition Started", self.INFO)
             except Exception, e:
                 self.logMessage("startAcq():Acquisition not started due to %s"%str(e), self.ERROR)
@@ -859,11 +918,13 @@ class Harmony(AlinLog):
     @handleError
     def stopAcq(self, value=False):
         self.logMessage("stopAcq()", self.INFO)
-        st = self.getState()
-        if st == "STATE_ACQUIRING":
+        if self.isAcquiring():
             try:
                 # Stops data saving in memoryCHND:CURRENT
                 self._dMEM.writeAttribute('CTL_SAVE', 0x00)
+
+                # Stops count triggers
+                self._dDIGITALIO.writeAttribute('CNT0_STP_DIS', 0x00)
                 
                 if self._acq_type == 'TIME_ABOVE_FIFO_RANGE':
                     # Diseble partial acquisition counter
@@ -876,13 +937,13 @@ class Harmony(AlinLog):
                 self._dADCCORE.writeAttribute('ID_CH4_ID',0x00)
                 self.logMessage("stopAcq() Memory saving stopped",self.INFO)
     
-                if self._acq_thread is not None:
-                    self._acq_thread.end()
+                #if self._acq_thread is not None:
+                    #self._acq_thread.end()
                         
-                    while not self._acq_thread.getProcessEnded():
-                        self.logMessage("stopAcq(): Waiting process to die", self.INFO)
-                        time.sleep(0.5)
-                        pass  
+                    #while not self._acq_thread.getProcessEnded():
+                        #self.logMessage("stopAcq(): Waiting process to die", self.INFO)
+                        #time.sleep(0.5)
+                        #pass  
                         
                 self.logMessage("stopAcq() Acquisition Thread stopped", self.INFO)
                 
@@ -902,7 +963,7 @@ class Harmony(AlinLog):
     @handleError
     def setSWTrigger(self, value):
         st = self.getState()
-        if st == "STATE_ACQUIRING" and self._trigmode == "SOFTWARE" and self._acq_thread is not None:
+        if st == "STATE_RUNNING" and self._trigmode == "SOFTWARE" and self._acq_thread is not None:
             if not self._acq_thread.getAcquiringFlag():
                 self.logMessage("setSWTrigger() Force acquisition", self.INFO)
                 self._dIDGEN.writeAttribute('ID_GEN_CTL_MTRIG', 0x01)
@@ -1070,7 +1131,7 @@ class Harmony(AlinLog):
         channel -= 1 
         gpio_input = _TRIGINPUTS[channel]
         st = self.getState()
-        if channel == self._triginput and st == "STATE_ACQUIRING":
+        if channel == self._triginput and st == "STATE_RUNNING":
             self.logMessage("setGPIOConfig(): Not possible to change %s input config while state is %s"%(gpio_input, st), self.INFO)
             return
 

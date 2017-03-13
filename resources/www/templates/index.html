@@ -20,6 +20,7 @@
     <script type="text/javascript" src="{{ static_url('jqplot/plugins/jqplot.pointLabels.js') }}"></script>
     <script type="text/javascript" src="{{ static_url('jqplot/plugins/jqplot.highlighter.js') }}"></script>
     <script type="text/javascript" src="{{ static_url('jqplot/plugins/jqplot.cursor.js') }}"></script>
+    <script type="text/javascript" src="{{ static_url('jqplot/plugins/jqplot.enhancedLegendRenderer.js') }}"></script>
     <script type="text/javascript" src="{{ static_url('jslibs/FileSaver.js') }}"></script>    
     <script type="text/javascript" src="{{ static_url('jslibs/DataMain.js') }}"></script>
     <link rel="stylesheet" type="text/css" href="{{ static_url('jqplot/jquery.jqplot.css') }}"/>
@@ -67,7 +68,7 @@
                 <th class="table_cell_title" colspan="3">&nbsp Channel 4 &nbsp</th>
             </tr>
             <tr id='graphs_row'>
-                <th class="table_cell_title4" width='120px' style="text-align: center"><button class='tools' onclick='window.open("config.html","Ratting","width=900,height=780,left=150,top=200,toolbar=0,status=0,scrollbars=1")'>
+                <th class="table_cell_title4" width='120px' style="text-align: center"><button class='tools' onclick='window.open("config.html","Ratting","width=900,height=800,left=150,top=200,toolbar=0,status=0,scrollbars=1")'>
                 <img src="static/images/settings.gif" height="30" width="30"/></button></th>
                 <td colspan="3" ><div id="chart1" style="width:100%"></div></td>
                 <td colspan="3" ><div id="chart2" style="width:100%"></div></td>
@@ -177,8 +178,7 @@
             </tr>                
         </tbody>
         </table>
-        <div class="alertmsg" id="alertmsg">&nbsp</div>
-        <div class="alertmsg" id="alertsatmsg">&nbsp</div>
+        <div><spam class="alertmsg" id="alertmsg1"></spam><spam class="alertmsg" id="alertmsg2"></spam><spam class="alertmsg" id="alertsatmsg"></spam></div>
     </div>
     
     <div id="Acquisition" class="tabcontent">
@@ -186,10 +186,10 @@
         <tbody>
             <tr>
                 <th class="table_cell_title" colspan="5">&nbspTrigger&nbsp</th>
-                <th class="table_cell_title" colspan="4">&nbspAcquisition&nbsp</th>
+                <th class="table_cell_title" colspan="5">&nbspAcquisition&nbsp</th>
             </tr>
             <tr>
-                <th class="table_cell_title4" width='10%' style="text-align: center"><button class='tools' onclick='window.open("config.html","Ratting","width=900,height=780,left=150,top=200,toolbar=0,status=0,scrollbars=1")'>
+                <th class="table_cell_title4" width='10%' style="text-align: center"><button class='tools' onclick='window.open("config.html","Ratting","width=900,height=800,left=150,top=200,toolbar=0,status=0,scrollbars=1")'>
                 <img src="static/images/settings.gif" height="30" width="30"/></button></th>
                 <th class="table_cell_title4" width="10%"> Mode </th>
                 <th class="table_cell_title4" width="10%"> Delay </th>
@@ -198,6 +198,7 @@
                 <th class="table_cell_title4" width="10%"> Range </th>
                 <th class="table_cell_title4" width="10%"> Filter </th>
                 <th class="table_cell_title4" width="10%"> Time </th>
+                <th class="table_cell_title4" width="10%"> Triggers </th>
                 <th class="table_cell_title4" width="10%"> State </th>
             </tr>
             <tr>
@@ -209,6 +210,7 @@
                 <td class="table_cell_value" id="acq_range" width="10%"></td>
                 <td class="table_cell_value" id="acq_filter" width="10%"></td>
                 <td class="table_cell_value" id="acq_time" width="10%"></td>
+                <td class="table_cell_value" id="acq_ntriggers" width="10%"></td>
                 <td class="table_cell_value" id="acq_state" width="80%"></td>
             </tr>
 
@@ -423,12 +425,14 @@
                 <th class="table_cell_title" >&nbsp V Sense I VS<br>(mA) &nbsp</th>
                 <th class="table_cell_title" >&nbsp V Sense I AUX<br>(mA) &nbsp</th>
                 <th class="table_cell_title" >&nbsp V Sense I SPEC<br>(mA) &nbsp</th>
+                <th class="table_cell_title" >&nbsp V Sense +12V<br>(V) &nbsp</th>
             </tr>
             <tr>
                 <td class="table_cell_value" id="psb_viso"></td>
                 <td class="table_cell_value" id="psb_vcc"></td>
                 <td class="table_cell_value" id="psb_vs"></td>
                 <td class="table_cell_value" id="psb_vaux"></td>
+                <td class="table_cell_value" > --- </td>
                 <td class="table_cell_value" > --- </td>
             </tr>
             <tr>
@@ -437,6 +441,7 @@
                 <td class="table_cell_value" id="diags_vs"></td>
                 <td class="table_cell_value" id="diags_vaux"></td>
                 <td class="table_cell_value" id="diags_vspec"></td>
+                <td class="table_cell_value" id="diags_12v"></td>
             </tr>
         </tbody>
         </table>

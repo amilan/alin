@@ -68,16 +68,7 @@ def main():
 	py_folder = '/usr/lib/python2.7/site-packages'
 	
 	datafiles=[('/lib/firmware/fmc', ['resources/binaries/spec-init.bin','resources/binaries/spec-init-100T.bin']),
-				('/usr/local/lib/', ['resources/lib/libspec.so']),
 				('/etc/profile.d/', ['scripts/alin.sh']),
-				(system_folder, ['resources/kernel/spec.ko',
-								'resources/kernel/fmc.ko',
-								'resources/kernel/fmc-chardev.ko',
-								'resources/kernel/fmc-fakedev.ko',
-								'resources/kernel/fmc-trivial.ko',
-								'resources/kernel/fmc-write-eeprom.ko',
-								'resources/kernel/wr-nic.ko'
-								]),
 				(py_folder+'/alin/base/',['alin/base/sim_spec_data']),
 				(py_folder+'/alin/config/',['alin/config/Config']),
 				(py_folder+'/alin/deviceslib/',['alin/deviceslib/EM2_DAC',

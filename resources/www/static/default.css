@@ -428,3 +428,8 @@ th, td {
     font-style: italic;
     text-align: left;
 }
+
+table.jqplot-table-legend {
+    left: 30%;
+    width: 90%;
+}

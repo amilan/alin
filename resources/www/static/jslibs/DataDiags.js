@@ -25,13 +25,13 @@ if (password != pass1)
 }
 
 $( document ).ready(function() {
-    $('#fvmaxlim').on('change', function() {
+    $('#fvmaxlim').on('change focusout', function() {
         sendCommand('fvmaxlim',0);
     });    
-    $('#fvminlim').on('change', function() {
+    $('#fvminlim').on('change focusout', function() {
         sendCommand('fvminlim',0);
     });
-    $('#fvrelay').on('change keypress', function() {
+    $('#fvrelay').on('change keypress focusout', function() {
         sendCommand('fvrealy',0);
     });
     $('#FVResetButton').on('click', function() {

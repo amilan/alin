@@ -109,7 +109,8 @@ class AlinMainClass():
             self._log.logMessage(msg, debuglevel)
             
     def startApplications(self):
-        self._applications = {'PSB':         {'class':Psb,'pointer':None},
+        self._applications = {'MAIN':       {'class':AlinMainClass,'pointer':self},
+                             'PSB':        {'class':Psb,'pointer':None},
                              'DISPLAY':     {'class':Display,'pointer':None},
                              'HARMONY':     {'class':Harmony, 'pointer':None},
                              'DIAGNOSTICS': {'class':Diagnostics, 'pointer':None},

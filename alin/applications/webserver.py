@@ -313,6 +313,7 @@ class JsonThread(threading.Thread):
                         "acq_trig_input": (self._HARMONY.getTrigInput, None),
                         "acq_time":       (self._HARMONY.getAcqTime, None),
                         "acq_range":      (self._HARMONY.getRange, None),
+                        'acq_ntriggers':  (self._HARMONY.getAcqNTriggers, None),
                         "acq_filter":     (self._HARMONY.getFilter, None),
                         "acq_state":      (self._HARMONY.getState, None),
                         "acq_ndata":      (self._HARMONY.getNData, None),
@@ -484,7 +485,12 @@ class JsonThread(threading.Thread):
                                 tmp = str(func)
     
                         if key == "acq_state":
-                            tmp = 'ACQUIRING' if tmp=="STATE_ACQUIRING" else 'Stop'
+                            if tmp=="STATE_ACQUIRING":
+                                tmp = 'ACQUIRING' 
+                            elif tmp=="STATE_RUNNING":
+                                tmp = 'RUNNING' 
+                            else:
+                                tmp = 'ON'
                         elif key in ["chn1_carange_value", "chn2_carange_value", "chn3_carange_value", "chn4_carange_value"]:
                             tmp = tmp[:-2]
                         elif key in ["chn1_carange_unit", "chn2_carange_unit", "chn3_carange_unit", "chn4_carange_unit"]:
@@ -567,6 +573,10 @@ class JsonThread(threading.Thread):
                         if "diags_vspec" not in self._data_dict.keys() or tmp != self._data_dict["diags_vspec"]:
                             self._data_dict["diags_vspec"] = tmp
                             data_to_send["diags_vspec"] = self._data_dict["diags_vspec"]
+                        tmp = str(round(current['VSENSE_12V'],3))
+                        if "diags_12v" not in self._data_dict.keys() or tmp != self._data_dict["diags_12v"]:
+                            self._data_dict["diags_12v"] = tmp
+                            data_to_send["diags_12v"] = self._data_dict["diags_12v"]
                 except Exception, e:
                     print str(e)
                 

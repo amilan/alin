@@ -148,6 +148,7 @@ class Diagnostics(AlinLog):
 							'VSENSE_I_SPEC'	: 0.44,
 							'VSENSE_I_VCC'	: 1.503,
 							'VSENSE_I_AUX'	: 2.305,
+							'VSENSE_12V'	: 0.232558139535,
 							}
 			for currkey in current_list.keys():
 				try:

@@ -29,143 +29,143 @@ if (password != pass1)
 }
 
 $( document ).ready(function() {
-    $('#chn1_cafilter').on('change keypress', function() {
+    $('#chn1_cafilter').on('change keypress focusout', function() {
         sendCommand('filter',1);
     });    
-    $('#chn2_cafilter').on('change keypress', function() {
+    $('#chn2_cafilter').on('change keypress focusout', function() {
         sendCommand('filter',2);
     });
-    $('#chn3_cafilter').on('change keypress', function() {
+    $('#chn3_cafilter').on('change keypress focusout', function() {
         sendCommand('filter',3);
     });
-    $('#chn4_cafilter').on('change keypress', function() {
+    $('#chn4_cafilter').on('change keypress focusout', function() {
         sendCommand('filter',4);
     });
 
-    $('#chn1_caPrefilter').on('change keypress', function() {
+    $('#chn1_caPrefilter').on('change keypress focusout', function() {
         sendCommand('prefilter',1);
     });        
-    $('#chn2_caPrefilter').on('change keypress', function() {
+    $('#chn2_caPrefilter').on('change keypress focusout', function() {
         sendCommand('prefilter',2);
     });        
-    $('#chn3_caPrefilter').on('change keypress', function() {
+    $('#chn3_caPrefilter').on('change keypress focusout', function() {
         sendCommand('prefilter',3);
     });        
-    $('#chn4_caPrefilter').on('change keypress', function() {
+    $('#chn4_caPrefilter').on('change keypress focusout', function() {
         sendCommand('prefilter',4);
     });   
     
     
-    $('#chn1_caPostfilter').on('change keypress', function() {
+    $('#chn1_caPostfilter').on('change keypress focusout', function() {
         sendCommand('postfilter',1);
     });        
-    $('#chn2_caPostfilter').on('change keypress', function() {
+    $('#chn2_caPostfilter').on('change keypress focusout', function() {
         sendCommand('postfilter',2);
     });        
-    $('#chn3_caPostfilter').on('change keypress', function() {
+    $('#chn3_caPostfilter').on('change keypress focusout', function() {
         sendCommand('postfilter',3);
     });        
-    $('#chn4_caPostfilter').on('change keypress', function() {
+    $('#chn4_caPostfilter').on('change keypress focusout', function() {
         sendCommand('postfilter',4);
     });  
     
-    $('#chn1_carange').on('change keypress', function() {
+    $('#chn1_carange').on('change keypress focusout', function() {
         sendCommand('range',1);
     });        
-    $('#chn2_carange').on('change keypress', function() {
+    $('#chn2_carange').on('change keypress focusout', function() {
         sendCommand('range',2);
     });        
-    $('#chn3_carange').on('change keypress', function() {
+    $('#chn3_carange').on('change keypress focusout', function() {
         sendCommand('range',3);
     });        
-    $('#chn4_carange').on('change keypress', function() {
+    $('#chn4_carange').on('change keypress focusout', function() {
         sendCommand('range',4);
     });        
     
-    $('#chn1_catigain').on('change keypress', function() {
+    $('#chn1_catigain').on('change keypress focusout', function() {
         sendCommand('tigain',1);
     });        
-    $('#chn2_catigain').on('change keypress', function() {
+    $('#chn2_catigain').on('change keypress focusout', function() {
         sendCommand('tigain',2);
     });        
-    $('#chn3_catigain').on('change keypress', function() {
+    $('#chn3_catigain').on('change keypress focusout', function() {
         sendCommand('tigain',3);
     });        
-    $('#chn4_catigain').on('change keypress', function() {
+    $('#chn4_catigain').on('change keypress focusout', function() {
         sendCommand('tigain',4);
     });        
     
-    $('#chn1_cavgain').on('change keypress', function() {
+    $('#chn1_cavgain').on('change keypress focusout', function() {
         sendCommand('vgain',1);
     });        
-    $('#chn2_cavgain').on('change keypress', function() {
+    $('#chn2_cavgain').on('change keypress focusout', function() {
         sendCommand('vgain',2);
     });        
-    $('#chn3_cavgain').on('change keypress', function() {
+    $('#chn3_cavgain').on('change keypress focusout', function() {
         sendCommand('vgain',3);
     });        
-    $('#chn4_cavgain').on('change keypress', function() {
+    $('#chn4_cavgain').on('change keypress focusout', function() {
         sendCommand('vgain',4);
     });      
     
-    $('#chn1_cainv').on('change keypress', function() {
+    $('#chn1_cainv').on('change keypress focusout', function() {
         sendCommand('inversion',1);
     });            
-    $('#chn2_cainv').on('change keypress', function() {
+    $('#chn2_cainv').on('change keypress focusout', function() {
         sendCommand('inversion',2);
     });            
-    $('#chn3_cainv').on('change keypress', function() {
+    $('#chn3_cainv').on('change keypress focusout', function() {
         sendCommand('inversion',3);
     });            
-    $('#chn4_cainv').on('change keypress', function() {
+    $('#chn4_cainv').on('change keypress focusout', function() {
         sendCommand('inversion',4);
     });            
         
-    $('#chn1_satmax').on('change keypress', function(event) {
+    $('#chn1_satmax').on('change keypress focusout', function(event) {
         sendCommand('satmax', 1, event);
     });        
     
-    $('#chn2_satmax').on('change keypress', function(event) {
+    $('#chn2_satmax').on('change keypress focusout', function(event) {
         sendCommand('satmax', 2, event);
     });        
     
-    $('#chn3_satmax').on('change keypress', function(event) {
+    $('#chn3_satmax').on('change keypress focusout', function(event) {
         sendCommand('satmax', 3, event);
     });        
     
-    $('#chn4_satmax').on('change keypress', function(event) {
+    $('#chn4_satmax').on('change keypress focusout', function(event) {
         sendCommand('satmax', 4, event);
     });            
     
-    $('#chn1_satmin').on('change keypress', function(event) {
+    $('#chn1_satmin').on('change keypress focusout', function(event) {
         sendCommand('satmin', 1, event);
     });        
     
-    $('#chn2_satmin').on('change keypress', function(event) {
+    $('#chn2_satmin').on('change keypress focusout', function(event) {
         sendCommand('satmin', 2, event);
     });        
     
-    $('#chn3_satmin').on('change keypress', function(event) {
+    $('#chn3_satmin').on('change keypress focusout', function(event) {
         sendCommand('satmin', 3, event);
     });        
     
-    $('#chn4_satmin').on('change keypress', function(event) {
+    $('#chn4_satmin').on('change keypress focusout', function(event) {
         sendCommand('satmin', 4, event);
     });            
     
-    $('#chn1_offset').on('change keypress', function(event) {
+    $('#chn1_offset').on('change keypress focusout', function(event) {
         sendCommand('offset', 1, event);
     });        
     
-    $('#chn2_offset').on('change keypress', function(event) {
+    $('#chn2_offset').on('change keypress focusout', function(event) {
         sendCommand('offset', 2, event);
     });        
 
-    $('#chn3_offset').on('change keypress', function(event) {
+    $('#chn3_offset').on('change keypress focusout', function(event) {
         sendCommand('offset', 3, event);
     });        
     
-    $('#chn4_offset').on('change keypress', function(event) {
+    $('#chn4_offset').on('change keypress focusout', function(event) {
         sendCommand('offset', 4, event);
     });        
     
@@ -173,32 +173,36 @@ $( document ).ready(function() {
         sendCommand('swtrig', 0);
     });    
     
-    $('#trigMode').on('change keypress', function() {
+    $('#trigMode').on('change keypress focusout', function() {
         sendCommand('trigMode', 0);
     });    
     
-    $('#trigDelay').on('change keypress', function(event) {
+    $('#trigDelay').on('change keypress focusout', function(event) {
         sendCommand('trigDelay', 0, event);
     });    
 
-    $('#trigInput').on('change keypress', function() {
+    $('#trigInput').on('change keypress focusout', function() {
         sendCommand('trigInput', 0);
     });    
     
-    $('#trigPol').on('change keypress', function() {
+    $('#trigPol').on('change keypress focusout', function() {
         sendCommand('trigPol', 0);
     });  
     
-    $('#acqRange').on('change keypress', function() {
+    $('#acqRange').on('change keypress focusout', function() {
         sendCommand('range', 0);
     });  
     
-    $('#acqFilter').on('change keypress', function() {
+    $('#acqFilter').on('change keypress focusout', function() {
         sendCommand('filter', 0);
     }); 
     
-    $('#acqTime').on('change keypress', function(event) {
+    $('#acqTime').on('change keypress focusout', function(event) {
         sendCommand('acqTime', 0, event);
+    });
+
+    $('#acqNTriggers').on('change keypress focusout', function(event) {
+        sendCommand('acqNTriggers', 0, event);
     });
     
     $('#acqStartButton').on('click', function() {
@@ -332,125 +336,219 @@ function refreshData(allData) {
             selectList.add(option);
         }        
 
-        document.getElementById("chn1_cafilter").value = allData.chn1_cafilter;        
-        document.getElementById("chn2_cafilter").value = allData.chn2_cafilter;        
-        document.getElementById("chn3_cafilter").value = allData.chn3_cafilter;        
-        document.getElementById("chn4_cafilter").value = allData.chn4_cafilter;        
-        document.getElementById("chn1_caPostfilter").value = allData.chn1_capostfilter;        
-        document.getElementById("chn2_caPostfilter").value = allData.chn2_capostfilter;        
-        document.getElementById("chn3_caPostfilter").value = allData.chn3_capostfilter;        
-        document.getElementById("chn4_caPostfilter").value = allData.chn4_capostfilter;        
-        document.getElementById("chn1_caPrefilter").value = allData.chn1_caprefilter;        
-        document.getElementById("chn2_caPrefilter").value = allData.chn2_caprefilter;        
-        document.getElementById("chn3_caPrefilter").value = allData.chn3_caprefilter;        
-        document.getElementById("chn4_caPrefilter").value = allData.chn4_caprefilter;        
         
-        document.getElementById("chn1_carange").value = allData.chn1_carange;
-        document.getElementById("chn2_carange").value = allData.chn2_carange;        
-        document.getElementById("chn3_carange").value = allData.chn3_carange;
-        document.getElementById("chn4_carange").value = allData.chn4_carange;   
-        document.getElementById("chn1_catigain").value = allData.chn1_catigain;
-        document.getElementById("chn2_catigain").value = allData.chn2_catigain;        
-        document.getElementById("chn3_catigain").value = allData.chn3_catigain;
-        document.getElementById("chn4_catigain").value = allData.chn4_catigain;   
-        document.getElementById("chn1_cavgain").value = allData.chn1_cavgain;
-        document.getElementById("chn2_cavgain").value = allData.chn2_cavgain;        
-        document.getElementById("chn3_cavgain").value = allData.chn3_cavgain;
-        document.getElementById("chn4_cavgain").value = allData.chn4_cavgain;   
-        
-        document.getElementById("chn1_cainv").value = allData.chn1_cainv;
-        document.getElementById("chn2_cainv").value = allData.chn2_cainv;
-        document.getElementById("chn3_cainv").value = allData.chn3_cainv;
-        document.getElementById("chn4_cainv").value = allData.chn4_cainv;            
+        first_time_refresh = true;        
+    }
 
+    if ("chn1_cafilter" in allData) { 
+        $("#chn1cafilter").html(allData.chn1_cafilter); 
+        document.getElementById("chn1_cafilter").value = allData.chn1_cafilter;                
+    }
+    if ("chn2_cafilter" in allData) { 
+        $("#chn2cafilter").html(allData.chn2_cafilter); 
+        document.getElementById("chn2_cafilter").value = allData.chn2_cafilter;        
+    }
+    if ("chn3_cafilter" in allData) {
+        $("#chn3cafilter").html(allData.chn3_cafilter); 
+        document.getElementById("chn3_cafilter").value = allData.chn3_cafilter;        
+    }
+    if ("chn4_cafilter" in allData) {
+        $("#chn4cafilter").html(allData.chn4_cafilter); 
+        document.getElementById("chn4_cafilter").value = allData.chn4_cafilter;        
+    }
+    if ("chn1_caprefilter" in allData) {
+        $("#chn1caPrefilter").html(allData.chn1_caprefilter); 
+        document.getElementById("chn1_caPrefilter").value = allData.chn1_caprefilter;        
+    }
+    if ("chn2_caprefilter" in allData) {
+        $("#chn2caPrefilter").html(allData.chn2_caprefilter); 
+        document.getElementById("chn2_caPrefilter").value = allData.chn2_caprefilter;        
+    }
+    if ("chn3_caprefilter" in allData) {
+        $("#chn3caPrefilter").html(allData.chn3_caprefilter); 
+        document.getElementById("chn3_caPrefilter").value = allData.chn3_caprefilter;        
+    }
+    if ("chn4_caprefilter" in allData) {
+        $("#chn4caPrefilter").html(allData.chn4_caprefilter); 
+        document.getElementById("chn4_caPrefilter").value = allData.chn4_caprefilter;        
+    }    
+    if ("chn1_capostfilter" in allData) { 
+        $("#chn1caPostfilter").html(allData.chn1_capostfilter); 
+        document.getElementById("chn1_caPostfilter").value = allData.chn1_capostfilter;        
+    }    
+    if ("chn2_capostfilter" in allData) {
+        $("#chn2caPostfilter").html(allData.chn2_capostfilter); 
+        document.getElementById("chn2_caPostfilter").value = allData.chn2_capostfilter;        
+    }    
+    if ("chn3_capostfilter" in allData) {
+        $("#chn3caPostfilter").html(allData.chn3_capostfilter); 
+        document.getElementById("chn3_caPostfilter").value = allData.chn3_capostfilter;        
+    }    
+    if ("chn4_capostfilter" in allData) {
+        $("#chn4caPostfilter").html(allData.chn4_capostfilter); 
+        document.getElementById("chn4_caPostfilter").value = allData.chn4_capostfilter;        
+    }        
+    if ("chn1_carange" in allData) {
+        $("#chn1carange").html(allData.chn1_carange); 
+        document.getElementById("chn1_carange").value = allData.chn1_carange;
+    }
+    if ("chn2_carange" in allData) { 
+        $("#chn2carange").html(allData.chn2_carange); 
+        document.getElementById("chn2_carange").value = allData.chn2_carange;                
+    }
+    if ("chn3_carange" in allData) {
+        $("#chn3carange").html(allData.chn3_carange); 
+        document.getElementById("chn3_carange").value = allData.chn3_carange;
+    }
+    if ("chn4_carange" in allData) {
+        $("#chn4carange").html(allData.chn4_carange); 
+        document.getElementById("chn4_carange").value = allData.chn4_carange;           
+    }
+    if ("chn1_catigain" in allData) {
+        $("#chn1catigain").html(allData.chn1_catigain); 
+        document.getElementById("chn1_catigain").value = allData.chn1_catigain;
+    }
+    if ("chn2_catigain" in allData) {
+        $("#chn2catigain").html(allData.chn2_catigain); 
+        document.getElementById("chn2_catigain").value = allData.chn2_catigain;        
+    }
+    if ("chn3_catigain" in allData) {
+        $("#chn3catigain").html(allData.chn3_catigain); 
+        document.getElementById("chn3_catigain").value = allData.chn3_catigain;
+    }
+    if ("chn4_catigain" in allData) {
+        $("#chn4catigain").html(allData.chn4_catigain); 
+        document.getElementById("chn4_catigain").value = allData.chn4_catigain;   
+    }
+    if ("chn1_cavgain" in allData) {
+        $("#chn1cavgain").html(allData.chn1_cavgain); 
+        document.getElementById("chn1_cavgain").value = allData.chn1_cavgain;
+    }
+    if ("chn2_cavgain" in allData) {
+        $("#chn2cavgain").html(allData.chn2_cavgain); 
+        document.getElementById("chn2_cavgain").value = allData.chn2_cavgain;        
+    }
+    if ("chn3_cavgain" in allData) {
+        $("#chn3cavgain").html(allData.chn3_cavgain); 
+        document.getElementById("chn3_cavgain").value = allData.chn3_cavgain;
+    }
+    if ("chn4_cavgain" in allData) {
+        $("#chn4cavgain").html(allData.chn4_cavgain); 
+        document.getElementById("chn4_cavgain").value = allData.chn4_cavgain;   
+    }
+    if ("chn1_satmax" in allData) {
+        $("#chn1satmax").html(allData.chn1_satmax); 
         document.getElementById("chn1_satmax").defaultValue = parseInt(allData.chn1_satmax);
+    }
+    if ("chn2_satmax" in allData) {
+        $("#chn2satmax").html(allData.chn2_satmax); 
         document.getElementById("chn2_satmax").defaultValue = parseInt(allData.chn2_satmax);
+    }
+    if ("chn3_satmax" in allData) {
+        $("#chn3satmax").html(allData.chn3_satmax); 
         document.getElementById("chn3_satmax").defaultValue = parseInt(allData.chn3_satmax);
+    }
+    if ("chn4_satmax" in allData) {
+        $("#chn4satmax").html(allData.chn4_satmax); 
         document.getElementById("chn4_satmax").defaultValue = parseInt(allData.chn4_satmax);
+    }    
+    if ("chn1_satmin" in allData) {
+        $("#chn1satmin").html(allData.chn1_satmin); 
         document.getElementById("chn1_satmin").defaultValue = parseInt(allData.chn1_satmin);
+    }
+    if ("chn2_satmin" in allData) {
+        $("#chn2satmin").html(allData.chn2_satmin); 
         document.getElementById("chn2_satmin").defaultValue = parseInt(allData.chn2_satmin);
+    }
+    if ("chn3_satmin" in allData) {
+        $("#chn3satmin").html(allData.chn3_satmin); 
         document.getElementById("chn3_satmin").defaultValue = parseInt(allData.chn3_satmin);
+    }
+    if ("chn4_satmin" in allData) {
+        $("#chn4satmin").html(allData.chn4_satmin); 
         document.getElementById("chn4_satmin").defaultValue = parseInt(allData.chn4_satmin);
-                
+    }    
+    if ("chn1_offset" in allData) {
+        $("#chn1offset").html(allData.chn1_offset); 
         document.getElementById("chn1_offset").defaultValue = parseInt(allData.chn1_offset);
+    }
+    if ("chn2_offset" in allData) {
+        $("#chn2offset").html(allData.chn2_offset); 
         document.getElementById("chn2_offset").defaultValue = parseInt(allData.chn2_offset);
+    }
+    if ("chn3_offset" in allData) {
+        $("#chn3offset").html(allData.chn3_offset); 
         document.getElementById("chn3_offset").defaultValue = parseInt(allData.chn3_offset);
+    }
+    if ("chn4_offset" in allData) {
+        $("#chn4offset").html(allData.chn4_offset); 
         document.getElementById("chn4_offset").defaultValue = parseInt(allData.chn4_offset);
+    }    
+
+    if ("acq_trig_mode" in allData) {
+        $("#acq_trig_mode").html(allData.acq_trig_mode); 
         
         for (var i = 0; i < tmode_array.length; i++) {
             if (tmode_array[i][0] == allData.acq_trig_mode ) {
                 document.getElementById("trigMode").value = tmode_array[i][1];        
             }
-        }                
+        }                        
+    }
+    if ("acq_trig_pol" in allData) {
+        $("#acq_trig_pol").html(allData.acq_trig_pol); 
+        
         for (var i = 0; i < tpol_array.length; i++) {
             if (tpol_array[i][0] == allData.acq_trig_pol ) {
                 document.getElementById("trigPol").value = tpol_array[i][1];        
             }
-        }        
+        }                
+    }
+    if ("acq_trig_delay" in allData) {
+        $("#acq_trig_delay").html(allData.acq_trig_delay); 
+        document.getElementById("trigDelay").defaultValue = allData.acq_trig_delay;                
+    }
+    if ("acq_trig_input" in allData) {
+        $("#acq_trig_input").html(allData.acq_trig_input); 
         for (var i = 0; i < input_array.length; i++) {
             if (input_array[i][0] == allData.acq_trig_input ) {
                 document.getElementById("trigInput").value = input_array[i][1];        
             }
-        }
-        
-        document.getElementById("trigDelay").defaultValue = allData.acq_trig_delay;        
-        document.getElementById("acqRange").value = allData.acq_range;
-        document.getElementById("acqFilter").value = allData.acq_filter;        
-        document.getElementById("acqTime").defaultValue = allData.acq_time; 
-
-        first_time_refresh = true;        
+        }        
     }
-    
-    if ("chn1_cafilter" in allData) { $("#chn1cafilter").html(allData.chn1_cafilter); }
-    if ("chn2_cafilter" in allData) { $("#chn2cafilter").html(allData.chn2_cafilter); }
-    if ("chn3_cafilter" in allData) { $("#chn3cafilter").html(allData.chn3_cafilter); }
-    if ("chn4_cafilter" in allData) { $("#chn4cafilter").html(allData.chn4_cafilter); }
-    if ("chn1_caprefilter" in allData) { $("#chn1caPrefilter").html(allData.chn1_caprefilter); }
-    if ("chn2_caprefilter" in allData) { $("#chn2caPrefilter").html(allData.chn2_caprefilter); }
-    if ("chn3_caprefilter" in allData) { $("#chn3caPrefilter").html(allData.chn3_caprefilter); }
-    if ("chn4_caprefilter" in allData) { $("#chn4caPrefilter").html(allData.chn4_caprefilter); }    
-    if ("chn1_capostfilter" in allData) { $("#chn1caPostfilter").html(allData.chn1_capostfilter); }    
-    if ("chn2_capostfilter" in allData) { $("#chn2caPostfilter").html(allData.chn2_capostfilter); }    
-    if ("chn3_capostfilter" in allData) { $("#chn3caPostfilter").html(allData.chn3_capostfilter); }    
-    if ("chn4_capostfilter" in allData) { $("#chn4caPostfilter").html(allData.chn4_capostfilter); }        
-    if ("chn1_carange" in allData) { $("#chn1carange").html(allData.chn1_carange); }
-    if ("chn2_carange" in allData) { $("#chn2carange").html(allData.chn2_carange); }
-    if ("chn3_carange" in allData) { $("#chn3carange").html(allData.chn3_carange); }
-    if ("chn4_carange" in allData) { $("#chn4carange").html(allData.chn4_carange); }
-    if ("chn1_catigain" in allData) { $("#chn1catigain").html(allData.chn1_catigain); }
-    if ("chn2_catigain" in allData) { $("#chn2catigain").html(allData.chn2_catigain); }
-    if ("chn3_catigain" in allData) { $("#chn3catigain").html(allData.chn3_catigain); }
-    if ("chn4_catigain" in allData) { $("#chn4catigain").html(allData.chn4_catigain); }
-    if ("chn1_cavgain" in allData) { $("#chn1cavgain").html(allData.chn1_cavgain); }
-    if ("chn2_cavgain" in allData) { $("#chn2cavgain").html(allData.chn2_cavgain); }
-    if ("chn3_cavgain" in allData) { $("#chn3cavgain").html(allData.chn3_cavgain); }
-    if ("chn4_cavgain" in allData) { $("#chn4cavgain").html(allData.chn4_cavgain); }
-    if ("chn1_satmax" in allData) { $("#chn1satmax").html(allData.chn1_satmax); }
-    if ("chn2_satmax" in allData) { $("#chn2satmax").html(allData.chn2_satmax); }
-    if ("chn3_satmax" in allData) { $("#chn3satmax").html(allData.chn3_satmax); }
-    if ("chn4_satmax" in allData) { $("#chn4satmax").html(allData.chn4_satmax); }    
-    if ("chn1_satmin" in allData) { $("#chn1satmin").html(allData.chn1_satmin); }
-    if ("chn2_satmin" in allData) { $("#chn2satmin").html(allData.chn2_satmin); }
-    if ("chn3_satmin" in allData) { $("#chn3satmin").html(allData.chn3_satmin); }
-    if ("chn4_satmin" in allData) { $("#chn4satmin").html(allData.chn4_satmin); }    
-    if ("chn1_offset" in allData) { $("#chn1offset").html(allData.chn1_offset); }
-    if ("chn2_offset" in allData) { $("#chn2offset").html(allData.chn2_offset); }
-    if ("chn3_offset" in allData) { $("#chn3offset").html(allData.chn3_offset); }
-    if ("chn4_offset" in allData) { $("#chn4offset").html(allData.chn4_offset); }    
-
-    if ("acq_trig_mode" in allData) {$("#acq_trig_mode").html(allData.acq_trig_mode); }
-    if ("acq_trig_pol" in allData) {$("#acq_trig_pol").html(allData.acq_trig_pol); }
-    if ("acq_trig_delay" in allData) {$("#acq_trig_delay").html(allData.acq_trig_delay); }
-    if ("acq_trig_input" in allData) {$("#acq_trig_input").html(allData.acq_trig_input); }
-    if ("acq_time" in allData) {$("#acq_time").html(allData.acq_time); }
-    if ("acq_range" in allData) {$("#acq_range").html(allData.acq_range); }
-    if ("acq_filter" in allData) {$("#acq_filter").html(allData.acq_filter); }
+    if ("acq_time" in allData) {
+        $("#acq_time").html(allData.acq_time); 
+        document.getElementById("acqTime").defaultValue = allData.acq_time;        
+    }
+    if ("acq_ntriggers" in allData) {
+        $("#acq_ntriggers").html(allData.acq_ntriggers); 
+        document.getElementById("acqNTriggers").defaultValue = allData.acq_ntriggers;         
+    }
+    if ("acq_range" in allData) {
+        $("#acq_range").html(allData.acq_range); 
+        document.getElementById("acqRange").value = allData.acq_range;        
+    }
+    if ("acq_filter" in allData) {
+        $("#acq_filter").html(allData.acq_filter); 
+        document.getElementById("acqFilter").value = allData.acq_filter;                
+    }
     if ("acq_state" in allData) {$("#acq_state").html(allData.acq_state); }
 
-    if ("chn1_cainv" in allData) {$("#chn1cainv").html(allData.chn1_cainv); }
-    if ("chn2_cainv" in allData) {$("#chn2cainv").html(allData.chn2_cainv); }
-    if ("chn3_cainv" in allData) {$("#chn3cainv").html(allData.chn3_cainv); }
-    if ("chn4_cainv" in allData) {$("#chn4cainv").html(allData.chn4_cainv); }
+    if ("chn1_cainv" in allData) {
+        $("#chn1cainv").html(allData.chn1_cainv); 
+        document.getElementById("chn1_cainv").value = allData.chn1_cainv;
+    }
+    if ("chn2_cainv" in allData) {
+        $("#chn2cainv").html(allData.chn2_cainv); 
+        document.getElementById("chn2_cainv").value = allData.chn2_cainv;
+    }
+    if ("chn3_cainv" in allData) {
+        $("#chn3cainv").html(allData.chn3_cainv); 
+        document.getElementById("chn3_cainv").value = allData.chn3_cainv;
+    }
+    if ("chn4_cainv" in allData) {
+        $("#chn4cainv").html(allData.chn4_cainv); 
+        document.getElementById("chn4_cainv").value = allData.chn4_cainv;            
+    }
 
     if ("fv_maxlim" in allData) { $("#fv_maxlim").html(allData.fv_maxlim); }
     if ("fv_minlim" in allData) { $("#fv_minlim").html(allData.fv_minlim); }
@@ -481,11 +579,9 @@ function refreshData(allData) {
 } 
 
 function checkAcquisition() {
-    var elsToCtrl = ['trigMode', 'trigDelay', 'trigInput', 'trigPol', 'acqRange', 'acqFilter', 'acqTime', 'chn1_cafilter', 'chn2_cafilter', 'chn3_cafilter', 'chn4_cafilter', 'chn1_caPostfilter', 'chn2_caPostfilter', 'chn3_caPostfilter', 'chn4_caPostfilter', 'chn1_caPrefilter', 'chn2_caPrefilter', 'chn3_caPrefilter', 'chn4_caPrefilter', 'chn1_carange', 'chn2_carange', 'chn3_carange', 'chn4_carange', 'chn1_catigain', 'chn2_catigain', 'chn3_catigain', 'chn4_catigain', 'chn1_cavgain', 'chn2_cavgain', 'chn3_cavgain', 'chn4_cavgain', 'chn1_cainv', 'chn2_cainv', 'chn3_cainv', 'chn4_cainv','chn1_offset','chn2_offset','chn3_offset','chn4_offset', 'chn1_satmax', 'chn2_satmax', 'chn3_satmax', 'chn4_satmax', 'chn1_satmin', 'chn2_satmin', 'chn3_satmin', 'chn4_satmin'];
+    var elsToCtrl = ['trigMode', 'trigDelay', 'trigInput', 'trigPol', 'acqRange', 'acqFilter', 'acqTime', 'acqNTriggers', 'chn1_cafilter', 'chn2_cafilter', 'chn3_cafilter', 'chn4_cafilter', 'chn1_caPostfilter', 'chn2_caPostfilter', 'chn3_caPostfilter', 'chn4_caPostfilter', 'chn1_caPrefilter', 'chn2_caPrefilter', 'chn3_caPrefilter', 'chn4_caPrefilter', 'chn1_carange', 'chn2_carange', 'chn3_carange', 'chn4_carange', 'chn1_catigain', 'chn2_catigain', 'chn3_catigain', 'chn4_catigain', 'chn1_cavgain', 'chn2_cavgain', 'chn3_cavgain', 'chn4_cavgain', 'chn1_cainv', 'chn2_cainv', 'chn3_cainv', 'chn4_cainv','chn1_offset','chn2_offset','chn3_offset','chn4_offset', 'chn1_satmax', 'chn2_satmax', 'chn3_satmax', 'chn4_satmax', 'chn1_satmin', 'chn2_satmin', 'chn3_satmin', 'chn4_satmin'];
     
-    console.log("CHECK ACQUISITION = " + document.getElementById('acq_state').innerHTML);
-    
-    if (document.getElementById('acq_state').innerHTML == "ACQUIRING") {
+    if (document.getElementById('acq_state').innerHTML == "ACQUIRING" || document.getElementById('acq_state').innerHTML == "RUNNING") {
         $("#acq_state").css("background-color", "#00FFFF");
         $("#acq_state").css("color", "black");
         document.getElementById("acqStartButton").style.display = "none";    
@@ -524,8 +620,6 @@ function checkChannelRange() {
     var keys = Object.keys(elsToCtrl);
     
     for (var j = 0; j < keys.length; j++) {
-        console.log("CHECK Channel Range" + document.getElementById(keys[j]).innerHTML);
-        
         if (document.getElementById(keys[j]).innerHTML == "AUTO") {
             for (var i = 0; i < elsToCtrl[keys[j]].length; i++) {
                 $("#"+elsToCtrl[keys[j]][i]).css("opacity", "0.2");
@@ -543,7 +637,8 @@ function checkChannelRange() {
 
 
 function checkSettingValues() {
-    var alertmsg_flag = false;
+    var alertmsg1_flag = false;
+    var alertmsg2_flag = false;
     
     /* range_vals: tigain, vgain */
     var range_vals = { '1mA': ['10k','1'], '100uA': ['10k', '10'], '10uA': ['1M', '1'], '1uA': ['1M', '10'],'100nA': ['100M', '1'], '10nA': ['1G', '1'], '1nA': ['10G', '1'], '100pA': ['10G', '10']};
@@ -565,8 +660,9 @@ function checkSettingValues() {
         }
         
         if ((typeof range_vals[idx_val] != 'undefined') && idx_val != 'AUTO' && (range_vals[idx_val][0] != tmp1 || range_vals[idx_val][1] != tmp2 )) {
-            alertmsg_flag = true;
-            $("#"+key).html(idx_val+"*");            
+            alertmsg1_flag = true;
+            var text = calculateRange(tmp1, tmp2);
+            $("#"+key).html(text+"*");            
             $("#"+key).css("color", "red");
         }
         else {
@@ -593,9 +689,20 @@ function checkSettingValues() {
         }
         
         if ((typeof filter_vals[idx_val] != 'undefined') && (filter_vals[idx_val][0] != tmp1 || filter_vals[idx_val][1] != tmp2 )) {
-            alertmsg_flag = true;
+            alertmsg2_flag = true;
             tmp = document.getElementById(key).innerHTML;
-            $("#"+key).html(idx_val+"*");
+            
+            var tmp1_num = parseFloat(tmp1.replace(/[^\d\+]/g,""));
+            var tmp2_num = parseFloat(tmp2.replace(/[^\d\+]/g,""));
+            var text = idx_val;
+            
+            if (tmp1_num > tmp2_num) {
+                text = tmp2;
+            }
+            else {
+                text = tmp1;
+            }
+            $("#"+key).html(text+"**");
             $("#"+key).css("color", "red");            
         }
         else {
@@ -604,12 +711,67 @@ function checkSettingValues() {
         }
     }
     
-    if ( alertmsg_flag == false ) {
-        $("#alertmsg").html("&nbsp");
+    if ( alertmsg1_flag == false ) {
+        $("#alertmsg1").html("&nbsp");
     }    
     else {
-        $("#alertmsg").html("*Applied setting may differ from the real setting!!");
+        $("#alertmsg1").html("*Signal to Noise level not optimized!!&nbsp&nbsp");
     }
+    
+    if ( alertmsg2_flag == false ) {
+        $("#alertmsg2").html("&nbsp");
+    }    
+    else {
+        $("#alertmsg2").html("**Filters set at two different values!!&nbsp&nbsp");
+    }
+    
+}
+
+function calculateRange(tigain, vgain) {
+    
+    var tig_value = {"10K": 10e3,
+        "1M": 1e6,
+        "100M": 100e6,
+        "1G": 1e9,
+        "10G": 10e9,        
+    };
+    
+    var vg_value = {'1': 1,
+        '10': 10,
+        '50': 50,
+        '100': 100,
+        'sat': 1000,
+    };
+    
+    var calculated_range = 10 / (tig_value[tigain.toUpperCase()] * vg_value[vgain.toUpperCase()]);
+    var text = ""
+    
+    if (calculated_range >= 1e-3 ) {
+        text = "1mA";
+    }
+    else if (calculated_range >= 100e-6 ) {
+        text = "100uA";
+    }
+    else if (calculated_range >= 10e-6 ) {
+        text = "10uA";
+    }
+    else if (calculated_range >= 1e-6 ) {
+        text = "1uA";
+    }
+    else if (calculated_range >= 100e-9 ) {
+        text = "100nA";
+    }
+    else if (calculated_range >= 10e-9 ) {
+        text = "10nA";
+    }
+    else if (calculated_range >= 1e-9 ) {
+        text = "1nA";
+    }
+    else {
+        text = "100pA";
+    }
+    
+    return text;    
 }
 
 function sendCommand(command, value, event ) {
@@ -686,7 +848,7 @@ function sendCommand(command, value, event ) {
             break;
             
         case 'offset':
-            if ( event.which == 13 || event.keyCode == 13 ) {
+            if ( event.which == 0 || event.which == 13 || event.keyCode == 13 ) {
                 var el = "chn"+value+"_offset"
                 tmp_value = document.getElementById(el).value;
                 if ( parseFloat(tmp_value) < 0 ) {
@@ -709,7 +871,7 @@ function sendCommand(command, value, event ) {
             break;
             
         case 'trigDelay':
-            if ( event.which == 13 || event.keyCode == 13 ) {
+            if ( event.which == 0 || event.which == 13 || event.keyCode == 13 ) {
                 tmp_value = document.getElementById("trigDelay").value;
                 if ( parseFloat(tmp_value) < 0 ) {
                     return;
@@ -732,7 +894,7 @@ function sendCommand(command, value, event ) {
             break;            
             
         case 'acqTime':
-            if ( event.which == 13 || event.keyCode == 13 ) {
+            if ( event.which == 0 || event.which == 13 || event.keyCode == 13 ) {
                 tmp_value = document.getElementById("acqTime").value;
                 if ( parseFloat(tmp_value) < 1 ) {
                     return;
@@ -744,6 +906,19 @@ function sendCommand(command, value, event ) {
             }                
             break;
             
+        case 'acqNTriggers':
+            if ( event.which == 0 || event.which == 13 || event.keyCode == 13 ) {
+                tmp_value = document.getElementById("acqNTriggers").value;
+                if ( parseFloat(tmp_value) < 0 ) {
+                    return;
+                }                
+                data['command'] = "ACQU:NTRI " + tmp_value
+            }
+            else if (event.charCode >= 48 && event.charCode <= 57) {
+                return;
+            }                
+            break;            
+            
         case 'startAcq':
             data['command'] = "ACQU:START 1"
             break;
@@ -753,7 +928,7 @@ function sendCommand(command, value, event ) {
             break;
             
         case 'satmax':
-            if ( event.which == 13 || event.keyCode == 13 ) {
+            if ( event.which == 0 || event.which == 13 || event.keyCode == 13 ) {
                 var el = "chn"+value+"_satmax"
                 tmp_value = document.getElementById(el).value;
                 if ( parseFloat(tmp_value) < 0 ) {
@@ -767,7 +942,7 @@ function sendCommand(command, value, event ) {
             break;
             
         case 'satmin':
-            if ( event.which == 13 || event.keyCode == 13 ) {
+            if ( event.which == 0 || event.which == 13 || event.keyCode == 13 ) {
                 var el = "chn"+value+"_satmin"
                 tmp_value = document.getElementById(el).value;
                 if ( parseFloat(tmp_value) < 0 ) {

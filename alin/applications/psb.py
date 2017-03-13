@@ -27,7 +27,8 @@ _DEFAULT_VIVS_LIMIT      = 3148
 _DEFAULT_VIAUX_LIMIT     = 2861
 _DEFAULT_VISPEC_LIMIT    = 2731
 
-_DEFAULT_LOOPTIME        = 1
+_DEFAULT_SAMPLINGTIME = 0.5
+_DEFAULT_REPETITIONS = 3
 
 class Psb(AlinLog):
     def __init__(self,debug=False):
@@ -63,7 +64,8 @@ class Psb(AlinLog):
         self._vivs_limit = int(configDict["VSENSE_I_VS_LIMIT_"]) if "VSENSE_I_VS_LIMIT_" in configDict.keys() else _DEFAULT_VIVS_LIMIT
         self._viaux_limit = int(configDict["VSENSE_I_AUX_LIMIT_"]) if "VSENSE_I_AUX_LIMIT_" in configDict.keys() else _DEFAULT_VIAUX_LIMIT
         self._vispec_limit = int(configDict["VSENSE_I_SPEC_LIMIT_"]) if "VSENSE_I_SPEC_LIMIT_" in configDict.keys() else _DEFAULT_VISPEC_LIMIT
-        self._looptime = int(configDict["LOOPTIME_"]) if "LOOPTIME_" in configDict.keys() else _DEFAULT_LOOPTIME
+        self._looptime = float(configDict["LOOPTIME_"]) if "LOOPTIME_" in configDict.keys() else _DEFAULT_SAMPLINGTIME
+        self._repetitions = int(configDict["REPETITIONS_"]) if "REPETITIONS_" in configDict.keys() else _DEFAULT_REPETITIONS
         
         # Logging
         self.logLevel(self._debuglevel)
@@ -100,7 +102,7 @@ class Psb(AlinLog):
         # Start PSB process control
         if self.adcdrv is not None:
             try:
-                self._psb_thread = PSBControl(self, debug=self._debug, adc=self.adcdrv, pexp=self.pexdrv, loop=self._looptime)
+                self._psb_thread = PSBControl(self, debug=self._debug, adc=self.adcdrv, pexp=self.pexdrv, loop=self._looptime, retries=self._repetitions)
                 self._psb_thread.setDaemon(True)
                 
                 aux_limits = []
@@ -221,7 +223,7 @@ class Psb(AlinLog):
             pass    
 
 class PSBControl(threading.Thread):
-    def __init__(self, parent=None, debug=None, adc=None, pexp=None, loop=1):
+    def __init__(self, parent=None, debug=None, adc=None, pexp=None, loop=_DEFAULT_SAMPLINGTIME, retries=_DEFAULT_REPETITIONS):
         threading.Thread.__init__(self)
         self._parent = parent
         
@@ -229,6 +231,7 @@ class PSBControl(threading.Thread):
         self._processEnded = False
         
         self._looptime = loop
+        self._max_repetitions = retries
         
         self._adc = adc
         self._pexp = pexp
@@ -238,6 +241,13 @@ class PSBControl(threading.Thread):
         self._vsenseivs_limit = None
         self._vsenseiaux_limit = None
         self._vsenseispec_limit = None
+        
+        self._vsenseiiso_counter = 0
+        self._vsenseivcc_counter = 0
+        self._vsenseivs_counter = 0
+        self._vsenseiaux_counter = 0
+        self._vsenseispec_counter = 0
+        
         
     def end(self):
         self._parent.logMessage("PSBControl() Stopping control thread....",self._parent.INFO)
@@ -267,9 +277,16 @@ class PSBControl(threading.Thread):
                         aux_diags = self._adc.getRegister('VSENSE_I_ISO')
                         self._parent.logMessage("PSBControl() Checking ISO Power Supply..read %s....."%str(aux_diags),self._parent.DEBUG)
                         if aux_diags > self._vsenseiiso_limit:
-                            # Switch Off Isolated Power Supply
-                            self._parent.logMessage("PSBControl() Isolated Power Supply above load limit (%s). Switching of......"%str(aux_diags),self._parent.INFO)
-                            self._pexp.writeRegister('CTRL_ISO',False)
+                            self._vsenseiiso_counter += 1
+                            if self._vsenseiiso_counter > self._max_repetitions:
+                                # Switch Off Isolated Power Supply
+                                self._parent.logMessage("PSBControl() Isolated Power Supply above load limit (%s). Switching of......"%str(aux_diags),self._parent.INFO)
+                                self._pexp.writeRegister('CTRL_ISO',False)
+                                self._vsenseiiso_counter = 0
+                        else:
+                            self._vsenseiiso_counter -= 1
+                            if self._vsenseiiso_counter <= 0:
+                                self._vsenseiiso_counter = 0
                 except Exception, e:
                     self._parent.logMessage("PSBControl() Not possible to check Isolated Power Supply due to %s"%str(e),self._parent.CRITICAL)
                     
@@ -279,9 +296,16 @@ class PSBControl(threading.Thread):
                         aux_diags = self._adc.getRegister('VSENSE_I_VCC')
                         self._parent.logMessage("PSBControl() Checking VCC Power Supply..read %s....."%str(aux_diags),self._parent.DEBUG)
                         if aux_diags > self._vsenseivcc_limit:
-                            # Switch Off Isolated Power Supply
-                            self._parent.logMessage("PSBControl() VCC Power Supply above load limit (%s). Switching of......"%str(aux_diags),self._parent.INFO)
-                            self._pexp.writeRegister('CTRL_VCC',False)
+                            self._vsenseivcc_counter += 1
+                            if self._vsenseivcc_counter > self._max_repetitions:
+                                # Switch Off Isolated Power Supply
+                                self._parent.logMessage("PSBControl() VCC Power Supply above load limit (%s). Switching of......"%str(aux_diags),self._parent.INFO)
+                                self._pexp.writeRegister('CTRL_VCC',False)
+                                self._vsenseivcc_counter = 0
+                        else:
+                            self._vsenseivcc_counter -= 1
+                            if self._vsenseivcc_counter <= 0:
+                                self._vsenseivcc_counter = 0
                 except Exception, e:
                     self._parent.logMessage("PSBControl() Not possible to check VCC Power Supply due to %s"%str(e),self._parent.CRITICAL)
     
@@ -291,9 +315,16 @@ class PSBControl(threading.Thread):
                         aux_diags = self._adc.getRegister('VSENSE_I_VS')
                         self._parent.logMessage("PSBControl() Checking VS Power Supply..read %s....."%str(aux_diags),self._parent.DEBUG)
                         if aux_diags > self._vsenseivs_limit:
-                            # Switch Off Isolated Power Supply
-                            self._parent.logMessage("PSBControl() VS Power Supply above load limit (%s). Switching of......"%str(aux_diags),self._parent.INFO)
-                            self._pexp.writeRegister('CTRL_VS',False)
+                            self._vsenseivs_counter += 1
+                            if self._vsenseivs_counter > self._max_repetitions:
+                                # Switch Off Isolated Power Supply
+                                self._parent.logMessage("PSBControl() VS Power Supply above load limit (%s). Switching of......"%str(aux_diags),self._parent.INFO)
+                                self._pexp.writeRegister('CTRL_VS',False)
+                                self._vsenseivs_counter = 0
+                        else:
+                            self._vsenseivs_counter -= 1
+                            if self._vsenseivs_counter <= 0:
+                                self._vsenseivs_counter = 0   
                 except Exception, e:
                     self._parent.logMessage("PSBControl() Not possible to check VS Power Supply due to %s"%str(e),self._parent.CRITICAL)
     
@@ -303,9 +334,16 @@ class PSBControl(threading.Thread):
                         aux_diags = self._adc.getRegister('VSENSE_I_AUX')
                         self._parent.logMessage("PSBControl() Checking Auxiliary Power Supply..read %s....."%str(aux_diags),self._parent.DEBUG)
                         if aux_diags > self._vsenseiaux_limit:
-                            # Switch Off Isolated Power Supply
-                            self._parent.logMessage("PSBControl() Auxiliary Power Supply above load limit (%s). Switching of......"%str(aux_diags),self._parent.INFO)
-                            self._pexp.writeRegister('CTRL_VAUX',False)
+                            self._vsenseiaux_counter += 1
+                            if self._vsenseiaux_counter > self._max_repetitions:
+                                # Switch Off Isolated Power Supply
+                                self._parent.logMessage("PSBControl() Auxiliary Power Supply above load limit (%s). Switching of......"%str(aux_diags),self._parent.INFO)
+                                self._pexp.writeRegister('CTRL_VAUX',False)
+                                self._vsenseiaux_counter = 0
+                        else:
+                            self._vsenseiaux_counter -= 1
+                            if self._vsenseiaux_counter <= 0:
+                                self._vsenseiaux_counter = 0     
                 except Exception, e:
                     self._parent.logMessage("PSBControl() Not possible to check Auxiliary Power Supply due to %s"%str(e),self._parent.CRITICAL)
     
@@ -314,8 +352,15 @@ class PSBControl(threading.Thread):
                     aux_diags = self._adc.getRegister('VSENSE_I_SPEC')
                     self._parent.logMessage("PSBControl() Checking 12V SPEC Power Supply..read %s....."%str(aux_diags),self._parent.DEBUG)
                     if aux_diags > self._vsenseispec_limit:
-                        # Switch Off Isolated Power Supply
-                        self._parent.logMessage("PSBControl() 12V SPEC Power Supply above load limit (%s). Switching of......"%str(aux_diags),self._parent.INFO)
+                        self._vsenseispec_counter += 1
+                        if self._vsenseispec_counter > self._max_repetitions:
+                            # Switch Off Isolated Power Supply
+                            self._parent.logMessage("PSBControl() 12V SPEC Power Supply above load limit (%s). Switching of......"%str(aux_diags),self._parent.INFO)
+                            self._vsenseispec_counter = 0
+                    else:
+                        self._vsenseispec_counter -= 1
+                        if self._vsenseispec_counter <= 0:
+                            self._vsenseispec_counter = 0         
                 except Exception, e:
                     self._parent.logMessage("PSBControl() Not possible to check 12V SPEC Power Supply due to %s"%str(e),self._parent.CRITICAL)
             else:
@@ -327,6 +372,3 @@ class PSBControl(threading.Thread):
             
         self._processEnded = True    
 
-    
-        
-    

@@ -248,7 +248,7 @@ function drawAcquisitionGraphs(p_plot, p_data1, p_data2, p_data3, p_data4)  {
             
             yaxis:{
                 numberTicks: 9,
-                label: 'Current (A)',                        
+                label: 'Current (mA)',                        
                 min: ymin,
                 max: ymax,
                 labelRenderer: $.jqplot.CanvasAxisLabelRenderer,  // Define the format for the text on the label
@@ -284,11 +284,13 @@ function drawAcquisitionGraphs(p_plot, p_data1, p_data2, p_data3, p_data4)  {
         },
         legend:{ 
             show:true, 
+            showLabels: true,
             placement: "outsideGrid",
             location: "s",
             renderer: jQuery.jqplot.EnhancedLegendRenderer,
             rendererOptions: {
-                numberColumns: '1'
+                numberColumns: 4,
+                numberRows: 1,
             },                   
             labels: ['Channel 1', 'Channel2', 'Channel3', 'Channel4'],
         },                    
@@ -306,12 +308,13 @@ function refreshData(allData) {
     if ("acq_trig_delay" in allData) { $("#acq_trig_delay").html(allData.acq_trig_delay); }
     if ("acq_trig_input" in allData) { $("#acq_trig_input").html(allData.acq_trig_input); }
     if ("acq_time" in allData) { $("#acq_time").html(allData.acq_time); }
+    if ("acq_ntriggers" in allData) { $("#acq_ntriggers").html(allData.acq_ntriggers); }
     if ("acq_range" in allData) { $("#acq_range").html(allData.acq_range); }
     if ("acq_filter" in allData) { $("#acq_filter").html(allData.acq_filter); }
     if ("acq_state" in allData) { $("#acq_state").html(allData.acq_state); }
 
     if ("acq_state" in allData) { 
-        if (allData.acq_state == "ACQUIRING") {
+        if (allData.acq_state == "ACQUIRING" || allData.acq_state == "RUNNING") {
             $("#acq_state").css("background-color", "#00FFFF");
             $("#acq_state").css("color", "black");
         }
@@ -627,7 +630,8 @@ function refreshData(allData) {
     if ("diags_vcc" in allData) { $("#diags_vcc").html(allData.diags_vcc); }    
     if ("diags_viso" in allData) { $("#diags_viso").html(allData.diags_viso); }    
     if ("diags_vs" in allData) { $("#diags_vs").html(allData.diags_vs); }    
-    if ("diags_vspec" in allData) { $("#diags_vspec").html(allData.diags_vspec); }    
+    if ("diags_vspec" in allData) { $("#diags_vspec").html(allData.diags_vspec); }
+    if ("diags_12v" in allData) { $("#diags_12v").html(allData.diags_12v); }
 
     if ("psb_vaux" in allData) { 
         $("#psb_vaux").html(allData.psb_vaux);
@@ -760,7 +764,8 @@ function refreshData(allData) {
 } 
 
 function checkSettings() {
-    var alertmsg_flag = false;
+    var alertmsg1_flag = false;
+    var alertmsg2_flag = false;
     var alertsatmsg_flag = false;
     
     /* range_vals: tigain, vgain */
@@ -782,8 +787,9 @@ function checkSettings() {
         }
         
         if ((typeof range_vals[idx_val] != 'undefined') && idx_val != 'AUTO' && (range_vals[idx_val][0] != tmp1 || range_vals[idx_val][1] != tmp2 )) {
-            alertmsg_flag = true;
-            $("#"+key).html(idx_val+"*");            
+            alertmsg1_flag = true;
+            var text = calculateRange(tmp1, tmp2);
+            $("#"+key).html(text+"*");            
             $("#"+key).css("color", "red");
         }
         else {
@@ -810,9 +816,19 @@ function checkSettings() {
         }
         
         if ((typeof filter_vals[idx_val] != 'undefined') && (filter_vals[idx_val][0] != tmp1 || filter_vals[idx_val][1] != tmp2 )) {
-            alertmsg_flag = true;
-            tmp = document.getElementById(key).innerHTML;
-            $("#"+key).html(idx_val+"*");
+            alertmsg2_flag = true;
+            
+            var tmp1_num = parseFloat(tmp1.replace(/[^\d\+]/g,""));
+            var tmp2_num = parseFloat(tmp2.replace(/[^\d\+]/g,""));
+            var text = idx_val;
+            
+            if (tmp1_num > tmp2_num) {
+                text = tmp2;
+            }
+            else {
+                text = tmp1;
+            }
+            $("#"+key).html(text+"**");
             $("#"+key).css("color", "red");            
         }
         else {
@@ -830,7 +846,7 @@ function checkSettings() {
 
         if ( parseFloat(tmp) > max_val[j] ) {
             alertsatmsg_flag = true;
-            $("#"+var_voltagesat[j]).html(tmp+"**");
+            $("#"+var_voltagesat[j]).html(tmp+"***");
             $("#"+var_voltagesat[j]).css("color", "red");
         }
         else {
@@ -838,18 +854,25 @@ function checkSettings() {
         }
     }
     
-    if ( alertmsg_flag == false ) {
-        $("#alertmsg").html("&nbsp");
+    if ( alertmsg1_flag == false ) {
+        $("#alertmsg1").html("&nbsp");
     }    
     else {
-        $("#alertmsg").html("*Applied setting may differ from the real setting!!");
+        $("#alertmsg1").html("*Signal to Noise level not optimized!!&nbsp&nbsp");
     }
 
+    if ( alertmsg2_flag == false ) {
+        $("#alertmsg2").html("&nbsp");
+    }    
+    else {
+        $("#alertmsg2").html("**Filters set at two different values!!&nbsp&nbsp");
+    }
+    
     if ( alertsatmsg_flag == false ) {
         $("#alertsatmsg").html("&nbsp");
     }    
     else {
-        $("#alertsatmsg").html("**Current amplifer could be saturating!!");
+        $("#alertsatmsg").html("***Current amplifer could be saturating!!&nbsp&nbsp");
     }
     
 }
@@ -881,95 +904,91 @@ function saveData(){
     var name = window.location.hostname;
     var filename = date + "_" + time + "_" + name + ".csv";
     
-    var col1 = ["EquipmentName",
-                "Date",
-                "Time", 
-                "TriggerMode",
-                "TriggerDelay",
-                "TriggerInput",
-                "TriggerPolarity",
-                "AcquisitionTime",
-                "AcquisitionRange",
-                "AcquisitionFilter",
-                "AcquisitionNData",
-                "Channel1_Filter",
-                "Channel1_PreFilter",
-                "Channel1_PostFilter",
-                "Channel1_Range",
-                "Channel1_TiGain",
-                "Channel1_VGain",
-                "Channel1_Inversion",
-                "Channel1_Offset", 
-                "Channel2_Filter",
-                "Channel2_PreFilter",
-                "Channel2_PostFilter",
-                "Channel2_Range",
-                "Channel2_TiGain",
-                "Channel2_VGain",
-                "Channel2_Inversion",
-                "Channel2_Offset",                 
-                "Channel3_Filter",
-                "Channel3_PreFilter",
-                "Channel3_PostFilter",
-                "Channel3_Range",
-                "Channel3_TiGain",
-                "Channel3_VGain",
-                "Channel3_Inversion",
-                "Channel3_Offset",                 
-                "Channel4_Filter",
-                "Channel4_PreFilter",
-                "Channel4_PostFilter",
-                "Channel4_Range",
-                "Channel4_TiGain",
-                "Channel4_VGain",
-                "Channel4_Inversion",
-                "Channel4_Offset",                 
-               ]
+    var data_dict = {"EquipmentName": name,
+                    "Date": date,
+                    "Time": time, 
+                    "TriggerMode": document.getElementById("acq_trig_mode").innerHTML,
+                    "TriggerDelay": document.getElementById("acq_trig_delay").innerHTML,
+                    "TriggerInput": document.getElementById("acq_trig_input").innerHTML,
+                    "TriggerPolarity": document.getElementById("acq_trig_pol").innerHTML,
+                    "AcquisitionTime": document.getElementById("acq_time").innerHTML,
+                    "AcquisitionTriggers": document.getElementById("acq_ntriggers").innerHTML,
+                    "AcquisitionNData": document.getElementById("acq_ndata").innerHTML,
+                    "Channel1_Filter": document.getElementById("chn1_cafilter").innerHTML,
+                    "Channel1_PreFilter": document.getElementById("chn1_caprefilter").innerHTML,
+                    "Channel1_PostFilter": document.getElementById("chn1_capostfilter").innerHTML,
+                    "Channel1_Range": document.getElementById("chn1_carange").innerHTML,
+                    "Channel1_TiGain": document.getElementById("chn1_catigain").innerHTML,
+                    "Channel1_VGain": document.getElementById("chn1_cavgain").innerHTML,
+                    "Channel1_Inversion": document.getElementById("chn1_cainv").innerHTML,
+                    "Channel1_Offset": document.getElementById("chn1_offset").innerHTML, 
+                    "Channel2_Filter": document.getElementById("chn2_cafilter").innerHTML,
+                    "Channel2_PreFilter": document.getElementById("chn2_caprefilter").innerHTML,
+                    "Channel2_PostFilter": document.getElementById("chn2_capostfilter").innerHTML,
+                    "Channel2_Range": document.getElementById("chn2_carange").innerHTML,
+                    "Channel2_TiGain": document.getElementById("chn2_catigain").innerHTML,
+                    "Channel2_VGain": document.getElementById("chn2_cavgain").innerHTML,
+                    "Channel2_Inversion": document.getElementById("chn2_cainv").innerHTML,
+                    "Channel2_Offset": document.getElementById("chn2_offset").innerHTML,                 
+                    "Channel3_Filter": document.getElementById("chn3_cafilter").innerHTML,
+                    "Channel3_PreFilter": document.getElementById("chn3_caprefilter").innerHTML,
+                    "Channel3_PostFilter": document.getElementById("chn3_capostfilter").innerHTML,
+                    "Channel3_Range": document.getElementById("chn3_carange").innerHTML,
+                    "Channel3_TiGain": document.getElementById("chn3_catigain").innerHTML,
+                    "Channel3_VGain": document.getElementById("chn3_cavgain").innerHTML,
+                    "Channel3_Inversion": document.getElementById("chn3_cainv").innerHTML,
+                    "Channel3_Offset": document.getElementById("chn3_offset").innerHTML,                 
+                    "Channel4_Filter": document.getElementById("chn4_cafilter").innerHTML,
+                    "Channel4_PreFilter": document.getElementById("chn4_caprefilter").innerHTML,
+                    "Channel4_PostFilter": document.getElementById("chn4_capostfilter").innerHTML,
+                    "Channel4_Range": document.getElementById("chn4_carange").innerHTML,
+                    "Channel4_TiGain": document.getElementById("chn4_catigain").innerHTML,
+                    "Channel4_VGain": document.getElementById("chn4_cavgain").innerHTML,
+                    "Channel4_Inversion": document.getElementById("chn4_cainv").innerHTML,
+                    "Channel4_Offset": document.getElementById("chn4_offset").innerHTML,                 
+                }
+                
+    var col1 = Object.keys(data_dict);
+
+    if (data_dict["Channel1_Range"] == 'AUTO' ) {
+        data_dict["Channel1_TiGain"] = "";
+        data_dict["Channel1_VGain"] = "";
+    }
+    else {
+        data_dict["Channel1_Range"] = calculateRange(data_dict["Channel1_TiGain"], data_dict["Channel1_VGain"]);
+    }
     
-    var col2 = [name,
-                date,
-                time,
-                document.getElementById("acq_trig_mode").innerHTML,
-                document.getElementById("acq_trig_delay").innerHTML,
-                document.getElementById("acq_trig_input").innerHTML,
-                document.getElementById("acq_trig_pol").innerHTML,
-                document.getElementById("acq_time").innerHTML,
-                document.getElementById("acq_range").innerHTML,
-                document.getElementById("acq_filter").innerHTML,
-                document.getElementById("acq_ndata").innerHTML,                
-                document.getElementById("chn1_cafilter").innerHTML,
-                document.getElementById("chn1_caprefilter").innerHTML,
-                document.getElementById("chn1_capostfilter").innerHTML,
-                document.getElementById("chn1_carange").innerHTML,
-                document.getElementById("chn1_catigain").innerHTML,
-                document.getElementById("chn1_cavgain").innerHTML,
-                document.getElementById("chn1_cainv").innerHTML,
-                document.getElementById("chn1_offset").innerHTML,    
-                document.getElementById("chn2_cafilter").innerHTML,
-                document.getElementById("chn2_caprefilter").innerHTML,
-                document.getElementById("chn2_capostfilter").innerHTML,
-                document.getElementById("chn2_carange").innerHTML,
-                document.getElementById("chn2_catigain").innerHTML,
-                document.getElementById("chn2_cavgain").innerHTML,
-                document.getElementById("chn2_cainv").innerHTML,    
-                document.getElementById("chn2_offset").innerHTML,                    
-                document.getElementById("chn3_cafilter").innerHTML,
-                document.getElementById("chn3_caprefilter").innerHTML,
-                document.getElementById("chn3_capostfilter").innerHTML,
-                document.getElementById("chn3_carange").innerHTML,
-                document.getElementById("chn3_catigain").innerHTML,
-                document.getElementById("chn3_cavgain").innerHTML,
-                document.getElementById("chn3_cainv").innerHTML,    
-                document.getElementById("chn3_offset").innerHTML,                    
-                document.getElementById("chn4_cafilter").innerHTML,
-                document.getElementById("chn4_caprefilter").innerHTML,
-                document.getElementById("chn4_capostfilter").innerHTML,
-                document.getElementById("chn4_carange").innerHTML,
-                document.getElementById("chn4_catigain").innerHTML,
-                document.getElementById("chn4_cavgain").innerHTML,
-                document.getElementById("chn4_cainv").innerHTML,
-                document.getElementById("chn4_offset").innerHTML]
-     
+    if (data_dict["Channel2_Range"] == 'AUTO' ) {
+        data_dict["Channel2_TiGain"] = "";
+        data_dict["Channel2_VGain"] = "";
+    }
+    else {
+        data_dict["Channel2_Range"] = calculateRange(data_dict["Channel2_TiGain"], data_dict["Channel2_VGain"]);
+    }
+    
+    if (data_dict["Channel3_Range"] == 'AUTO' ) {
+        data_dict["Channel3_TiGain"] = "";
+        data_dict["Channel3_VGain"] = "";
+    }
+    else {
+        data_dict["Channel3_Range"] = calculateRange(data_dict["Channel3_TiGain"], data_dict["Channel3_VGain"]);
+    }
+    
+    if (data_dict["Channel4_Range"] == 'AUTO' ) {
+        data_dict["Channel4_TiGain"] = "";
+        data_dict["Channel4_VGain"] = "";
+    }
+    else {
+        data_dict["Channel4_Range"] = calculateRange(data_dict["Channel4_TiGain"], data_dict["Channel4_VGain"]);
+    }
+    
+    var col2 = [];
+    for (var key in data_dict) {
+        if (data_dict.hasOwnProperty(key)) {
+            col2.push(data_dict[key]);
+        }
+    }
+    
     var col3 = [];                
     var col4 = ['Channel1_Data (mA)'];
     col4 = col4.concat(acq_data1);
@@ -1006,6 +1025,53 @@ function saveData(){
     var blob = new Blob(parts);            
     saveAs(blob, filename); 
 }        
+
+function calculateRange(tigain, vgain) {
+    
+    var tig_value = {"10K": 10e3,
+                    "1M": 1e6,
+                    "100M": 100e6,
+                    "1G": 1e9,
+                    "10G": 10e9,        
+    };
+                    
+    var vg_value = {'1': 1,
+                    '10': 10,
+                    '50': 50,
+                    '100': 100,
+                    'sat': 1000,
+    };
+    
+    var calculated_range = 10 / (tig_value[tigain] * vg_value[vgain]);
+    var text = ""
+    
+    if (calculated_range >= 1e-3 ) {
+        text = "1mA";
+    }
+    else if (calculated_range >= 100e-6 ) {
+        text = "100uA";
+    }
+    else if (calculated_range >= 10e-6 ) {
+        text = "10uA";
+    }
+    else if (calculated_range >= 1e-6 ) {
+        text = "1uA";
+    }
+    else if (calculated_range >= 100e-9 ) {
+        text = "100nA";
+    }
+    else if (calculated_range >= 10e-9 ) {
+        text = "10nA";
+    }
+    else if (calculated_range >= 1e-9 ) {
+        text = "1nA";
+    }
+    else {
+        text = "100pA";
+    }
+    
+    return text;    
+}
 
 function currentDisplay(range, data) {
     

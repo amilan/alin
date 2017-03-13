@@ -119,6 +119,7 @@ class MemoryMW(AlinLog):
                           'trigmode': (self._HRMY.setTrigMode, None),
                           'trigpol': (self._HRMY.setTrigPol, None),
                           'acqtime': (self._HRMY.setAcqTime, None),
+                          'acqntriggers': (self._HRMY.setAcqNTriggers, None),
                           'trigdelay': (self._HRMY.setTrigDelay, None),
                           'triginput': (self._HRMY.setTrigInput, None),
                           'gpioconfig': (self._HRMY.setGPIOConfig, _NUM_GPIO),

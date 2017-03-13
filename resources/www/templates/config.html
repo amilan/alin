@@ -181,7 +181,7 @@
         </tr>                
     </tbody>
     </table>
-    <div class="alertmsg" id="alertmsg">&nbsp</div>
+    <div><spam class="alertmsg" id="alertmsg1"></spam><spam class="alertmsg" id="alertmsg2"></spam></div>
     
     <table  border=1 frame=hsides rules=rows bordercolor="#222225"><caption>&nbsp;</caption>
     <tbody>
@@ -216,15 +216,17 @@
             <th class="table_cell_title" colspan="4">&nbspAcquisition&nbsp</th>
         </tr>
         <tr>
-            <th class="table_cell_title4"  width="25%" >&nbspRange (All Ch) </th>
+            <th class="table_cell_title4" >&nbspRange (All Ch) </th>
             <th class="table_cell_title4" >&nbspFilter (All Ch)</th>
             <th class="table_cell_title4" >&nbspTime </th>
-            <th class="table_cell_title4">&nbspState </th>
+            <th class="table_cell_title4" >&nbspTriggers </th>
+            <th class="table_cell_title4" width="25%">&nbspState </th>
         </tr>            
         <tr>
             <td><select class="inputText" id="acqRange"></select></td>
             <td><select class="inputText" id="acqFilter"></select></td>
             <td><input type="number" min="1" class="inputText" name="acqTime" id="acqTime" ></td>
+            <td><input type="number" min="0" class="inputText" name="acqNTriggers" id="acqNTriggers" ></td>
             <td>
                 <button type="button" class="myButtonGreen" id="acqStartButton">Start Acquisition</button>
                 <button type="button" class="myButtonPurple" id="acqStopButton">Stop Acquisition</button>
@@ -234,6 +236,7 @@
             <td class="table_cell_value" id="acq_range" width="25%" ></td>
             <td class="table_cell_value" id="acq_filter" ></td>
             <td class="table_cell_value" id="acq_time" ></td>
+            <td class="table_cell_value" id="acq_ntriggers" ></td>
             <td class="table_cell_value" id="acq_state"></td>
         </tr>
     </tbody>

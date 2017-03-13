@@ -25,60 +25,60 @@ if (password != pass1)
 }
 
 $( document ).ready(function() {
-    $('#chn1aout').on('change keypress', function(event) {
+    $('#chn1aout').on('change keypress focusout', function(event) {
         sendCommand('aout',1, event);
     });            
-    $('#chn2aout').on('change keypress', function(event) {
+    $('#chn2aout').on('change keypress focusout', function(event) {
         sendCommand('aout',2, event);
     });            
-    $('#chn3aout').on('change keypress', function(event) {
+    $('#chn3aout').on('change keypress focusout', function(event) {
         sendCommand('aout',3, event);
     });            
-    $('#chn4aout').on('change keypress', function(event) {
+    $('#chn4aout').on('change keypress focusout', function(event) {
         sendCommand('aout',4, event);
     });        
     
-    $('#dacgain').on('change keypress', function() {
+    $('#dacgain').on('change keypress focusout', function() {
         sendCommand('dacgain',1);
     });            
     
     
-    $('#ioport1_config').on('change keypress', function() {
+    $('#ioport1_config').on('change keypress focusout', function() {
         sendCommand('ioportconfig',1);
     });            
-    $('#ioport2_config').on('change keypress', function() {
+    $('#ioport2_config').on('change keypress focusout', function() {
         sendCommand('ioportconfig',2);
     });            
-    $('#ioport3_config').on('change keypress', function() {
+    $('#ioport3_config').on('change keypress focusout', function() {
         sendCommand('ioportconfig',3);
     });            
-    $('#ioport4_config').on('change keypress', function() {
+    $('#ioport4_config').on('change keypress focusout', function() {
         sendCommand('ioportconfig',4);
     });            
     
-    $('#ioport1_value').on('change keypress', function() {
+    $('#ioport1_value').on('change keypress focusout', function() {
         sendCommand('ioportvalue',1);
     });            
-    $('#ioport2_value').on('change keypress', function() {
+    $('#ioport2_value').on('change keypress focusout', function() {
         sendCommand('ioportvalue',2);
     });            
-    $('#ioport3_value').on('change keypress', function() {
+    $('#ioport3_value').on('change keypress focusout', function() {
         sendCommand('ioportvalue',3);
     });            
-    $('#ioport4_value').on('change keypress', function() {
+    $('#ioport4_value').on('change keypress focusout', function() {
         sendCommand('ioportvalue',4);
     });            
     
-    $('#supplyport1').on('change keypress', function() {
+    $('#supplyport1').on('change keypress focusout', function() {
         sendCommand('supplyport',1);
     });            
-    $('#supplyport2').on('change keypress', function() {
+    $('#supplyport2').on('change keypress focusout', function() {
         sendCommand('supplyport',2);
     });            
-    $('#supplyport3').on('change keypress', function() {
+    $('#supplyport3').on('change keypress focusout', function() {
         sendCommand('supplyport',3);
     });            
-    $('#supplyport4').on('change keypress', function() {
+    $('#supplyport4').on('change keypress focusout', function() {
         sendCommand('supplyport',4);
     });            
     
@@ -322,7 +322,7 @@ function sendCommand(command, value, event ) {
             break;     
     
         case 'aout':
-            if ( event.which == 13 || event.keyCode == 13 ) {
+            if ( event.which == 0 || event.which == 13 || event.keyCode == 13 ) {
                 var el = "chn"+value+"aout"
                 tmp_value = document.getElementById(el).value;
                 data['command'] = "CHAN0"+value+":AOUT " + tmp_value;

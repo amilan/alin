@@ -27,6 +27,7 @@ _REGISTERS 	= {'VSENSE_I_ISO'	: 0x84,
 				'VSENSE_I_SPEC'	: 0xA4,
 				'VSENSE_I_VCC'	: 0xC4,
 				'VSENSE_I_AUX'	: 0xD4,
+				'VSENSE_12V'	: 0xE4,
 				}
 
 class ADS7828(AlinLog):
