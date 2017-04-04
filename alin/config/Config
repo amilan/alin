@@ -111,6 +111,13 @@ WEBSERVER_FPGA_DATA_ = True
 
 WEBSERVER_FPGA_DATA_REFRESH_PERIOD_ = 1
 
+# This is the default used in the acquisition graph in webbrowser.
+# The broswer speed depends on the size of points to display.
+# Recomended value is 500, expected 1000. More than 1000 points can block the 
+# client browser
+
+WEBSERVER_DEFAULT_ACQGRPAH_POINTS_ = 200
+
 # If the DEBUG_ flag is set to 1, all log information will be added to 
 # the log file and to the screen output. Setting this flag to 0, will 
 # just disable the log information through screen
@@ -126,6 +133,7 @@ WEBSERVER_DEBUG_ = 1
 #       50 = CRITICAL
 
 WEBSERVER_DEBUGLEVEL_ = 20
+
 
 #---------------------------------------------------------------------------
 #

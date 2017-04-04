@@ -17,10 +17,6 @@ var host = window.location.hostname;
 
 var first_time_refresh = false;
 
-var tmode_array = [["SOFTWARE",0],["HARDWARE",1]];
-var tpol_array = [["FALLING",0],["RISING",1]];
-var input_array = [["DIO_1", 0], ["DIO_2", 1], ["DIO_3", 2], ["DIO_4", 3], ["DIFF_IO_1", 4], ["DIFF_IO_2", 5], ["DIFF_IO_3", 6],["DIFF_IO_4", 7],["DIFF_IO_5", 8],["DIFF_IO_6", 9],["DIFF_IO_7", 10],["DIFF_IO_8", 11],["DIFF_IO_9", 12]]
-
 password=prompt("Enter Password To view Page"," ");
 if (password != pass1) 
 {
@@ -29,189 +25,213 @@ if (password != pass1)
 }
 
 $( document ).ready(function() {
-    $('#chn1_cafilter').on('change keypress focusout', function() {
-        sendCommand('filter',1);
-    });    
-    $('#chn2_cafilter').on('change keypress focusout', function() {
-        sendCommand('filter',2);
-    });
-    $('#chn3_cafilter').on('change keypress focusout', function() {
-        sendCommand('filter',3);
-    });
-    $('#chn4_cafilter').on('change keypress focusout', function() {
-        sendCommand('filter',4);
-    });
+    $('#chn1_cafilter').on('change keypress focusout', function(event) {
+        sendCommand('chn1_cafilter', event);
+    });       
 
-    $('#chn1_caPrefilter').on('change keypress focusout', function() {
-        sendCommand('prefilter',1);
-    });        
-    $('#chn2_caPrefilter').on('change keypress focusout', function() {
-        sendCommand('prefilter',2);
-    });        
-    $('#chn3_caPrefilter').on('change keypress focusout', function() {
-        sendCommand('prefilter',3);
-    });        
-    $('#chn4_caPrefilter').on('change keypress focusout', function() {
-        sendCommand('prefilter',4);
-    });   
+    $('#chn2_cafilter').on('change keypress focusout', function(event) {
+        sendCommand('chn2_cafilter', event);
+    }); 
     
+    $('#chn3_cafilter').on('change keypress focusout', function(event) {
+        sendCommand('chn3_cafilter', event);
+    }); 
     
-    $('#chn1_caPostfilter').on('change keypress focusout', function() {
-        sendCommand('postfilter',1);
-    });        
-    $('#chn2_caPostfilter').on('change keypress focusout', function() {
-        sendCommand('postfilter',2);
-    });        
-    $('#chn3_caPostfilter').on('change keypress focusout', function() {
-        sendCommand('postfilter',3);
-    });        
-    $('#chn4_caPostfilter').on('change keypress focusout', function() {
-        sendCommand('postfilter',4);
+    $('#chn4_cafilter').on('change keypress focusout', function(event) {
+        sendCommand('chn4_cafilter', event);
+    }); 
+    
+    $('#chn1_caPrefilter').on('change keypress focusout', function(event) {
+        sendCommand('chn1_caPrefilter', event);
+    });       
+    
+    $('#chn2_caPrefilter').on('change keypress focusout', function(event) {
+        sendCommand('chn2_caPrefilter', event);
+    }); 
+    
+    $('#chn3_caPrefilter').on('change keypress focusout', function(event) {
+        sendCommand('chn3_caPrefilter', event);
+    }); 
+    
+    $('#chn4_caPrefilter').on('change keypress focusout', function(event) {
+        sendCommand('chn4_caPrefilter', event);
+    }); 
+    
+    $('#chn1_caPostfilter').on('change keypress focusout', function(event) {
+        sendCommand('chn1_caPostfilter', event);
+    });       
+    
+    $('#chn2_caPostfilter').on('change keypress focusout', function(event) {
+        sendCommand('chn2_caPostfilter', event);
+    }); 
+    
+    $('#chn3_caPostfilter').on('change keypress focusout', function(event) {
+        sendCommand('chn3_caPostfilter', event);
+    }); 
+    
+    $('#chn4_caPostfilter').on('change keypress focusout', function(event) {
+        sendCommand('chn4_caPostfilter', event);
+    }); 
+
+    $('#chn1_carange').on('change keypress focusout', function(event) {
+        sendCommand('chn1_carange', event);
+    });       
+    
+    $('#chn2_carange').on('change keypress focusout', function(event) {
+        sendCommand('chn2_carange', event);
+    }); 
+    
+    $('#chn3_carange').on('change keypress focusout', function(event) {
+        sendCommand('chn3_carange', event);
+    }); 
+    
+    $('#chn4_carange').on('change keypress focusout', function(event) {
+        sendCommand('chn4_carange', event);
     });  
     
-    $('#chn1_carange').on('change keypress focusout', function() {
-        sendCommand('range',1);
-    });        
-    $('#chn2_carange').on('change keypress focusout', function() {
-        sendCommand('range',2);
-    });        
-    $('#chn3_carange').on('change keypress focusout', function() {
-        sendCommand('range',3);
-    });        
-    $('#chn4_carange').on('change keypress focusout', function() {
-        sendCommand('range',4);
-    });        
+    $('#chn1_catigain').on('change keypress focusout', function(event) {
+        sendCommand('chn1_catigain', event);
+    });       
     
-    $('#chn1_catigain').on('change keypress focusout', function() {
-        sendCommand('tigain',1);
-    });        
-    $('#chn2_catigain').on('change keypress focusout', function() {
-        sendCommand('tigain',2);
-    });        
-    $('#chn3_catigain').on('change keypress focusout', function() {
-        sendCommand('tigain',3);
-    });        
-    $('#chn4_catigain').on('change keypress focusout', function() {
-        sendCommand('tigain',4);
-    });        
+    $('#chn2_catigain').on('change keypress focusout', function(event) {
+        sendCommand('chn2_catigain', event);
+    }); 
     
-    $('#chn1_cavgain').on('change keypress focusout', function() {
-        sendCommand('vgain',1);
-    });        
-    $('#chn2_cavgain').on('change keypress focusout', function() {
-        sendCommand('vgain',2);
-    });        
-    $('#chn3_cavgain').on('change keypress focusout', function() {
-        sendCommand('vgain',3);
-    });        
-    $('#chn4_cavgain').on('change keypress focusout', function() {
-        sendCommand('vgain',4);
-    });      
+    $('#chn3_catigain').on('change keypress focusout', function(event) {
+        sendCommand('chn3_catigain', event);
+    }); 
     
-    $('#chn1_cainv').on('change keypress focusout', function() {
-        sendCommand('inversion',1);
-    });            
-    $('#chn2_cainv').on('change keypress focusout', function() {
-        sendCommand('inversion',2);
-    });            
-    $('#chn3_cainv').on('change keypress focusout', function() {
-        sendCommand('inversion',3);
-    });            
-    $('#chn4_cainv').on('change keypress focusout', function() {
-        sendCommand('inversion',4);
-    });            
-        
+    $('#chn4_catigain').on('change keypress focusout', function(event) {
+        sendCommand('chn4_catigain', event);
+    });         
+    
+    $('#chn1_cavgain').on('change keypress focusout', function(event) {
+        sendCommand('chn1_cavgain', event);
+    });       
+    
+    $('#chn2_cavgain').on('change keypress focusout', function(event) {
+        sendCommand('chn2_cavgain', event);
+    }); 
+    
+    $('#chn3_cavgain').on('change keypress focusout', function(event) {
+        sendCommand('chn3_cavgain', event);
+    }); 
+    
+    $('#chn4_cavgain').on('change keypress focusout', function(event) {
+        sendCommand('chn4_cavgain', event);
+    });         
+    
+    $('#chn1_cainv').on('change keypress focusout', function(event) {
+        sendCommand('chn1_cainv', event);
+    });       
+    
+    $('#chn2_cainv').on('change keypress focusout', function(event) {
+        sendCommand('chn2_cainv', event);
+    }); 
+    
+    $('#chn3_cainv').on('change keypress focusout', function(event) {
+        sendCommand('chn3_cainv', event);
+    }); 
+    
+    $('#chn4_cainv').on('change keypress focusout', function(event) {
+        sendCommand('chn4_cainv', event);
+    });             
+    
     $('#chn1_satmax').on('change keypress focusout', function(event) {
-        sendCommand('satmax', 1, event);
-    });        
+        sendCommand('chn1_satmax', event);
+    });       
     
     $('#chn2_satmax').on('change keypress focusout', function(event) {
-        sendCommand('satmax', 2, event);
-    });        
+        sendCommand('chn2_satmax', event);
+    }); 
     
     $('#chn3_satmax').on('change keypress focusout', function(event) {
-        sendCommand('satmax', 3, event);
-    });        
+        sendCommand('chn3_satmax', event);
+    }); 
     
     $('#chn4_satmax').on('change keypress focusout', function(event) {
-        sendCommand('satmax', 4, event);
-    });            
+        sendCommand('chn4_satmax', event);
+    });        
     
     $('#chn1_satmin').on('change keypress focusout', function(event) {
-        sendCommand('satmin', 1, event);
-    });        
+        sendCommand('chn1_satmin', event);
+    });       
     
     $('#chn2_satmin').on('change keypress focusout', function(event) {
-        sendCommand('satmin', 2, event);
-    });        
+        sendCommand('chn2_satmax', event);
+    }); 
     
     $('#chn3_satmin').on('change keypress focusout', function(event) {
-        sendCommand('satmin', 3, event);
-    });        
+        sendCommand('chn3_satmax', event);
+    }); 
     
     $('#chn4_satmin').on('change keypress focusout', function(event) {
-        sendCommand('satmin', 4, event);
-    });            
+        sendCommand('chn4_satmin', event);
+    });    
     
     $('#chn1_offset').on('change keypress focusout', function(event) {
-        sendCommand('offset', 1, event);
-    });        
+        sendCommand('chn1_offset', event);
+    });       
     
     $('#chn2_offset').on('change keypress focusout', function(event) {
-        sendCommand('offset', 2, event);
-    });        
-
+        sendCommand('chn2_offset', event);
+    }); 
+    
     $('#chn3_offset').on('change keypress focusout', function(event) {
-        sendCommand('offset', 3, event);
-    });        
+        sendCommand('chn3_offset', event);
+    }); 
     
     $('#chn4_offset').on('change keypress focusout', function(event) {
-        sendCommand('offset', 4, event);
-    });        
+        sendCommand('chn4_offset', event);
+    });      
     
-    $('#swtrigButton').on('click', function() {
-        sendCommand('swtrig', 0);
-    });    
-    
-    $('#trigMode').on('change keypress focusout', function() {
-        sendCommand('trigMode', 0);
-    });    
+    $('#trigMode').on('change keypress focusout', function(event) {
+        sendCommand('trigMode', event);
+    });       
     
     $('#trigDelay').on('change keypress focusout', function(event) {
-        sendCommand('trigDelay', 0, event);
-    });    
-
-    $('#trigInput').on('change keypress focusout', function() {
-        sendCommand('trigInput', 0);
-    });    
+        sendCommand('trigDelay', event);
+    }); 
     
-    $('#trigPol').on('change keypress focusout', function() {
-        sendCommand('trigPol', 0);
-    });  
+    $('#trigInput').on('change keypress focusout', function(event) {
+        sendCommand('trigInput', event);
+    }); 
     
-    $('#acqRange').on('change keypress focusout', function() {
-        sendCommand('range', 0);
-    });  
+    $('#trigPol').on('change keypress focusout', function(event) {
+        sendCommand('trigPol', event);
+    });         
     
-    $('#acqFilter').on('change keypress focusout', function() {
-        sendCommand('filter', 0);
+    $('#acqRange').on('change keypress focusout', function(event) {
+        sendCommand('acqRange', event);
+    });       
+    
+    $('#acqFilter').on('change keypress focusout', function(event) {
+        sendCommand('acqFilter', event);
     }); 
     
     $('#acqTime').on('change keypress focusout', function(event) {
-        sendCommand('acqTime', 0, event);
-    });
-
-    $('#acqNTriggers').on('change keypress focusout', function(event) {
-        sendCommand('acqNTriggers', 0, event);
-    });
+        sendCommand('acqTime', event);
+    }); 
     
-    $('#acqStartButton').on('click', function() {
-        sendCommand('startAcq',0);
-    });
+    $('#acqLowTime').on('change keypress focusout', function(event) {
+        sendCommand('acqLowTime', event);
+    });       
+    
+    $('#trigNTriggers').on('change keypress focusout', function(event) {
+        sendCommand('trigNTriggers', event);
+    });   
 
-    $('#acqStopButton').on('click', function() {
-        sendCommand('stopAcq',0);
-    });
+    $('#swtrigButton').on('click', function(event) {
+        sendCommand('swtrigButton',event);
+    });        
+    
+    $('#acqStartButton').on('click', function(event) {
+        sendCommand('acqStartButton',event);
+    });        
+    
+    $('#acqStopButton').on('click', function(event) {
+        sendCommand('acqStopButton',event);
+    });        
     
     updater.start();
 });
@@ -309,30 +329,34 @@ function refreshData(allData) {
             }
         }    
         
+        
+        var input_array = ["DIO_1", "DIO_2", "DIO_3", "DIO_4", "DIFF_IO_1", "DIFF_IO_2", "DIFF_IO_3", "DIFF_IO_4", "DIFF_IO_5", "DIFF_IO_6", "DIFF_IO_7", "DIFF_IO_8", "DIFF_IO_9"]
         var selectList = document.getElementById("trigInput");    
         for (var i = 0; i < input_array.length; i++) {
             var option = document.createElement("option");
-            option.value = input_array[i][1];
-            option.text = input_array[i][0];
-            option.innerHTML = input_array[i][0];
+            option.value = input_array[i];
+            option.text = input_array[i];
+            option.innerHTML = input_array[i];
             selectList.add(option);
         }    
         
+        var tmode_array = ["SOFTWARE","HARDWARE","AUTOTRIGGER"];
         var selectList = document.getElementById("trigMode");    
         for (var i = 0; i < tmode_array.length; i++) {
             var option = document.createElement("option");
-            option.value = tmode_array[i][1];
-            option.text = tmode_array[i][0];
-            option.innerHTML = tmode_array[i][0];
+            option.value = tmode_array[i];
+            option.text = tmode_array[i];
+            option.innerHTML = tmode_array[i];
             selectList.add(option);
         }
         
+        var tpol_array = ["FALLING","RISING"];
         var selectList = document.getElementById("trigPol");    
         for (var i = 0; i < tpol_array.length; i++) {
             var option = document.createElement("option");
-            option.value = tpol_array[i][1];
-            option.text = tpol_array[i][0];
-            option.innerHTML = tpol_array[i][0];
+            option.value = tpol_array[i];
+            option.text = tpol_array[i];
+            option.innerHTML = tpol_array[i];
             selectList.add(option);
         }        
 
@@ -487,21 +511,12 @@ function refreshData(allData) {
 
     if ("acq_trig_mode" in allData) {
         $("#acq_trig_mode").html(allData.acq_trig_mode); 
-        
-        for (var i = 0; i < tmode_array.length; i++) {
-            if (tmode_array[i][0] == allData.acq_trig_mode ) {
-                document.getElementById("trigMode").value = tmode_array[i][1];        
-            }
-        }                        
+        document.getElementById("trigMode").value = allData.acq_trig_mode;        
     }
+    
     if ("acq_trig_pol" in allData) {
         $("#acq_trig_pol").html(allData.acq_trig_pol); 
-        
-        for (var i = 0; i < tpol_array.length; i++) {
-            if (tpol_array[i][0] == allData.acq_trig_pol ) {
-                document.getElementById("trigPol").value = tpol_array[i][1];        
-            }
-        }                
+        document.getElementById("trigPol").value = allData.acq_trig_pol;        
     }
     if ("acq_trig_delay" in allData) {
         $("#acq_trig_delay").html(allData.acq_trig_delay); 
@@ -509,19 +524,19 @@ function refreshData(allData) {
     }
     if ("acq_trig_input" in allData) {
         $("#acq_trig_input").html(allData.acq_trig_input); 
-        for (var i = 0; i < input_array.length; i++) {
-            if (input_array[i][0] == allData.acq_trig_input ) {
-                document.getElementById("trigInput").value = input_array[i][1];        
-            }
-        }        
+        document.getElementById("trigInput").value = allData.acq_trig_input;        
     }
     if ("acq_time" in allData) {
         $("#acq_time").html(allData.acq_time); 
         document.getElementById("acqTime").defaultValue = allData.acq_time;        
     }
-    if ("acq_ntriggers" in allData) {
-        $("#acq_ntriggers").html(allData.acq_ntriggers); 
-        document.getElementById("acqNTriggers").defaultValue = allData.acq_ntriggers;         
+    if ("acq_lowtime" in allData) {
+        $("#acq_lowtime").html(allData.acq_lowtime); 
+        document.getElementById("acqLowTime").defaultValue = allData.acq_lowtime;        
+    }
+    if ("acq_trig_ntriggers" in allData) {
+        $("#acq_trig_ntriggers").html(allData.acq_trig_ntriggers); 
+        document.getElementById("trigNTriggers").defaultValue = allData.acq_trig_ntriggers;         
     }
     if ("acq_range" in allData) {
         $("#acq_range").html(allData.acq_range); 
@@ -579,7 +594,7 @@ function refreshData(allData) {
 } 
 
 function checkAcquisition() {
-    var elsToCtrl = ['trigMode', 'trigDelay', 'trigInput', 'trigPol', 'acqRange', 'acqFilter', 'acqTime', 'acqNTriggers', 'chn1_cafilter', 'chn2_cafilter', 'chn3_cafilter', 'chn4_cafilter', 'chn1_caPostfilter', 'chn2_caPostfilter', 'chn3_caPostfilter', 'chn4_caPostfilter', 'chn1_caPrefilter', 'chn2_caPrefilter', 'chn3_caPrefilter', 'chn4_caPrefilter', 'chn1_carange', 'chn2_carange', 'chn3_carange', 'chn4_carange', 'chn1_catigain', 'chn2_catigain', 'chn3_catigain', 'chn4_catigain', 'chn1_cavgain', 'chn2_cavgain', 'chn3_cavgain', 'chn4_cavgain', 'chn1_cainv', 'chn2_cainv', 'chn3_cainv', 'chn4_cainv','chn1_offset','chn2_offset','chn3_offset','chn4_offset', 'chn1_satmax', 'chn2_satmax', 'chn3_satmax', 'chn4_satmax', 'chn1_satmin', 'chn2_satmin', 'chn3_satmin', 'chn4_satmin'];
+    var elsToCtrl = ['trigMode', 'trigDelay', 'trigInput', 'trigPol', 'acqRange', 'acqFilter', 'acqTime', 'acqLowTime', 'trigNTriggers', 'chn1_cafilter', 'chn2_cafilter', 'chn3_cafilter', 'chn4_cafilter', 'chn1_caPostfilter', 'chn2_caPostfilter', 'chn3_caPostfilter', 'chn4_caPostfilter', 'chn1_caPrefilter', 'chn2_caPrefilter', 'chn3_caPrefilter', 'chn4_caPrefilter', 'chn1_carange', 'chn2_carange', 'chn3_carange', 'chn4_carange', 'chn1_catigain', 'chn2_catigain', 'chn3_catigain', 'chn4_catigain', 'chn1_cavgain', 'chn2_cavgain', 'chn3_cavgain', 'chn4_cavgain', 'chn1_cainv', 'chn2_cainv', 'chn3_cainv', 'chn4_cainv','chn1_offset','chn2_offset','chn3_offset','chn4_offset', 'chn1_satmax', 'chn2_satmax', 'chn3_satmax', 'chn4_satmax', 'chn1_satmin', 'chn2_satmin', 'chn3_satmin', 'chn4_satmin'];
     
     if (document.getElementById('acq_state').innerHTML == "ACQUIRING" || document.getElementById('acq_state').innerHTML == "RUNNING") {
         $("#acq_state").css("background-color", "#00FFFF");
@@ -597,7 +612,7 @@ function checkAcquisition() {
         }            
     }
     else {
-        $("#acq_state").css("background-color", "#FF0000");
+        $("#acq_state").css("background-color", "#2ADE2A");
         $("#acq_state").css("color", "white");                    
         document.getElementById("acqStartButton").style.display = "inline";    
         document.getElementById("acqStopButton").style.display = "none";                
@@ -667,7 +682,7 @@ function checkSettingValues() {
         }
         else {
             $("#"+key).html(idx_val);            
-            $("#"+key).css("color", "#ccb95c"); 
+            $("#"+key).css("color", "white"); 
         }
     }
     
@@ -707,7 +722,7 @@ function checkSettingValues() {
         }
         else {
             $("#"+key).html(idx_val);
-            $("#"+key).css("color", "#ccb95c"); 
+            $("#"+key).css("color", "white"); 
         }
     }
     
@@ -774,105 +789,111 @@ function calculateRange(tigain, vgain) {
     return text;    
 }
 
-function sendCommand(command, value, event ) {
+function sendCommand(command, event ) {
     var data = {}
-    var tmp_value;
+    var channel;
+    var exclude_elem = ['acqStartButton','acqStopButton','swtrigButton'];
+    
+    console.log("COMMAND = "+command);
+    if ( exclude_elem.indexOf(command) == -1 ) {
+        var tmp_value = document.getElementById(command).value;
+        console.log("VALUE = "+tmp_value);
+    }
     
     data['command'] = "";
     switch (command) {
-        case 'filter':
-            if (value >=1 && value <= 4) {
-                var el = "chn"+value+"_cafilter"
-                tmp_value = document.getElementById(el).value;
-                data['command'] = "CHAN0"+value+":CABO:FILTER " + tmp_value;
-            }
-            else if (value == 0 )
-            {
-                tmp_value = document.getElementById("acqFilter").value;
-                data['command'] = "ACQU:FILTER " + tmp_value;
-            }
+        case 'chn1_cafilter':
+        case 'chn2_cafilter':
+        case 'chn3_cafilter':
+        case 'chn4_cafilter':
+            channel = command.replace('chn','').replace('_cafilter','');
+            data['command'] = "CHAN0"+channel+":CABO:FILTER " + tmp_value;
+            channel = 2;
+            break;
+            
+        case 'acqFilter':
+            data['command'] = "ACQU:FILTER " + tmp_value;
             break;
 
-        case 'prefilter':
-            if (value >=1 && value <= 4) {
-                var el = "chn"+value+"_caPrefilter"
-                tmp_value = document.getElementById(el).value;
-                data['command'] = "CHAN0"+value+":CABO:PREFILTER " + tmp_value;
-            }
+        case 'chn1_caPrefilter':
+        case 'chn2_caPrefilter':
+        case 'chn3_caPrefilter':
+        case 'chn4_caPrefilter':
+            channel = command.replace('chn','').replace('_caPrefilter','');            
+            data['command'] = "CHAN0"+channel+":CABO:PREFILTER " + tmp_value;
             break;
 
-        case 'postfilter':
-            if (value >=1 && value <= 4) {
-                var el = "chn"+value+"_caPostfilter"
-                tmp_value = document.getElementById(el).value;
-                data['command'] = "CHAN0"+value+":CABO:POSTFILTER " + tmp_value;
-            }
+        case 'chn1_caPostfilter':
+        case 'chn2_caPostfilter':
+        case 'chn3_caPostfilter':
+        case 'chn4_caPostfilter':            
+            channel = command.replace('chn','').replace('_caPostfilter','');                        
+            data['command'] = "CHAN0"+channel+":CABO:POSTFILTER " + tmp_value;
             break;            
             
-        case 'range':
-            if (value >=1 && value <= 4) {
-                var el = "chn"+value+"_carange"
-                tmp_value = document.getElementById(el).value;
-                data['command'] = "CHAN0"+value+":CABO:RANGE " + tmp_value;
-            }
-            else if (value == 0 )
-            {
-                tmp_value = document.getElementById("acqRange").value;
-                data['command'] = "ACQU:RANGE " + tmp_value;
-            }
+        case 'chn1_carange':
+        case 'chn2_carange':
+        case 'chn3_carange':
+        case 'chn4_carange':            
+            channel = command.replace('chn','').replace('_carange','');                        
+            data['command'] = "CHAN0"+channel+":CABO:RANGE " + tmp_value;
             break;
             
-        case 'tigain':
-            if (value >=1 && value <= 4) {
-                var el = "chn"+value+"_catigain"
-                tmp_value = document.getElementById(el).value;
-                data['command'] = "CHAN0"+value+":CABO:TIGAIN " + tmp_value;
-            }
+        case 'acqRange':
+            data['command'] = "ACQU:RANGE " + tmp_value;
             break;
             
-        case 'vgain':
-            if (value >=1 && value <= 4) {
-                var el = "chn"+value+"_cavgain"
-                tmp_value = document.getElementById(el).value;
-                data['command'] = "CHAN0"+value+":CABO:VGAIN " + tmp_value;
-            }
+        case 'chn1_catigain':
+        case 'chn2_catigain':
+        case 'chn3_catigain':
+        case 'chn4_catigain':
+            channel = command.replace('chn','').replace('_catigain','');                        
+            data['command'] = "CHAN0"+channel+":CABO:TIGAIN " + tmp_value;
+            break;
+            
+        case 'chn1_cavgain':
+        case 'chn2_cavgain':
+        case 'chn3_cavgain':
+        case 'chn4_cavgain':
+            channel = command.replace('chn','').replace('_cavgain','');                        
+            data['command'] = "CHAN0"+channel+":CABO:VGAIN " + tmp_value;
             break;            
             
-        case 'inversion':    
-            if (value >=1 && value <= 4) {
-                var el = "chn"+value+"_cainv"
-                tmp_value = document.getElementById(el).value;
-                if (tmp_value == "On") { tmp_value = "1" } else { tmp_value = "0"} 
-                data['command'] = "CHAN0"+value+":CABO:INVE " + tmp_value;
-            }
+        case 'chn1_cainv':
+        case 'chn2_cainv':
+        case 'chn3_cainv':
+        case 'chn4_cainv':
+            if (tmp_value == "On") { tmp_value = "1" } else { tmp_value = "0"} 
+            channel = command.replace('chn','').replace('_cainv','');                        
+            data['command'] = "CHAN0"+channel+":CABO:INVE " + tmp_value;
             break;
             
-        case 'offset':
+        case 'chn1_offset':
+        case 'chn2_offset':
+        case 'chn3_offset':
+        case 'chn4_offset':
             if ( event.which == 0 || event.which == 13 || event.keyCode == 13 ) {
-                var el = "chn"+value+"_offset"
-                tmp_value = document.getElementById(el).value;
+                channel = command.replace('chn','').replace('_offset','');
                 if ( parseFloat(tmp_value) < 0 ) {
                     return;
                 }
-                data['command'] = "CHAN0"+value+":CABO:OFFS " + tmp_value;
+                data['command'] = "CHAN0"+channel+":CABO:OFFS " + tmp_value;
             }
             else if (event.charCode >= 48 && event.charCode <= 57) {
                 return;
             }                
             break;
             
-        case 'swtrig':
+        case 'swtrigButton':
             data['command'] = "TRIG:SWSE 1"
             break;
             
         case 'trigMode':
-            tmp_value = document.getElementById("trigMode").value;
             data['command'] = "TRIG:MODE " + tmp_value
             break;
             
         case 'trigDelay':
             if ( event.which == 0 || event.which == 13 || event.keyCode == 13 ) {
-                tmp_value = document.getElementById("trigDelay").value;
                 if ( parseFloat(tmp_value) < 0 ) {
                     return;
                 }
@@ -884,18 +905,15 @@ function sendCommand(command, value, event ) {
             break;
             
         case 'trigInput':
-            tmp_value = document.getElementById("trigInput").value;
             data['command'] = "TRIG:INPUT " + tmp_value
             break;
             
         case 'trigPol':
-            tmp_value = document.getElementById("trigPol").value;
             data['command'] = "TRIG:POLA " + tmp_value
             break;            
             
         case 'acqTime':
             if ( event.which == 0 || event.which == 13 || event.keyCode == 13 ) {
-                tmp_value = document.getElementById("acqTime").value;
                 if ( parseFloat(tmp_value) < 1 ) {
                     return;
                 }                
@@ -906,9 +924,20 @@ function sendCommand(command, value, event ) {
             }                
             break;
             
-        case 'acqNTriggers':
+        case 'acqLowTime':
             if ( event.which == 0 || event.which == 13 || event.keyCode == 13 ) {
-                tmp_value = document.getElementById("acqNTriggers").value;
+                if ( parseFloat(tmp_value) < 1 ) {
+                    return;
+                }                
+                data['command'] = "ACQU:LOWT " + tmp_value
+            }
+            else if (event.charCode >= 48 && event.charCode <= 57) {
+                return;
+            }                
+            break;
+            
+        case 'trigNTriggers':
+            if ( event.which == 0 || event.which == 13 || event.keyCode == 13 ) {
                 if ( parseFloat(tmp_value) < 0 ) {
                     return;
                 }                
@@ -919,36 +948,40 @@ function sendCommand(command, value, event ) {
             }                
             break;            
             
-        case 'startAcq':
+        case 'acqStartButton':
             data['command'] = "ACQU:START 1"
             break;
 
-        case 'stopAcq':
+        case 'acqStopButton':
             data['command'] = "ACQU:STOP 1"
             break;
             
-        case 'satmax':
+        case 'chn1_satmax':
+        case 'chn2_satmax':
+        case 'chn3_satmax':
+        case 'chn4_satmax':            
             if ( event.which == 0 || event.which == 13 || event.keyCode == 13 ) {
-                var el = "chn"+value+"_satmax"
-                tmp_value = document.getElementById(el).value;
+                channel = command.replace('chn','').replace('_satmax','');
                 if ( parseFloat(tmp_value) < 0 ) {
                     return;
                 }
-                data['command'] = "CHAN0"+value+":CABO:SMAX " + tmp_value;
+                data['command'] = "CHAN0"+channel+":CABO:SMAX " + tmp_value;
             }
             else if (event.charCode >= 48 && event.charCode <= 57) {
                 return;
             }                
             break;
             
-        case 'satmin':
+        case 'chn1_satmin':
+        case 'chn2_satmin':
+        case 'chn3_satmin':
+        case 'chn4_satmin':
             if ( event.which == 0 || event.which == 13 || event.keyCode == 13 ) {
-                var el = "chn"+value+"_satmin"
-                tmp_value = document.getElementById(el).value;
+                channel = command.replace('chn','').replace('_satmin','');                
                 if ( parseFloat(tmp_value) < 0 ) {
                     return;
                 }
-                data['command'] = "CHAN0"+value+":CABO:SMIN " + tmp_value;
+                data['command'] = "CHAN0"+channel+":CABO:SMIN " + tmp_value;
             }
             else if (event.charCode >= 48 && event.charCode <= 57) {
                 return;

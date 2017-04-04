@@ -40,6 +40,8 @@ _PORT_NUMBER = 8888
 _FPGA_DATA = False
 _FPGA_DATA_REFRESH_PERIOD = 1
 
+_DEFAULT_ACQGRPAH_POINTS = 10
+
 class WebServer():
     def __init__(self, debug=False):
         self._log = AlinLog(debug=True, loggerName='WEBSRV')
@@ -64,6 +66,7 @@ class WebServer():
         self._webport = int(configDict["PORT_"]) if "PORT_" in configDict.keys() else _PORT_NUMBER
         self._fpga_data = bool(configDict["FPGA_DATA_"]) if "FPGA_DATA_" in configDict.keys() else _FPGA_DATA
         self._fpga_period = float(configDict["FPGA_DATA_REFRESH_PERIOD_"]) if "FPGA_DATA_REFRESH_PERIOD_" in configDict.keys() else _FPGA_DATA_REFRESH_PERIOD
+        self._acqgraph_points = int(configDict["DEFAULT_ACQGRPAH_POINTS_"]) if "DEFAULT_ACQGRPAH_POINTS_" in configDict.keys() else _DEFAULT_ACQGRPAH_POINTS
         
         # Logging
         self._log.logLevel(self._debuglevel)
@@ -87,6 +90,7 @@ class WebServer():
         try:
             self._jsonThread = JsonThread(self._log)
             self._jsonThread.setDataRefreshTime(self._webrefreshtime)
+            self._jsonThread.setAcqGraphPoints(self._acqgraph_points)
             self._jsonThread.setapplications(self._applications)
             self._jsonThread.setDaemon(True)
             self._jsonThread.start()
@@ -161,6 +165,20 @@ class WebServer():
                 self._log.logMessage("^C received, shutting down the web server", self._log.INFO)
         except Exception, e:
             self._log.logMessage("Failed to start WebServer due to %s"%str(e), self._log.ERROR)
+            
+    def getAcquisitionGraphPoints(self):
+        return self._acqgraph_points
+    
+    def setAcquisitionGraphPoints(self, value):
+        self._log.logMessage("setAcquisitionGraphPoints: Set %s acquitision points in web server"%str(value), self._log.INFO)
+        try:
+            value = int(value)
+            self._acqgraph_points = value
+            
+            if self._jsonThread is not None:
+                 self._jsonThread.setAcqGraphPoints(self._acqgraph_points)
+        except Exception, e:
+           self._log.logMessage("Failed to set acquisition points due to %s"%str(e), self._log.ERROR)
             
 class DefaultHandler(RequestHandler):
     def get(self, url):
@@ -254,13 +272,30 @@ class ElectrometerSocketHandler(WebSocketHandler):
             response = "IP Client:" + client + " COMMAND: " + command 
             self._log.logMessage(response, self._log.INFO)
             try:
-                self._scpi.inputCommand(str(client)+":"+str(self._webport),str(command))
+                res = self._scpi.inputCommand(str(client)+":"+str(self._webport),str(command))
+                self.processCommandResponse(command,res)
             except Exception, e:
-                response = "IP Client:" + client + " ERROR!!: Invalid Command: " + commad + " due to: " + str(e)
+                response = "IP Client:" + client + " ERROR!!: Invalid Command: " + command + " due to: " + str(e)
                 self._log.logMessage(response, self._log.ERROR)
         except Exception, e:
             response = "IP Client:" + client + " ERROR!!: Invalid Command!! " +str(e)
             self._log.logMessage(response, self._log.ERROR)
+            
+    def processCommandResponse(self, command=None, res=None):
+        if "ACQU:MEAS?" in command:
+            data_to_send = {}
+            ch_data = ["acq_chan01","acq_chan02","acq_chan03","acq_chan04"]
+            res = eval(res)
+            for idx,el in enumerate(res):
+                if ch_data[idx] in data_to_send.keys():
+                    data_to_send[ch_data[idx]] = eval(el[1])
+                
+            data_to_send["data_type"] = "data_to_save"
+                
+            json_data = json.dumps(data_to_send, indent=4, skipkeys=True, sort_keys=True)     
+            self.write_message(json_data)
+        else:
+            pass
 
 class JsonThread(threading.Thread):
     def __init__(self, log = None):
@@ -274,8 +309,9 @@ class JsonThread(threading.Thread):
         self._endProcess = False
         self._processEnded = False
         self._report_msg_dsp = True
-        self.json_data = None
+        self._json_data = None
         self._data_refresh_time = 1
+        self._acqgraph_points = 0
         self._data_dict = {}
                 
     def end(self):
@@ -293,10 +329,21 @@ class JsonThread(threading.Thread):
     def setDataRefreshTime(self, value):
         self._data_refresh_time = value
         
+    def setAcqGraphPoints(self, value):
+        self._acqgraph_points = value        
+        
     def getJSONData(self):
         return json.dumps(self._data_dict, indent=4, skipkeys=True, sort_keys=True)
 
     def run(self): 
+        def storeData(data_to_send, key, value):
+            temp_dict = data_to_send
+            if key not in self._data_dict.keys() or value != self._data_dict[key]:
+                self._data_dict[key] = value
+                temp_dict[key] = self._data_dict[key]
+            
+            return temp_dict
+        
         count = 0
         
         # array of data to be refresed on wed: "dataname":(callback function, parameters)
@@ -311,16 +358,14 @@ class JsonThread(threading.Thread):
                         "acq_trig_pol":   (self._HARMONY.getTrigPol, None),
                         "acq_trig_delay": (self._HARMONY.getTrigDelay, None),
                         "acq_trig_input": (self._HARMONY.getTrigInput, None),
+                        'acq_trig_ntriggers':  (self._HARMONY.getAcqNTriggers, None),
                         "acq_time":       (self._HARMONY.getAcqTime, None),
+                        "acq_lowtime":       (self._HARMONY.getAcqLowTime, None),
                         "acq_range":      (self._HARMONY.getRange, None),
-                        'acq_ntriggers':  (self._HARMONY.getAcqNTriggers, None),
                         "acq_filter":     (self._HARMONY.getFilter, None),
                         "acq_state":      (self._HARMONY.getState, None),
                         "acq_ndata":      (self._HARMONY.getNData, None),
-                        "acq_chan01":     (self._HARMONY.getCurrent, 0),
-                        "acq_chan02":     (self._HARMONY.getCurrent, 1),
-                        "acq_chan03":     (self._HARMONY.getCurrent, 2),
-                        "acq_chan04":     (self._HARMONY.getCurrent, 3),
+                        "valid_triggers": (self._HARMONY.getValidTriggers, None),
                         "ioport_1_name":  (self._HARMONY.getGPIOName, 1),
                         "ioport_2_name":  (self._HARMONY.getGPIOName, 2),
                         "ioport_3_name":  (self._HARMONY.getGPIOName, 3),
@@ -461,7 +506,7 @@ class JsonThread(threading.Thread):
                     self._report_msg_dsp = False
 
                 diagstemp_loglevel = self._dDIAGS.logGetLevel()
-                if diagstemp_loglevel != 40: self._dDIAGS.logLevel(40)
+                if diagstemp_loglevel != 40: self._dDIAGS.logLevel(40)  
                 psbtemp_loglevel = self._PSB.logGetLevel()
                 if psbtemp_loglevel != 40: self._PSB.logLevel(40)
                 hrmy_loglevel = self._HARMONY.logGetLevel()
@@ -474,15 +519,12 @@ class JsonThread(threading.Thread):
                         func = array_data[key][0]
                         param = array_data[key][1]
                         if param is not None:
-                            if key in ["acq_chan01","acq_chan02","acq_chan03","acq_chan04"]:
-                                tmp = eval(func(param))
-                            else:
-                                tmp = str(func(param))
+                            tmp = str(func(param))
                         else:
                             try:
                                 tmp = str(func())
                             except:
-                                tmp = str(func)
+                                tmp = eval(func())
     
                         if key == "acq_state":
                             if tmp=="STATE_ACQUIRING":
@@ -507,76 +549,104 @@ class JsonThread(threading.Thread):
                         if key in always_refresh:
                             self._data_dict[key] = tmp
                             data_to_send[key] = self._data_dict[key]
-                        elif key not in self._data_dict.keys() or tmp != self._data_dict[key]:
-                            self._data_dict[key] = tmp
-                            data_to_send[key] = self._data_dict[key]
+                        else:
+                            data_to_send = storeData(data_to_send, key, tmp)
+                    
+                    
+                    # Acquisition data calculated depending on the selected
+                    # size to transmit to the websocket. Huge quantity of data
+                    # can block the client browser. Acq data is limited to the
+                    # last self._acdata_points defined.
+                    total_acq_data = self._HARMONY.getValidTriggers()
+                    start_idx = None
+                    ndata = total_acq_data
+                    
+                    if total_acq_data != 0 and total_acq_data > self._acqgraph_points:
+                        start_idx = int(total_acq_data - self._acqgraph_points - 1)
+                        if start_idx < 0: 
+                            start_idx = None
+                        ndata = self._acqgraph_points
+
+                    ch_data = ["acq_chan01","acq_chan02","acq_chan03","acq_chan04"]
+                    for idx, el in enumerate(ch_data):
+                        try:
+                            tmp = eval(self._HARMONY.getCurrentWithTS(idx, start_idx, ndata))
+                        except:
+                            tmp = []
+                            self._log.logMessage("Error calculating acq data....",self._log.ERROR)                            
+                            
+                        data_to_send = storeData(data_to_send, el, tmp)
+
+                    if start_idx is not None:
+                        tmp = start_idx +1
+                    else:
+                        tmp = 0
+                    data_to_send = storeData(data_to_send, "startidx_acqdata", tmp)
+                    data_to_send = storeData(data_to_send, "len_acqdata", ndata)
+                    data_to_send = storeData(data_to_send, "max_acqdata", self._acqgraph_points)
+                                
+                    # Calculate trigger dataonly if there is acquisition data acquired
+                    if "acq_chan01" in  data_to_send.keys():
+                        temp_buf = []
+                        aux_buf = eval(self._HARMONY.getTriggerData())
+                        if start_idx is  not None:
+                            if data_to_send["acq_chan01"] != []:
+                                aux_buf2 = data_to_send["acq_chan01"]
+                                for el in aux_buf:
+                                    if el[0] >= aux_buf2[0][0] and el[0] <= aux_buf2[-1][0]:
+                                        temp_buf.append(el)
+                                    elif el[0] > aux_buf2[-1][0]:
+                                        break
+                        else:
+                            temp_buf = aux_buf
+
+                        data_to_send = storeData(data_to_send, "trig_data", temp_buf)
+                        
                     
                     mem_tmp_val = self._dDIAGS.getMemoryMLen()
                     lt = ["diags_mlen_0", "diags_mlen_1", "diags_mlen_2"]                    
                     for idx, el in enumerate(lt):
                         tmp = str(mem_tmp_val[idx])
-                        if el not in self._data_dict.keys() or tmp != self._data_dict[el]:
-                            self._data_dict[el] = tmp
-                            data_to_send[el] = self._data_dict[el]
+                        data_to_send = storeData(data_to_send, el, tmp)
 
                     mem_tmp_val = self._dDIAGS.getMemoryActReq()
                     lt = ["diags_mactreq_0", "diags_mactreq_1", "diags_mactreq_2"]                    
                     for idx, el in enumerate(lt):
                         tmp = str(mem_tmp_val[idx])
-                        if el not in self._data_dict.keys() or tmp != self._data_dict[el]:
-                            self._data_dict[el] = tmp
-                            data_to_send[el] = self._data_dict[el]
+                        data_to_send = storeData(data_to_send, el, tmp)
 
                     mem_tmp_val = self._dDIAGS.getMemorySgnAct()
                     lt = ["diags_msgnact_0", "diags_msgnact_1", "diags_msgnact_2"]                    
                     for idx, el in enumerate(lt):
                         tmp = str(mem_tmp_val[idx])
-                        if el not in self._data_dict.keys() or tmp != self._data_dict[el]:
-                            self._data_dict[el] = tmp
-                            data_to_send[el] = self._data_dict[el]
+                        data_to_send = storeData(data_to_send, el, tmp)
 
                     mem_tmp_val = self._dDIAGS.getUploadMessages()
                     lt = ["diags_uploadmsg_0", "diags_uploadmsg_1", "diags_uploadmsg_2"]                    
                     for idx, el in enumerate(lt):
                         tmp = str(mem_tmp_val[idx])
-                        if el not in self._data_dict.keys() or tmp != self._data_dict[el]:
-                            self._data_dict[el] = tmp
-                            data_to_send[el] = self._data_dict[el]
+                        data_to_send = storeData(data_to_send, el, tmp)
 
                     mem_tmp_val = self._dDIAGS.getDownloadMessages()
                     lt = ["diags_dwloadmsg_0", "diags_dwloadmsg_1", "diags_dwloadmsg_2"]                    
                     for idx, el in enumerate(lt):
                         tmp = str(mem_tmp_val[idx])
-                        if el not in self._data_dict.keys() or tmp != self._data_dict[el]:
-                            self._data_dict[el] = tmp
-                            data_to_send[el] = self._data_dict[el]
+                        data_to_send = storeData(data_to_send, el, tmp)
 
                     current = self._dDIAGS.getDiagsCurrent()
                     if current != {}:
-                        tmp = str(round(1000*current['VSENSE_I_ISO'],2))
-                        if "diags_viso" not in self._data_dict.keys() or tmp != self._data_dict["diags_viso"]:
-                            self._data_dict["diags_viso"] = tmp
-                            data_to_send["diags_viso"] = self._data_dict["diags_viso"]
-                        tmp = str(round(1000*current['VSENSE_I_VCC'],2))
-                        if "diags_vcc" not in self._data_dict.keys() or tmp != self._data_dict["diags_vcc"]:
-                            self._data_dict["diags_vcc"] = tmp
-                            data_to_send["diags_vcc"] = self._data_dict["diags_vcc"]
-                        tmp = str(round(1000*current['VSENSE_I_VS'],2))
-                        if "diags_vs" not in self._data_dict.keys() or tmp != self._data_dict["diags_vs"]:
-                            self._data_dict["diags_vs"] = tmp
-                            data_to_send["diags_vs"] = self._data_dict["diags_vs"]
-                        tmp = str(round(1000*current['VSENSE_I_AUX'],2))
-                        if "diags_vaux" not in self._data_dict.keys() or tmp != self._data_dict["diags_vaux"]:
-                            self._data_dict["diags_vaux"] = tmp
-                            data_to_send["diags_vaux"] = self._data_dict["diags_vaux"]
-                        tmp = str(round(1000*current['VSENSE_I_SPEC'],2))
-                        if "diags_vspec" not in self._data_dict.keys() or tmp != self._data_dict["diags_vspec"]:
-                            self._data_dict["diags_vspec"] = tmp
-                            data_to_send["diags_vspec"] = self._data_dict["diags_vspec"]
-                        tmp = str(round(current['VSENSE_12V'],3))
-                        if "diags_12v" not in self._data_dict.keys() or tmp != self._data_dict["diags_12v"]:
-                            self._data_dict["diags_12v"] = tmp
-                            data_to_send["diags_12v"] = self._data_dict["diags_12v"]
+                        data_to_send = storeData(data_to_send, "diags_viso",\
+                            str(round(1000*current['VSENSE_I_ISO'],2)))
+                        data_to_send = storeData(data_to_send, "diags_vcc",\
+                            str(round(1000*current['VSENSE_I_VCC'],2)))
+                        data_to_send = storeData(data_to_send, "diags_vs",\
+                            str(round(1000*current['VSENSE_I_VS'],2)))
+                        data_to_send = storeData(data_to_send, "diags_vaux",\
+                            str(round(1000*current['VSENSE_I_AUX'],2)))
+                        data_to_send = storeData(data_to_send, "diags_vspec",\
+                            str(round(1000*current['VSENSE_I_SPEC'],2)))
+                        data_to_send = storeData(data_to_send, "diags_12v",\
+                            str(round(current['VSENSE_12V'],3)))
                 except Exception, e:
                     print str(e)
                 
@@ -584,7 +654,9 @@ class JsonThread(threading.Thread):
                 if psbtemp_loglevel != 40: self._PSB.logLevel(psbtemp_loglevel)
                 if hrmy_loglevel != 40: self._HARMONY.logLevel(hrmy_loglevel)
 
-                self.json_data = json.dumps(data_to_send, indent=4, skipkeys=True, sort_keys=True)
+                data_to_send["data_type"] = "refresh_data"
+
+                self._json_data = json.dumps(data_to_send, indent=4, skipkeys=True, sort_keys=True)
 
                 # To test
                 #out_file = open("/var/www/static/data.json","w")
@@ -593,7 +665,7 @@ class JsonThread(threading.Thread):
                 
                 for waiter in ElectrometerSocketHandler.waiters:
                     try:
-                        waiter.write_message(self.json_data)
+                        waiter.write_message(self._json_data)
                     except:
                         self._log.logMessage("Error sending message to waiters....",self._log.ERROR)
 
@@ -654,6 +726,8 @@ class JsonFPGAData(threading.Thread):
                     ('SPI', 0), 
                     ('WB-EM2-DIGITAL_IO', 0),
                     ('EM2_DAC', 0),
+                    ('WB-HRMY-ID-GEN', 1), 
+                    ('WB-HRMY-FIFO', 4),
                     ]
 
         out_dict = {}
@@ -669,7 +743,11 @@ class JsonFPGAData(threading.Thread):
                         temp[att] = val
             else:
                 temp = d.getDeviceData()
-            dev_dict.append([dev[0]+" "+str(dev[1]), temp])
+            add_dict = {}
+            d_info = d.getDeviceInfo()
+            add_dict['start_add'] = d_info['first_address']
+            add_dict['end_add'] = d_info['last_address']
+            dev_dict.append([dev[0]+" "+str(dev[1]), add_dict, temp])
             
         out_dict['Last update'] = {'DATE': time.strftime("%d/%m/%Y"), 'TIME': time.strftime("%H:%M:%S")}
         out_dict['Data'] = dev_dict

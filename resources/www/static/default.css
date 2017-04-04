@@ -1,5 +1,5 @@
 body {
-     background-color: #222225;
+     background-color: white;
      margin: 0 auto;
      width: 90%;
      height: 100%;     
@@ -18,7 +18,7 @@ h1 {
     font-family: helveticaneuelight, "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-size: 50px;
     line-height: 1.428571429;
-    color: #f3f3f2;    
+    color: #112e50;    
 }
 
 h2 {
@@ -26,7 +26,7 @@ h2 {
     font-weight: normal;
     font-family: helveticaneuelight, "Helvetica Neue", Helvetica, Arial, sans-serif;
     line-height: 1.428571429;
-    color: #f3f3f2;    
+    color: #112e50;    
     font-size: 3vh;
     
 }
@@ -34,27 +34,25 @@ h2 {
 h3 {
     
     font-weight: normal;
-    color: #f3f3f2;    
+    color: #112e50;    
     font-family: helveticaneuelight, "Helvetica Neue", Helvetica, Arial, sans-serif;
     line-height: 1.428571429;
-    color: #f3f3f2;    
     font-size: 2.5vh;
 }
 
 h4 {
     
     font-weight: normal;
-    color: #f3f3f2;    
+    color: #112e50;    
     font-family: helveticaneuelight, "Helvetica Neue", Helvetica, Arial, sans-serif;
     line-height: 1.428571429;
-    color: #f3f3f2;    
     font-size: 2vh;
 }
 
 p { 
     font-family: helveticaneuelight, "Helvetica Neue", Helvetica, Arial, sans-serif;
     line-height: 1.428571429;
-    color: #f3f3f2;    
+    color: #112e50;    
     font-family: 'Helvetica Neue', sans-serif;
     font-size: 14px;
     margin: 0 0 24px;
@@ -82,23 +80,31 @@ a {
 
 
 a:hover {
-    color: #ffff00;
+    background-color: #3e607c;
 }
 
 
 .topmenu {
-    color: #ffffff;
+    background-color: white;
+    color: #3e607c;
     text-align: right;
-    font-size: 1.2vh;
-    font-weight: normal;
-    background-color: #222225;
+    padding: 10px 12px;
+    text-decoration: none;
+    transition: 0.3s;
+    font-size: 16px;
+    font-family: helveticaneuelight, "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
+/* Change background color of links on hover */
+.topmenu a:hover {
+    background-color: white;
+}
+
 
 /* Style the tab */
 div.tab {
     overflow: hidden;
     color: #f3f3f2;
-    background-color: #043569;    
+    background-color: #7f850f;    
     /*background-color: #f1f1f1;*/
 }
 
@@ -117,12 +123,12 @@ div.tab a {
 
 /* Change background color of links on hover */
 div.tab a:hover {
-    background-color: #89C0FF;
+    background-color: #88a0b8;
 }
 
 /* Create an active/current tablink class */
 div.tab a:focus, .active {
-    background-color: #0065D8;
+    background-color: #112e50;
 }
 
 /* Style the tab content */
@@ -134,7 +140,7 @@ div.tab a:focus, .active {
 
 
 table { 
-     background-color: #2e3338;
+     background-color: #88a0b8;
      box-sizing: border-box;
      font-family: helveticaneuelight, "Helvetica Neue", Helvetica, Arial, sans-serif;        
      font-size: 14px;
@@ -142,17 +148,17 @@ table {
      width: 100%;
      border-collapse: collapse;
      border-radius: 6px;
-     line-height: 1.428571429;
+     line-height: 1.56;
      border: 2;
      color: #f3f3f2; 
  }
  
 th, td {
-    border-bottom: 1px solid #222225;
+    border-bottom: 1px solid #88a0b8;
 }
 
 .selectable:hover {
-    background-color: #f5f5f5;
+    background-color: #3e607c;
 }
 
 .fpga_table { 
@@ -175,6 +181,7 @@ th, td {
     font-size: 16px;    
     font-size-adjust: 0.58;             
     background-color: #043569;    
+    border-radius: 6px;
 }
 
 .table_cell_text_title {
@@ -189,8 +196,8 @@ th, td {
 }
 
 .table_cell_value {
-    color: #ccb95c;
-    font-weight: 200;    
+    color: white;
+    font-weight: 400;   
     font-size: 14px;    
     font-size-adjust: 0.58;         
     text-align: center;
@@ -218,21 +225,23 @@ th, td {
 }
 
 .table_cell_title2 {
-    background-color: #2e3338;
+    background-color: #88a0b8;
     text-align: left;
-    color: #b0b0b0;
+    color: #3e607c;
     font-size: 14px;    
     font-size-adjust: 0.58;     
     font-weight: bold;
+    border-radius: 6px;    
 }
 
 .table_cell_title2_sub {
-    background-color: #2e3338;
+    background-color: #88a0b8;
     text-align: left;
-    color: #b0b0b0;
+    color: #3e607c;
     font-size: 14px;    
     font-size-adjust: 0.58;     
     font-style: italic;
+    border-radius: 6px;    
 }
 
 
@@ -243,6 +252,7 @@ th, td {
     font-weight: normal;
     text-align: left;
     color: #ffe879;
+    border-radius: 6px;    
 }
 
 .table_cell_value3 {
@@ -255,28 +265,30 @@ th, td {
 }
 
 .table_cell_title4 {
-    background-color: #2e3338;
+    background-color: #88a0b8;
     text-align: center;
-    color: #b0b0b0;
+    color: #3e607c;
     font-weight: bold;   
     font-size: 14px;    
-    font-size-adjust: 0.58;     
+    font-size-adjust: 0.58;
+    border-radius: 6px;    
 }
 
 .table_cell_setvalue {
-    color: #ccb95c;
+    color: white;
     font-size: 14px;    
     font-size-adjust: 0.58;     
     font-weight: 200;    
     text-align: center;
-    min-width: 80px;
+    min-width: 100px;
 }
 
 .info {
     color: #ffffff;
-    background-color: #043569;
+    background-color: #112e50;
+    padding: 6px 8px;
     text-align: right;
-    font-size: 1.5vh;
+    font-size: 1.6vh;
     font-weight: normal; 
 }
 
@@ -302,20 +314,20 @@ th, td {
     font-size: 14px;    
     font-size-adjust: 0.58;     
     text-align: center;
-    min-width: 150px;
-    width: 100%;
+    min-width: 60px;
+    width: 95%;
     background-color: #F7FAD9;    
 }
 
 .inputTextCell {
     font-family: helveticaneuelight, "Helvetica Neue", Helvetica, Arial, sans-serif;
-    width: 95%;
+    width: 92%;
     background-color: #F7FAD9;       
     font-size: 14px;    
     font-size-adjust: 0.58;     
     font-weight: 200;    
     text-align: center;
-    min-width: 80px;
+    min-width: 75px;
 }
 
 .inputTextCh {
@@ -323,7 +335,7 @@ th, td {
     font-size: 14px;    
     font-size-adjust: 0.58;     
     text-align: center;
-    min-width: 90px;
+    min-width: 85px;
     width: 100%;
     background-color: #F7FAD9;    
 }
@@ -346,6 +358,7 @@ th, td {
     font-size-adjust: 0.58;     
     background-color: #9b007c;
     border-radius: 5px;
+    min-width: 160px;
     width: 100%;
 }
 .myButtonPurple:hover:enabled{
@@ -373,6 +386,7 @@ th, td {
     font-size-adjust: 0.58;     
     background-color: #33cc00;
     border-radius: 5px;
+    min-width: 160px;
     width: 100%;
 }
 .myButtonGreen:hover:enabled {

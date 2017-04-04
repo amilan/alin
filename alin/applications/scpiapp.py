@@ -93,6 +93,7 @@ class ScpiApp():
         self._PSB = applications['PSB']['pointer']
         self._HARMONY = applications['HARMONY']['pointer']
         self._MEMMW = applications['MEMORY_APP']['pointer']
+        self._WEB = applications['WEBSERVER']['pointer']
         
     def start(self):        
         self._log.logMessage("start()....",self._log.INFO)
@@ -190,10 +191,16 @@ class ScpiApp():
                                      'fwrite':self._HARMONY.caSetSaturationMin,
                                      'default':False,
                                     },               
-                                    {'command':'AOUT',
-                                     'component':None,
+                                    {'command':'VALUe',
+                                     'component':'AOUT',
                                      'fread':self._HARMONY.getVAnalog,
                                      'fwrite':self._HARMONY.setVAnalog,
+                                     'default':True,
+                                    },                                    
+                                    {'command':'FUNCtion',
+                                     'component':'AOUT',
+                                     'fread':None,
+                                     'fwrite':self._HARMONY.setAOutFn,
                                      'default':False,
                                     },                                    
                                     ] 
@@ -217,6 +224,12 @@ class ScpiApp():
                              'fread':self._HARMONY.getFWVersionDate,
                              'fwrite':None,
                              'default':False,
+                            },
+                            {'command':'AGPT',
+                             'component':'WEBS',
+                             'fread':self._WEB.getAcquisitionGraphPoints,
+                             'fwrite':self._WEB.setAcquisitionGraphPoints,
+                             'default':True,
                             },                            
                             # ACQUISITION COMMANDS
                             {'command':'FILTer',
@@ -233,7 +246,7 @@ class ScpiApp():
                              },                            
                             {'command':'NDATa',
                              'component':'ACQUisition',
-                             'fread':self._HARMONY.getNData,
+                             'fread':self._HARMONY.getValidTriggers,
                              'fwrite':None,
                              'default':False,
                              },
@@ -267,6 +280,12 @@ class ScpiApp():
                              'fwrite':self._HARMONY.setAcqTime,
                              'default':False,
                              },
+                            {'command':'LOWTime',
+                             'component':'ACQUisition',
+                             'fread':self._HARMONY.getAcqLowTime,
+                             'fwrite':self._HARMONY.setAcqLowTime,
+                             'default':False,
+                             },                            
                             {'command':'NTRIggers',
                              'component':'ACQUisition',
                              'fread':self._HARMONY.getAcqNTriggers,
@@ -384,7 +403,7 @@ class ScpiApp():
                              'default':False,
                              },                             
                             {'command':'GAIN',
-                             'component':'ODAC',
+                             'component':'DACOutput',
                              'fread':self._HARMONY.getDACGain,
                              'fwrite':self._HARMONY.setDACGain,
                              'default':True,
@@ -619,8 +638,14 @@ class ScpiApp():
     
     def getMacAddress(self):
         self._log.logMessage("getMacAddress()", self._log.DEBUG)
-        mac = format(get_mac(), 'x')
-        mac_format = ':'.join([mac[i:i+2] for i,j in enumerate(mac) if not (i%2)])
+        try:
+            system_file = "/sys/class/net/eth0/address"
+            with open(system_file,'r') as fp:
+                mac_format = fp.read().strip('\n')
+        except:
+            mac = format(get_mac(), 'x')
+            mac_format = ':'.join([mac[i:i+2] for i,j in enumerate(mac) if not (i%2)])
+            
         self._log.logMessage("getMacAddress() value=%s"%mac_format, self._log.DEBUG)
         return mac_format
     
@@ -637,9 +662,11 @@ class ScpiApp():
         self._log.logMessage("GeneralClass.reconfigure() Config data file reloaded", self._log.INFO)                
         
     def inputCommand(self, owner, command):
+        ret_value = None
         try:
             self._log.logMessage("inputCommand():: owner=%s command=%s"%(str(owner),str(command)), self._log.INFO)                
-            self._scpiObj.input(str(command))
+            ret_value = self._scpiObj.input(str(command))
         except Exception, e:
             self._log.logMessage("inputCommand():: failed to execute command %s due to %s"%(str(command),str(e)), self._log.WARNING)
+        return ret_value
     

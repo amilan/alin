@@ -12,7 +12,6 @@ from alin.base import version
 from alin.drivers.edip128 import EDIP128
 from alin.drivers.image_res import *
 
-from alin.applications.image_res import *
 from alin.applications.harmony import Harmony
 
 import math
@@ -723,7 +722,7 @@ class Display(AlinLog):
 
             
         try:
-            if self._HRMY.getState() == "STATE_ACQUIRING":
+            if self._HRMY.getState() in ["STATE_ACQUIRING", "STATE_RUNNING"]:
                 self.writeLine(msg=' ACQ ', x_pos=70, y_pos=0, font=1, flash=1, link=5)
             else:
                 # Delete ACQ

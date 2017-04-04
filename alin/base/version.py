@@ -12,7 +12,7 @@ __author__ = "Manolo Broseta"
 
 __MAJOR_VERSION = 0
 __MINOR_VERSION = 4
-__BUILD_VERSION = 4
+__BUILD_VERSION = 16
 
 def version():
     return "%d.%d.%02d"%(__MAJOR_VERSION,__MINOR_VERSION,__BUILD_VERSION)

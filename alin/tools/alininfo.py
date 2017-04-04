@@ -240,7 +240,7 @@ class AlinInfo():
 		for el in rd_blk:
 			print "%06x"%el[0],
 			print ' '.join([("%02x"%el[a]) for a in range(1,17)]),
-			print " >",''.join([chr(el[a]) if el[a]>0x1F and el[a]<0x80 else c86hr(0x2E) for a in range(1,17)]),"<"
+			print " >",''.join([chr(el[a]) if el[a]>0x1F and el[a]<0x80 else chr(0x2E) for a in range(1,17)]),"<"
 
 	def showDeviceMemory(self):
 		print "Select device from the list:\n"

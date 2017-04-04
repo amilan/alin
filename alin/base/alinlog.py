@@ -110,7 +110,7 @@ class AlinLog():
 		if not len(self._devlogger.handlers):
 			self._devlogger.setLevel(logging.DEBUG)
 		
-			self._handler = logging.handlers.RotatingFileHandler(self.__logging_file, maxBytes=10000000, backupCount=0)
+			self._handler = logging.handlers.RotatingFileHandler(self.__logging_file, maxBytes=5000000, backupCount=0)
 			self._handler.setLevel(logging.INFO)
 
 			formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(name)s - %(message)s')

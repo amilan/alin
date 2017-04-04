@@ -94,6 +94,7 @@ def main():
 			author_email='mbroseta@cells.es',
 			url='git@gitcomputing.cells.es:electronics/em2.git',
 			cmdclass={'install': alin_install},
+			zip_safe=True,			
 			packages=['alin', 'alin.applications','alin.base','alin.deviceslib', 'alin.drivers', 'alin.tools'],
 			scripts = ['scripts/alin',
 						'scripts/alingen',

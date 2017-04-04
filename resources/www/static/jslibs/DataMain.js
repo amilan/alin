@@ -20,9 +20,11 @@ var acq_data1 = [];
 var acq_data2 = [];
 var acq_data3 = [];
 var acq_data4 = [];
+var trig_data = [];
 var acq_ndata = 0;
-
-var max_plot_points = 100;
+var valid_triggers = 0;
+var startidx_acqdata = 0;
+var len_acqdata = 0;
 
 var SHOW_GRAPHS = true;
 var MAX_GRAPHS_LEN = 50;
@@ -48,12 +50,17 @@ var data4_range_min = -0.1;
 var data4_unit = "mA";
 
 var acq_table_scrolled = false;
+var acq_data_refresh = false;
 
 var VOLTAGE_SATURATION_MAX = 90;
 var sat1_max = VOLTAGE_SATURATION_MAX;
 var sat2_max = VOLTAGE_SATURATION_MAX;
 var sat3_max = VOLTAGE_SATURATION_MAX;
 var sat4_max = VOLTAGE_SATURATION_MAX;
+
+var ACQ_ELEMS_IN_GRAPH = 100;
+var LINE_HEIGHT = 23;
+var VISIBLE_TABLE_LINES = 20;
 
 function refreshTime() {
     var dt = new Date();
@@ -168,7 +175,8 @@ function drawPlot(p_plot, p_data, p_unit, p_min, p_max, p_color) {
     return $.jqplot (p_plot, [data_array], options);
 }
 
-function drawAcquisitionGraphs(p_plot, p_data1, p_data2, p_data3, p_data4)  {
+
+function drawAcquisitionGraphs(p_plot, min_idx, max_idx)  {
     var xmax = 0;
     var txmax = 0;
     var tick_array = []
@@ -181,60 +189,132 @@ function drawAcquisitionGraphs(p_plot, p_data1, p_data2, p_data3, p_data4)  {
     
     var scroll_data = false;
     
+    if ( acq_data1.length == 0 ) { return; }
+    
+    var elem = document.getElementById('acq_table');
+    var max_idx = parseInt((elem.scrollTop) / LINE_HEIGHT) + VISIBLE_TABLE_LINES;
+    if ( max_idx >= acq_data1.length ) { 
+        max_idx = acq_data1.length; 
+    }
+    
+    if ( acq_data1.length >= ACQ_ELEMS_IN_GRAPH && max_idx <= ACQ_ELEMS_IN_GRAPH ) {
+        max_idx = ACQ_ELEMS_IN_GRAPH;
+    }
+    
+    var min_idx = 0;
+    if ( acq_data1.length > ACQ_ELEMS_IN_GRAPH ) {
+        min_idx = max_idx - ACQ_ELEMS_IN_GRAPH;   
+        if ( elem.scrollTop <= LINE_HEIGHT ) { 
+            min_idx = 0; 
+        }
+        else if ( min_idx <= 0 ) { 
+            min_idx = 1; 
+        }
+    }
+    
+    
     /* Build data array */
-    if (p_data1.length  != 0) { data_plot.push(p_data1) } else { data_plot.push([]) }
-    if (p_data2.length  != 0) { data_plot.push(p_data2) } else { data_plot.push([]) }
-    if (p_data3.length  != 0) { data_plot.push(p_data3) } else { data_plot.push([]) }
-    if (p_data4.length  != 0) { data_plot.push(p_data4) } else { data_plot.push([]) }
+    var temp_table = [];
+    if (acq_data1.length > ACQ_ELEMS_IN_GRAPH ) {
+        for (var i = 0; i < (trig_data.length); i++) {
+            if (trig_data[i][0] >= (acq_data1[min_idx][0]) && trig_data[i][0] <= acq_data1[max_idx-1][0]) {
+                temp_table.push(trig_data[i]);
+            }
+            else if ( trig_data[i][0] > acq_data1[max_idx-1][0] ) { 
+                break; 
+            }
+        }    
+    }
+    else {
+        temp_table = trig_data;
+    }
+    
+    if (temp_table.length  != 0) { 
+        data_plot.push(temp_table) 
+    } 
+    else { 
+        data_plot.push([]) 
+    }
+    
+    if (acq_data1.length  != 0) {
+        data_plot.push(acq_data1.slice(min_idx, max_idx))
+    } 
+    else { 
+        data_plot.push([]) 
+    }
+    
+    if (acq_data2.length  != 0) { 
+        data_plot.push(acq_data2.slice(min_idx, max_idx)) 
+    } 
+    else { 
+        data_plot.push([])
+    }
+    
+    if (acq_data3.length  != 0) { 
+        data_plot.push(acq_data3.slice(min_idx, max_idx))
+    } 
+    else { 
+        data_plot.push([])
+    }
+    
+    if (acq_data4.length  != 0) { 
+        data_plot.push(acq_data4.slice(min_idx, max_idx)) 
+    } 
+    else {
+        data_plot.push([])
+    } 
     
     /* Y-Axis limtis: Calculate max and min values */
     /* Get the maximum and minimum values of the four plots */
-    for (var i = 0; i < data_plot.length; i++) {
+    var aux = []
+    for (var i = 1; i < (data_plot.length); i++) { 
         if (data_plot[i].length  != 0) { 
-            tmax = Math.max.apply(Math, data_plot[i]);
+            for (var j= 0; j < (data_plot[i].length); j++) {
+                aux.push(data_plot[i][j][1]);
+            }
+            tmax = Math.max.apply(Math, aux);
             if ( tmax > ymax ) { ymax = tmax }
-            tmin = Math.min.apply(Math, data_plot[i]);
+            tmin = Math.min.apply(Math, aux);
             if ( tmin < ymin || ymin == 0) { ymin = tmin }
-            txmax = ((data_plot[i].length/2)*2)+2;
-            if ( txmax > xmax ) { xmax = txmax }
         }
     }
     
     /* Apply small corrections to yaxis limtis to display a lit bit more of the calculated numbers*/
     if (( ymin != 0 && ymin > -0.001 ) || ( ymin == 0 )) { ymin = -0.001 } else if ( ymin> 0 ) { ymin = ymin -(ymin*0.2)} else { ymin = ymin + (ymin*0.2)}
     if ( ymax != 0.001 ) { ymax = ymax+(ymax*0.2)}
+
     
     /* X-Axis limtis: Calculate the array of ticks to display */
-    var start_val = 0;
-    if (( xmax  > max_plot_points ) || ( xmax  > (max_plot_points/2) )) { 
-        start_val = parseInt((xmax - max_plot_points)/2)*2;
-        if ( start_val < 0 ) { start_val = 0 }
-        i = start_val;
-        xmax = xmax +2;
-        while (i <= xmax ) {
-            tick_array.push(i); 
-            i += 4;
-        }
+    var xmin = 0;
+    var xmax = acq_data1[max_idx-1][0]+1;
+
+    if ( startidx_acqdata == 0 ) {
+        xmin = 0;
     }
-    
     else {
-        i = start_val;
-        while (i <= xmax ) {
-            tick_array.push(i);
-            i += 2;
-        }        
+        xmin = acq_data1[min_idx][0];
     }
     
+    if ( valid_triggers > ACQ_ELEMS_IN_GRAPH ) {
+        xmax = acq_data1[max_idx-1][0];
+        if ( min_idx >= 1 ) { xmin = acq_data1[min_idx][0]; }
+        if ( max_idx >= acq_data1.length ) { xmax = acq_data1[max_idx-1][0] +1; }
+    }
+    
+/*    console.log(" XMIN="+xmin+" XMAX="+xmax);
+    console.log(" MIN_IDX="+min_idx+" MAX_IDX="+max_idx+" LENGTH="+acq_data1.length);
+*/        
     /* Curves options */
     var options = {            
         height: 300,        
         axes:{
             xaxis:{
-                ticks: tick_array,
-                min: 0,
+                //ticks: tick_array,
+                numberTicks: 14,
+                min: xmin,
                 max: xmax,
-                label:'samples',
-                labelRenderer: $.jqplot.DateAxisRenderer,  // Define the format for the text on the label
+                label:'time since start (s)',
+                labelRenderer: $.jqplot.CanvasAxisLabelRenderer,  // Define the format for the text on the label
                 labelOptions:{
                     formatString : '%.0f',
                     fontSize: '14pt',
@@ -262,16 +342,56 @@ function drawAcquisitionGraphs(p_plot, p_data1, p_data2, p_data3, p_data4)  {
                     formatString : '%f',
                     fontSize: '8pt',
                     textColor: '#ffffff',                    
-                }
-            }
+                },
+            },
+            
+            y2axis:{
+                ticks: [[0,'Low'],[1,'High']],
+                label: 'Triger State',                        
+                labelRenderer: $.jqplot.CanvasAxisLabelRenderer,  // Define the format for the text on the label
+                labelOptions:{
+                    formatString : '%s',
+                        fontSize: '12pt',
+                        textColor: '#ffffff',                    
+                },
+                tickOptions:{
+                    show: true,
+                    showLabel: true,
+                },
+            },            
         },
 
-        series:[{                                   // Define the format (colors, style ...) of the plot
+        series:[
+        {
+            label:'Trigger State', 
+            yaxis:'y2axis',
+            fill: true,
+            fillAndStroke: true,
+            fillColor:'#FF00FF',
+            fillAlpha: 0.4,
+            highlighter: {
+                show: false,
+                sizeAdjust: 10,
+                formatString:'<div style="font-size: 14px;background-color: #ffffcc; color: black"> time: %f s<br>level: %i </div>'
+            },
+        },
+        {
+            label:'Current (mA)',
+            highlighter: {
+                show: true,
+                sizeAdjust: 10,
+                formatString:'<div style="font-size: 14px;background-color: #ffffcc; color: black"> time: %f s<br>current: %f mA</div>'
+            },
+        },
+        {                                   // Define the format (colors, style ...) of the plot
             lineWidth:4,
             showMarker:true,
-            markerOptions: { style:'diamond' }, 
+            markerOptions: { style:'filledCircle' }, 
+            pointLabels:{
+                show:false,
+            }            
         }],
-        seriesColors: [ '#FF0000', '#00FF00', '#00FFFF', '#FFFF00'],
+        seriesColors: [ '#FF00FF', '#FF0000', '#00FF00', '#00FFFF', '#FFFF00'],
         grid: {                     // Define the "Grid", in this case we have a black background
             drawGridLines: false,
             background: "black",
@@ -280,20 +400,28 @@ function drawAcquisitionGraphs(p_plot, p_data1, p_data2, p_data3, p_data4)  {
         highlighter: {
             show: true,
             sizeAdjust: 10,
-            formatString:'<div style="font-size: 14px;background-color: #ffffcc; color: black"> sample: %i<br>current: %f mA</div>'
+            formatString:'<div style="font-size: 14px;background-color: #ffffcc; color: black"> time: %f s<br>current: %f mA</div>'
         },
         legend:{ 
+            renderer: jQuery.jqplot.EnhancedLegendRenderer,
             show:true, 
             showLabels: true,
+            showSwatches: true,
             placement: "outsideGrid",
             location: "s",
-            renderer: jQuery.jqplot.EnhancedLegendRenderer,
             rendererOptions: {
-                numberColumns: 4,
+                numberColumns: 5,
                 numberRows: 1,
             },                   
-            labels: ['Channel 1', 'Channel2', 'Channel3', 'Channel4'],
-        },                    
+            labels: ['Trigger','Channel 1', 'Channel2', 'Channel3', 'Channel4'],
+            textColor: '#000000',                    
+        },
+        cursor: {
+            show: true,
+            zoom: true,
+            looseZoom: true,
+            showTooltip: false,
+        },
     };
     
     return $.jqplot (p_plot, data_plot, options);
@@ -303,12 +431,13 @@ function refreshData(allData) {
     if ("cacbtemp" in allData) { $("#cacbtemp").html(allData.cacbtemp); }
     if ("cafetemp" in allData) { $("#cafetemp").html(allData.cafetemp); }
     
-    if ("acq_trig_mode" in allData) { $("#acq_trig_mode").html(allData.acq_trig_mode); }
+    if ("acq_trig_mode" in allData) { $("#acq_trig_mode").html(allData.acq_trig_mode);}
     if ("acq_trig_pol" in allData) { $("#acq_trig_pol").html(allData.acq_trig_pol); }
     if ("acq_trig_delay" in allData) { $("#acq_trig_delay").html(allData.acq_trig_delay); }
     if ("acq_trig_input" in allData) { $("#acq_trig_input").html(allData.acq_trig_input); }
     if ("acq_time" in allData) { $("#acq_time").html(allData.acq_time); }
-    if ("acq_ntriggers" in allData) { $("#acq_ntriggers").html(allData.acq_ntriggers); }
+    if ("acq_lowtime" in allData) { $("#acq_lowtime").html(allData.acq_lowtime); }
+    if ("acq_trig_ntriggers" in allData) { $("#acq_trig_ntriggers").html(allData.acq_trig_ntriggers); }
     if ("acq_range" in allData) { $("#acq_range").html(allData.acq_range); }
     if ("acq_filter" in allData) { $("#acq_filter").html(allData.acq_filter); }
     if ("acq_state" in allData) { $("#acq_state").html(allData.acq_state); }
@@ -319,7 +448,7 @@ function refreshData(allData) {
             $("#acq_state").css("color", "black");
         }
         else {
-            $("#acq_state").css("background-color", "#FF0000");
+            $("#acq_state").css("background-color", "#2ADE2A");
             $("#acq_state").css("color", "white");                    
         }          
     }
@@ -328,37 +457,53 @@ function refreshData(allData) {
         acq_ndata = parseInt(allData.acq_ndata);
         $("#acq_ndata").html(acq_ndata);
     }
-    if ("acq_chan01" in allData) { acq_data1 = allData.acq_chan01; }
-    if ("acq_chan02" in allData) { acq_data2 = allData.acq_chan02; }
-    if ("acq_chan03" in allData) { acq_data3 = allData.acq_chan03; }
-    if ("acq_chan04" in allData) { acq_data4 = allData.acq_chan04; }
 
-    if (acq_ndata != 0) {
+    if ("valid_triggers" in allData) {
+        valid_triggers = parseInt(allData.valid_triggers);
+        $("#valid_triggers").html(valid_triggers);
+    }
+
+    if ("acq_chan01" in allData) { acq_data1 = allData.acq_chan01; acq_data_refresh = true; }
+    if ("acq_chan02" in allData) { acq_data2 = allData.acq_chan02; acq_data_refresh = true; }
+    if ("acq_chan03" in allData) { acq_data3 = allData.acq_chan03; acq_data_refresh = true; }
+    if ("acq_chan04" in allData) { acq_data4 = allData.acq_chan04; acq_data_refresh = true; }
+    if ("trig_data" in allData) { trig_data = allData.trig_data; acq_data_refresh = true; }
+
+    if ("startidx_acqdata" in allData) { 
+        startidx_acqdata = parseInt(allData.startidx_acqdata); 
+        if ( isNaN(startidx_acqdata) == true ) { startidx_acqdata = 0; }
+    }
+    if ("len_acqdata" in allData) { len_acqdata = parseInt(allData.len_acqdata); }
+    if ("max_acqdata" in allData) { $("#max_acqdata").html("Maximum acquisition data points displayed = "+allData.max_acqdata+" points."); }    
+    
+    if (valid_triggers != 0) {
         var text = '<table  border=1 frame=hsides rules=rows bordercolor="#222225"><caption>&nbsp;</caption><tbody>';
-        if (acq_ndata > 0 ) {
-            for (var i = 0; i<acq_ndata; i++) {
+        if (len_acqdata > 0 ) {
+            for (var i = 0; i<len_acqdata; i++) {
                 text += "<tr class='selectable'>" 
-                text += "<td class='table_cell_title4' width='200px'>"+(i+1)+"</td>"
+                text += "<td class='table_cell_title4' width='120px'>"+(i+startidx_acqdata+1)+"</td>"
                 if ( i < acq_data1.length ) {
-                    text += "<td class='table_cell_value'>"+acq_data1[i] +"</td>"
+                    text += "<td class='table_cell_value'>"+(parseFloat(acq_data1[i][0])).toFixed(6) +"</td>"
+                    text += "<td class='table_cell_value'>"+acq_data1[i][1] +"</td>"
                 }
                 else {
                     text += "<td class='table_cell_value'></td>"
+                    text += "<td class='table_cell_value'></td>"
                 }
                 if ( i < acq_data2.length ) {
-                    text += "<td class='table_cell_value'>"+acq_data2[i] +"</td>"
+                    text += "<td class='table_cell_value'>"+acq_data2[i][1] +"</td>"
                 }
                 else {
                     text += "<td class='table_cell_value'></td>"
                 }
                 if ( i < acq_data3.length ) {
-                    text += "<td class='table_cell_value'>"+acq_data3[i] +"</td>"
+                    text += "<td class='table_cell_value'>"+acq_data3[i][1] +"</td>"
                 }
                 else {
                     text += "<td class='table_cell_value'></td>"
                 }
                 if ( i < acq_data4.length ) {
-                    text += "<td class='table_cell_value'>"+acq_data4[i] +"</td>"
+                    text += "<td class='table_cell_value'>"+acq_data4[i][1] +"</td>"
                 }
                 else {
                     text += "<td class='table_cell_value'></td>";
@@ -369,8 +514,8 @@ function refreshData(allData) {
         text += '</tbody></table>';
         $("#acq_table").html(text);
         
+        var elem = document.getElementById('acq_table');
         if ( !acq_table_scrolled ) {
-            var elem = document.getElementById('acq_table');
             elem.scrollTop = elem.scrollHeight;
         }
     }
@@ -731,23 +876,28 @@ function refreshData(allData) {
         plot4 = drawPlot('chart4', [data4], data4_unit, data4_range_min, data4_range_max, '#FFFF00');
 
         /* 2. Display Acquisition grahs */
-        if (acq_ndata == 0) {
+        if (valid_triggers == 0) {
             document.getElementById("graphs_acqrow").style.display = "none";
             $("#acq_table").html("");
             acq_data1 = [];
             acq_data2 = [];
             acq_data3 = [];
             acq_data4 = [];
-            setUserScroll(false);
+            trig_data = [];
+            acq_table_scrolled = false;
             document.getElementById("acq_results").style.display = "none";
         }
         else {
             document.getElementById("acq_results").style.display = "inline";
             document.getElementById("graphs_acqrow").style.display = "table-row"; 
-            if (acq_plot) {
-                acq_plot.destroy();
+            
+            if (acq_data_refresh == true ) {
+                if (acq_plot) {
+                    acq_plot.destroy();
+                }
+                acq_plot = drawAcquisitionGraphs('acq_chart');
+                acq_data_refresh = false;
             }
-            acq_plot = drawAcquisitionGraphs('acq_chart', acq_data1, acq_data2, acq_data3, acq_data4);                                    
         }                
     }
     else {
@@ -794,7 +944,7 @@ function checkSettings() {
         }
         else {
             $("#"+key).html(idx_val);            
-            $("#"+key).css("color", "#ccb95c"); 
+            $("#"+key).css("color", "white"); 
         }
     }
     
@@ -833,7 +983,7 @@ function checkSettings() {
         }
         else {
             $("#"+key).html(idx_val);
-            $("#"+key).css("color", "#ccb95c"); 
+            $("#"+key).css("color", "white"); 
         }
     }
     
@@ -850,7 +1000,7 @@ function checkSettings() {
             $("#"+var_voltagesat[j]).css("color", "red");
         }
         else {
-            $("#"+var_voltagesat[j]).css("color", "#ccb95c"); 
+            $("#"+var_voltagesat[j]).css("color", "white"); 
         }
     }
     
@@ -898,6 +1048,21 @@ function timeToString(date) {
 
 
 function saveData(){
+    var data = {}
+    data['command'] = "ACQU:MEAS?";
+    
+    
+    $("#saveButton").css("opacity", "0.2");
+    document.getElementById("saveButton").disabled = true;            
+
+    if (data['command'] != "" ) {
+        console.log(data['command']);
+        updater.socket.send(JSON.stringify(data));
+    }
+};
+    
+
+function saveDataToFile(datatofile) {    
     var currentdate = new Date(); 
     var date = dateToString(currentdate );
     var time = timeToString(currentdate);
@@ -912,8 +1077,9 @@ function saveData(){
                     "TriggerInput": document.getElementById("acq_trig_input").innerHTML,
                     "TriggerPolarity": document.getElementById("acq_trig_pol").innerHTML,
                     "AcquisitionTime": document.getElementById("acq_time").innerHTML,
-                    "AcquisitionTriggers": document.getElementById("acq_ntriggers").innerHTML,
-                    "AcquisitionNData": document.getElementById("acq_ndata").innerHTML,
+                    "AcquisitionLowTime": document.getElementById("acq_lowtime").innerHTML,
+                    "Triggers Detected": document.getElementById("acq_ndata").innerHTML,
+                    "ValidTriggers": document.getElementById("acq_trig_ntriggers").innerHTML,
                     "Channel1_Filter": document.getElementById("chn1_cafilter").innerHTML,
                     "Channel1_PreFilter": document.getElementById("chn1_caprefilter").innerHTML,
                     "Channel1_PostFilter": document.getElementById("chn1_capostfilter").innerHTML,
@@ -951,7 +1117,8 @@ function saveData(){
     var col1 = Object.keys(data_dict);
 
     if (data_dict["Channel1_Range"] == 'AUTO' ) {
-        data_dict["Channel1_TiGain"] = "";
+        data_dict["Channel1_TiGain"] = "";            
+        
         data_dict["Channel1_VGain"] = "";
     }
     else {
@@ -990,17 +1157,26 @@ function saveData(){
     }
     
     var col3 = [];                
+/*    var col4 = [['Channel1_TS_(s)', 'Channel1_Data (mA)']];
+    col4 = col4.concat(datatofile.acq_chan01);
+    var col5 = [['Channel2_TS_(s)', 'Channel2_Data (mA)']];
+    col5 = col5.concat(datatofile.acq_chan02);
+    var col6 = [['Channel3_TS_(s)', 'Channel3_Data (mA)']];
+    col6 = col6.concat(datatofile.acq_chan03);
+    var col7 = [['Channel4_TS_(s)', 'Channel4_Data (mA)']];
+    col7 = col7.concat(datatofile.acq_chan04);*/
+
     var col4 = ['Channel1_Data (mA)'];
-    col4 = col4.concat(acq_data1);
+    col4 = col4.concat(datatofile.acq_chan01);
     var col5 = ['Channel2_Data (mA)'];
-    col5 = col5.concat(acq_data2);
+    col5 = col5.concat(datatofile.acq_chan02);
     var col6 = ['Channel3_Data (mA)'];
-    col6 = col6.concat(acq_data3);
+    col6 = col6.concat(datatofile.acq_chan03);
     var col7 = ['Channel4_Data (mA)'];
-    col7 = col7.concat(acq_data4);
-    
+    col7 = col7.concat(datatofile.acq_chan04);
+
     /* Max_length is the length of the longest column */
-    master_array = [col1, col2, col3, col4, col5, col6, col7]
+    master_array = [col1, col2, col3, col4, col5, col6, col7];
     var max_len = 0;
     for (var i = 0; i < master_array.length; i++) {
         if (master_array[i].length >= max_len) {
@@ -1024,6 +1200,9 @@ function saveData(){
     
     var blob = new Blob(parts);            
     saveAs(blob, filename); 
+    
+    $("#saveButton").css("opacity", "1");
+    document.getElementById("saveButton").disabled = false;     
 }        
 
 function calculateRange(tigain, vgain) {
@@ -1108,12 +1287,20 @@ function setUserScroll(){
     var elem = document.getElementById('acq_table');
     var elemheight = $("#acq_table").height();
     
-    if ((elemheight + elem.scrollTop) == elem.scrollHeight) {
+    if ((elemheight + elem.scrollTop) >= elem.scrollHeight) {
         acq_table_scrolled=false;
     }
     else {
         acq_table_scrolled=true;
     }
+    
+    if (SHOW_GRAPHS == true && valid_triggers != 0) {
+        if (acq_plot) {
+            acq_plot.destroy();
+        }
+        acq_plot = drawAcquisitionGraphs('acq_chart');
+        acq_data_refresh = false;
+    }    
 }
 
 $(document).ready(function() {
@@ -1135,7 +1322,13 @@ var updater = {
     },
     
     showMessage: function(jsondata) {
-        refreshData(jsondata)
+        
+        if ("data_type" in jsondata && jsondata.data_type == "data_to_save" ) {
+            saveDataToFile(jsondata);
+        } 
+        else {
+            refreshData(jsondata);
+        }
     }
 };
 
@@ -1158,4 +1351,9 @@ function openTab(evt, tabName) {
     // Show the current tab, and add an "active" class to the link that opened the tab
     document.getElementById(tabName).style.display = "block";
     evt.currentTarget.className += " active";
+    
+    // force acq graph refresh
+    acq_data_refresh = true;
 }
+
+

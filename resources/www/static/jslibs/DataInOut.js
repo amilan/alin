@@ -64,7 +64,8 @@ $( document ).ready(function() {
     });            
     $('#ioport3_value').on('change keypress focusout', function() {
         sendCommand('ioportvalue',3);
-    });            
+    });
+    
     $('#ioport4_value').on('change keypress focusout', function() {
         sendCommand('ioportvalue',4);
     });            
@@ -334,7 +335,7 @@ function sendCommand(command, value, event ) {
             
         case 'dacgain':           
             tmp_value = document.getElementById("dacgain").value;
-            data['command'] = "ODAC:GAIN " + tmp_value;
+            data['command'] = "DACO:GAIN " + tmp_value;
             break;     
             
         case 'supplyport':           

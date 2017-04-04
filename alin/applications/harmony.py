@@ -30,6 +30,9 @@ from alin.drivers.idgen import IDGen
 from alin.drivers.memory import Memory
 from alin.drivers.spi import Spi 
 
+from datetime import datetime
+
+import math
 import os
 from random import uniform
 import signal
@@ -46,7 +49,7 @@ _STATES = {"STATE_INIT":0,
            }
 
 _FILTER = ['3200hz', '100hz', '10hz', '1hz', '0.5hz']
-_TRIGGERMODE = ['SOFTWARE','HARDWARE']
+_TRIGGERMODE = ['SOFTWARE','HARDWARE','AUTOTRIGGER']
 _RANGE = ['1ma', '100ua', '10ua', '1ua', '100na', '10na', '1na', '100pa']
 _POLARITY = ['FALLING','RISING']
 _TRIGINPUTS = ['DIO_1','DIO_2','DIO_3','DIO_4','DIFF_IO_1','DIFF_IO_2','DIFF_IO_3','DIFF_IO_4','DIFF_IO_5','DIFF_IO_6','DIFF_IO_7','DIFF_IO_8','DIFF_IO_9']
@@ -98,7 +101,7 @@ def handleError(f):
 class caRangeAutoThread(threading.Thread):
     def __init__(self, parent=None, channel=None):
         threading.Thread.__init__(self)
-        
+        0x31
         self._parent = parent
         
         self._dSPI = parent._dSPI
@@ -169,12 +172,23 @@ class AcquisitionThread(threading.Thread):
         self._dMEMORY = parent._dMEM
         self._dADCCORE = parent._dADCCORE
         
+        self._trig_mode = parent._trigmode
+        self._trig_input = _TRIGINPUTS.index(parent._triginput)
+        self._sw_trig_flag = False
+        self._trig_flag = None
+        
         self._endProcess = False
         self._processEnded = False
         
         self._acquiring_flag = False
         self._saving_data_enabled = False
-        self._num_triggers = None        
+        self._num_triggers = None
+        self._parent._validtriggers = 0
+        self._acq_auto_stop = False
+        self._acq_ready = False
+        
+        
+        self._time_start = datetime.utcnow()
         
         self._acq_ch_completed = [False]*len(_CHANNELS)
         
@@ -207,24 +221,40 @@ class AcquisitionThread(threading.Thread):
     def setNumTriggers(self, value=None):
         if value is not None and value >=1 and value != "":
             self._num_triggers = value
+            self._acq_auto_stop = True
         else:
-            self._num_triggers = None
-            
+            self._num_triggers = 0
+            self._acq_auto_stop = False
+        self._acq_ready = True
+        self._parent.logMessage("AcquisitionThread(): Number of Triggers = %s"%str(self._num_triggers),self._parent.INFO)            
+
     def setAcquiringFlag(self, value):
         self._acquiring_flag = value
         if value:
             self._parent.setState('STATE_ACQUIRING')
             self._acq_ch_completed = [False]*len(_CHANNELS)
+            self._sw_trig_flag = True
+            self._parent.logMessage("AcquisitionThread() acquisition channels reset",self._parent.INFO)            
         else:
+            text = '[%s]' % ', '.join(map(str, self._acq_ch_completed))
+            self._parent.logMessage("AcquisitionThread() acquisition channels completed %s"%text,self._parent.INFO)
             if self._acq_ch_completed.count(False) == 0:
                 self._parent.setState('STATE_RUNNING')
-                if self._num_triggers is not None:
-                    self._num_triggers = self._num_triggers - 1
-                    if self._num_triggers <= 0:
+                self._parent._validtriggers = self._parent._validtriggers + 1
+                if self._acq_auto_stop:
+                    try:
+                        self._num_triggers = self._num_triggers - 1
+                        self._parent.logMessage("AcquisitionThread(): Number of Triggers pending = %s"%str(self._num_triggers),self._parent.INFO)
+                        if self._num_triggers <= 0:
+                            self._num_triggers = None
+                            self._parent.stopAcq("STOP_FROM_THREAD")
+                            self.end()
+                    except:
                         self._num_triggers = None
-                        self._parent.stopAcq()
+                        self._parent.stopAcq("STOP_FROM_THREAD")
                         self.end()
-                        
+                else:
+                    self._num_triggers = self._num_triggers + 1
         
     def getAcquiringFlag(self):        
         return self._acquiring_flag
@@ -232,8 +262,31 @@ class AcquisitionThread(threading.Thread):
     def calculateCurrent(self, value):
         if value>0x7fffffff:
             value-=0x100000000
-        value = value/self._parent.fifosize/2;
-        return self._dADCCORE.convertADCToVoltage(value)
+        aux_value = value/float(self._parent.fifosize)/2.;
+        return self._dADCCORE.convertADCToVoltage(aux_value)
+    
+    def saveTrigger(self, timestamp, state=False):
+        if state:
+            trig_state = state;
+        else:
+            if self._trig_mode in ['SOFTWARE','AUTOTRIGGER']:
+                trig_state = self._sw_trig_flag
+            else:
+                try:
+                    trig_state = self._parent.getGPIOValue(self._trig_input+1)
+                except:
+                    self._parent.logMessage("AcquisitionThread(): Not possible to read trigger state input=%s"%str(self._trig_input), self._parent.ERROR)
+                
+        if self._trig_flag != trig_state:
+            if self._trig_flag is not None:
+                self._parent._trigger_data.append([timestamp,int(self._trig_flag)])
+                self._trig_flag = trig_state
+                self._parent._trigger_data.append([timestamp,int(self._trig_flag)])
+            else:
+                self._trig_flag = trig_state
+                self._parent._trigger_data.append([timestamp,int(self._trig_flag)])
+        self._sw_trig_flag = False
+        
     
     def run(self): 
         _id_to_buffer = {_AVG_ID_1: 0, 
@@ -243,11 +296,15 @@ class AcquisitionThread(threading.Thread):
                         }
 
         while not (self._endProcess):
+            # Temporal until TS will be implemented
+            current_time = datetime.utcnow()
+            diff = current_time - self._time_start
+            data_ts = (diff.days * 24 * 60 * 60 + diff.seconds) + diff.microseconds * 1.0e-6
+            
             data = self._dMEMORY.getMemoryBuffer()
             if len(data) > 0:
                 acq_type = self._parent._acq_type
                 acq_partial_counts = self._parent._acqtime_counts
-
                 read_ids = [a[0] for a in data]
                 msg = "AcquisitionThread(): Acquiring... "
                 msg += " CH1(%s)"%str(read_ids.count(_AVG_ID_1))
@@ -258,57 +315,63 @@ class AcquisitionThread(threading.Thread):
                 msg += " CNT1(%s)"%str(read_ids.count(_CNT1_ID))
                 msg += " TotalAcq=%s"%str(len(data))
                 self._parent.logMessage(msg, self._parent.INFO)
-                
-                for el in data:
-                    data_id = el[0]
-                    data_ts = el[1]
-                    data_val = el[2]
+
+                if self._acq_ready:
+                    for el in data:
+                        data_id = el[0]
+                        # Temporally commented until TS will be implemented
+                        #data_ts = el[1]
+                        data_val = el[2]
                     
-                    if acq_type == 'TIME_ABOVE_FIFO_RANGE':
-                        if data_id in _id_to_buffer.keys():
-                            channel = _id_to_buffer[data_id]
-                            data_val = self._parent.convertVoltToCurr(channel, self.calculateCurrent(data_val))
+                        if acq_type == 'TIME_ABOVE_FIFO_RANGE':
+                            if data_id in _id_to_buffer.keys():
+                                channel = _id_to_buffer[data_id]
+                                data_val = self._parent.convertVoltToCurr(channel, self.calculateCurrent(data_val))
 
-                            self._temporal_readdata[_id_to_buffer[data_id]].append([data_ts,data_val])
+                                self._temporal_readdata[_id_to_buffer[data_id]].append([data_ts,data_val])
                             
-                            tmp_buff_len = len(self._temporal_readdata[channel])
-                            if  tmp_buff_len == acq_partial_counts:
-                                avg_data = self.calculateAVG(channel)
+                                tmp_buff_len = len(self._temporal_readdata[channel])
+                                if  tmp_buff_len == acq_partial_counts:
+                                    avg_data = self.calculateAVG(channel)
                                 
-                                self._parent._ch_readdata[channel].append([data_ts,avg_data])
-                                self._acq_ch_completed[channel] = True
-                                self._parent.logMessage("AcquisitionThread(): Acquisition COMPLETED (Channel %s, Counts=%s)"%(str(channel+1),str(tmp_buff_len)), self._parent.INFO)
-                                
-                                self.setAcquiringFlag(False)
+                                    self._parent._ch_readdata[channel].append([data_ts,avg_data])
+                                    self._acq_ch_completed[channel] = True
+                                    self._parent.logMessage("AcquisitionThread(): Acquisition COMPLETED CH%s  Counts=%s Value=%s"%(str(channel+1),str(tmp_buff_len),str(avg_data)), self._parent.INFO)
+                                 
+                                    self.setAcquiringFlag(False)
+                            else:
+                                self._parent._general_buffer.append([data_id, data_ts,data_val])
+                            
+                                if data_id == _IDGEN_ID:
+                                    self.clearTemporalBuffers()
+                                    self.setAcquiringFlag(True)
+                                    self.saveTrigger(data_ts, state=True)
+                                if data_id == _CNT1_ID:
+                                    self._temporal_counter += 1
+                                    if self._temporal_counter > acq_partial_counts:
+                                        if not self._partial_data_acquired:
+                                            self._parent.partialAcquisitionReset()
+                                        self._partial_data_acquired = True
                         else:
-                            self._parent._general_buffer.append([data_id, data_ts,data_val])
-                            
                             if data_id == _IDGEN_ID:
-                                self.clearTemporalBuffers()
-                                self.setAcquiringFlag(True)
-                            if data_id == _CNT1_ID:
-                                self._temporal_counter += 1
-                                if self._temporal_counter > acq_partial_counts:
-                                    if not self._partial_data_acquired:
-                                        self._parent.partialAcquisitionReset()
-                                    self._partial_data_acquired = True
-                    else:
-                        if data_id == _IDGEN_ID:
-                            self.setAcquiringFlag(True)
-                        if data_id in _id_to_buffer.keys():
-                            channel = _id_to_buffer[data_id]
-                            
-                            data_val = self._parent.convertVoltToCurr(channel, self.calculateCurrent(data_val))
+                               self.setAcquiringFlag(True)
+                               self.saveTrigger(data_ts,state=True)
+                            if data_id in _id_to_buffer.keys():
+                                channel = _id_to_buffer[data_id]
+                                data_val = self._parent.convertVoltToCurr(channel, self.calculateCurrent(data_val))
 
-                            self._parent._ch_readdata[channel].append([data_ts,data_val])
-                            self._acq_ch_completed[channel] = True
-                            self._parent.logMessage("AcquisitionThread(): Acquisition COMPLETED (channel %s)"%str(channel+1), self._parent.INFO)
+                                self._parent._ch_readdata[channel].append([data_ts,data_val])
+                                self._acq_ch_completed[channel] = True
+                                self._parent.logMessage("AcquisitionThread(): Acquisition COMPLETED CH%s Value=%s"%(str(channel+1),data_val), self._parent.INFO)
                             
-                            self.setAcquiringFlag(False)
-                        else:
-                            self._parent._general_buffer.append([data_id, data_ts,data_val])
+                                self.setAcquiringFlag(False)
+                            else:
+                                self._parent._general_buffer.append([data_id, data_ts,data_val])
             
-            time.sleep(0.5)
+            # Check trigger input
+            self.saveTrigger(data_ts)
+            
+            time.sleep(0.1)
 
         self._processEnded = True
 
@@ -356,8 +419,10 @@ class Harmony(AlinLog):
         self._trigmode = None
         self._trigpol = None
         self._acqtime = None
+        self._acqlowtime = None
         self._acqtime_counts = None
         self._acqntriggers = None
+        self._validtriggers = None
         self._trigdelay = None
         self._triginput = None
         
@@ -410,7 +475,7 @@ class Harmony(AlinLog):
         self._dFPGA.configure()
         
         self.logMessage("reconfigure(): Done!!", self.INFO)
-        
+        300
     def setState(self, state):
         if state in _STATES.keys():
             self._state = state
@@ -430,6 +495,7 @@ class Harmony(AlinLog):
     def clearDataBuffers(self):
         self._ch_readdata = [[] for x in range(0,4)]
         self._general_buffer = []
+        self._trigger_data = []
         
         if self._acq_thread is not None:
             self._acq_thread.setNumTriggers(self._acqntriggers)
@@ -464,11 +530,13 @@ class Harmony(AlinLog):
         
         self.setRange("1mA")
         self.setFilter("3200Hz")
-        self.setTrigMode(0)
-        self.setTrigPol(0)
-        self.setAcqTime(100)
-        self.setTrigInput(1)
+        self.setTrigMode("SOFTWARE")
+        self.setTrigPol("RISING")
+        self.setTrigInput('DIO_1')
         self.setTrigDelay(0)
+        self.setAcqTime(100)
+        self.setAcqLowTime(100)
+        self.setAcqNTriggers(0)
         
         self.fifosize = 0
         
@@ -514,7 +582,7 @@ class Harmony(AlinLog):
             
             self.saveUserData(item='range', data=range)            
         else:
-            self.logMessage("setRange(): Not possible set Range when State is %s"%str(st), self.ERROR)
+            self.logMessage("setRange(): Not possible set Range when State is %s"%str(self.getState()), self.ERROR)
             
     @handleError
     def getRange(self):
@@ -531,7 +599,7 @@ class Harmony(AlinLog):
             
             self.saveUserData(item='filter', data=filter)             
         else:
-            self.logMessage("setFilter(): Not possible set Filter %s when State is %s"%(str(self._filter),str(st)), self.ERROR)
+            self.logMessage("setFilter(): Not possible set Filter %s when State is %s"%(str(self._filter),str(self.getState())), self.ERROR)
             
     @handleError
     def getFilter(self):
@@ -539,15 +607,15 @@ class Harmony(AlinLog):
     
     @handleError
     def setTrigMode(self, value):
-        trigmode = int(value)
-        if not self.isAcquiring() and trigmode<len(_TRIGGERMODE):
-            self._trigmode = _TRIGGERMODE[trigmode]
+        trigmode = str(value).upper()
+        if not self.isAcquiring() and trigmode in _TRIGGERMODE:
+            self._trigmode = trigmode
             
             self.logMessage("setTrigMode(): Trigger mode set to %s"%str(self._trigmode), self.INFO)
             
             self.saveUserData(item='trigmode', data=value)             
         else:
-            self.logMessage("setTrigMode(): Not possible set Trigger Mode. State=%s value=%s"%(str(st),str(trigmode)), self.ERROR)
+            self.logMessage("setTrigMode(): Not possible set Trigger Mode. State=%s value=%s"%(str(self.getState()),str(trigmode)), self.ERROR)
             
     @handleError
     def getTrigMode(self):
@@ -555,18 +623,35 @@ class Harmony(AlinLog):
     
     @handleError
     def setTrigPol(self, value):
-        trigpol = int(value)
-        if not self.isAcquiring() and trigpol<len(_POLARITY):
-            self._trigpol = _POLARITY[trigpol]
+        trigpol = str(value).upper()
+        if not self.isAcquiring() and trigpol in _POLARITY:
+            self._trigpol = trigpol
+            
             self.logMessage("setTrigPol(): Trigger polarity set to %s"%str(self._trigpol), self.INFO)
             
             self.saveUserData(item='trigpol', data=value)                         
         else:
-            self.logMessage("setTrigPol(): Not possible set Trigger polarity State=%s Value=%s"%(str(st),str(trigpol)), self.ERROR)
+            self.logMessage("setTrigPol(): Not possible set Trigger polarity State=%s Value=%s"%(str(self.getState()),str(trigpol)), self.ERROR)
             
     @handleError
     def getTrigPol(self):
         return self._trigpol
+    
+    @handleError
+    def setAcqLowTime(self, value):
+        # Acqtime in miliseconds
+        acqlowtime = int(value)
+        if not self.isAcquiring():
+            self._acqlowtime = acqlowtime
+            self.logMessage("setAcqLowTime(): Acquisition low time set to %s miliseconds"%str(self._acqlowtime), self.INFO)
+
+            self.saveUserData(item='acqlowtime', data=value)             
+        else:
+            self.logMessage("setAcqLowTime(): Not possible set Acquisition low time polarity when State is %s"%str(self.getState()), self.ERROR)
+            
+    @handleError
+    def getAcqLowTime(self):
+        return self._acqlowtime
     
     @handleError
     def setAcqTime(self, value):
@@ -578,11 +663,11 @@ class Harmony(AlinLog):
 
             self.saveUserData(item='acqtime', data=value)             
         else:
-            self.logMessage("setAcqTime(): Not possible set Acquisition time polarity when State is %s"%str(st), self.ERROR)
+            self.logMessage("setAcqTime(): Not possible set Acquisition time polarity when State is %s"%str(self.getState()), self.ERROR)
             
     @handleError
     def getAcqTime(self):
-        return self._acqtime
+        return self._acqtime    
     
     @handleError
     def setTrigDelay(self, value):
@@ -593,7 +678,7 @@ class Harmony(AlinLog):
 
             self.saveUserData(item='trigdelay', data=value)             
         else:
-            self.logMessage("setTrigDelay(): Not possible set Trigger delay polarity when State is %s"%str(st), self.ERROR)
+            self.logMessage("setTrigDelay(): Not possible set Trigger delay polarity when State is %s"%str(self.getState()), self.ERROR)
             
     @handleError
     def getTrigDelay(self):
@@ -601,14 +686,15 @@ class Harmony(AlinLog):
     
     @handleError
     def setTrigInput(self, value):
-        triginput = int(value)        
-        if not self.isAcquiring() and triginput<len(_TRIGINPUTS):
-            self._triginput =  _TRIGINPUTS[triginput]
+        triginput = str(value).upper()
+        if not self.isAcquiring() and triginput in _TRIGINPUTS:
+            self._triginput =  triginput
+            
             self.logMessage("setTrigInput(): Trigger input set to %s"%str(self._triginput), self.INFO)
 
             self.saveUserData(item='triginput', data=value)                         
         else:
-            self.logMessage("setTrigInput(): Not possible set Trigger input when State is %s"%str(st), self.ERROR)
+            self.logMessage("setTrigInput(): Not possible set Trigger input when State is %s"%str(self.getState()), self.ERROR)
             
     @handleError
     def getTrigInput(self):
@@ -623,14 +709,17 @@ class Harmony(AlinLog):
 
             self.saveUserData(item='acqntriggers', data=value)             
         else:
-            self.logMessage("setAcqNTriggers(): Not possible set Acquisition triggers when State is %s"%str(st), self.ERROR)
+            self.logMessage("setAcqNTriggers(): Not possible set Acquisition triggers when State is %s"%str(self.getState()), self.ERROR)
             
     @handleError
     def getAcqNTriggers(self):
-        return self._acqntriggers
+        if self._acqntriggers is not None:
+            return self._acqntriggers
+        else:
+            return 0
     
     
-    def startAcq(self, value):
+    def startAcq(self, command=None):
         def calculateMask(*args):
             nor_value = ~reduce(lambda x, y: x|y, args)
             and_value = reduce(lambda x, y: x&y, args)
@@ -648,6 +737,7 @@ class Harmony(AlinLog):
             self.logMessage("startAcq(): Trigger mode set to %s"%self._trigmode, self.INFO)
             self.logMessage("startAcq(): Trigger polarity set to %s"%self._trigpol, self.INFO)
             self.logMessage("startAcq(): Acquisition time set to %s"%self._acqtime, self.INFO)
+            self.logMessage("startAcq(): Acquisition low time set to %s"%self._acqlowtime, self.INFO)
             self.logMessage("startAcq(): Trigger input set to %s"%self._triginput, self.INFO)
             self.logMessage("startAcq(): Trigger delay set to %s"%self._trigdelay, self.INFO)
             
@@ -809,7 +899,7 @@ class Harmony(AlinLog):
 
                 # 6. Check Trigger Type and configure trigger inputs, for hw trigger or counter for SW trigger
                 self.logMessage("startAcq(): (6/14) trigger mode %s"%self._trigmode, self.INFO)            
-                if self._trigmode == "SOFTWARE":
+                if self._trigmode in ["SOFTWARE",'AUTOTRIGGER']:
                     # 6.1.1 Configure IDGEN to generate the SW trigger 
                     self.logMessage("startAcq(): (6.1/14) ID Gen configured to set SW triggers", self.INFO)                                
                     self._dIDGEN.writeAttribute('ID_GEN_CTL_ETI', 0x00)
@@ -822,10 +912,26 @@ class Harmony(AlinLog):
                     self._dDIGITALIO.writeAttribute('CNT0_STP_OUT_ID', 0x00)
                     self._dDIGITALIO.writeAttribute('CNT0_STP_SRC_ID', _IDGEN_ID)
                     self._dDIGITALIO.writeAttribute('CNT0_STP_SIG', 0x00)
-                    self._dDIGITALIO.writeAttribute('CNT0_STP_DIS', 0x07)
                     self._dDIGITALIO.writeAttribute('CNT0_V_CNT_V', 0x00)
                     self._dDIGITALIO.writeAttribute('CNT0_STP_SRC', 0x0E)
+                    self._dDIGITALIO.writeAttribute('CNT0_STP_DIS', 0x07)
                     self._dDIGITALIO.writeAttribute('TRG0_V_CNT_V', 0x01)
+                    
+                    if self._trigmode == 'AUTOTRIGGER':
+                        # 6.1.3 Configure Counter 3 to count the number of triggers generated
+                        self.logMessage("startAcq(): (6.3/14) CNT2 configured to count SW autotriggers", self.INFO)                                
+                        # This calculates the number of FPGA clocks (16ns)
+                        total_counts = int((self._acqtime + self._acqlowtime)/40e-6)
+                        self._dDIGITALIO.writeAttribute('CNT2_STP_SIG', 0x00)
+                        self._dDIGITALIO.writeAttribute('CNT2_STP_OUT_ID', _IDGEN_ID)
+                        self._dDIGITALIO.writeAttribute('CNT2_STP_TRIG', 0x02)
+                        self._dDIGITALIO.writeAttribute('CNT2_STP_SRC', 0x00)
+                        self._dDIGITALIO.writeAttribute('TRG2_V_CNT_V', total_counts)
+                        self._dDIGITALIO.writeAttribute('CNT2_STP_DIS', 0x07)
+                    else:
+                        self._dDIGITALIO.writeAttribute('CNT2_STP_DIS', 0x00)
+                        self._dDIGITALIO.writeAttribute('CNT2_STP_OUT_ID', 0x00)
+                    
                 else:
                     # 6.2.1 Configure HW trigger input
                     self.logMessage("startAcq(): (6.1/14) Trigger Input %s configures"%str(self._triginput), self.INFO)                                
@@ -838,11 +944,12 @@ class Harmony(AlinLog):
                     self.logMessage("startAcq(): (6.2/14) Counter 0 configured to count HW triggers ", self.INFO)
                     self._dDIGITALIO.writeAttribute('CNT0_STP_OUT_ID', _CNT0_ID)
                     self._dDIGITALIO.writeAttribute('CNT0_STP_SIG', 0x00)
-                    self._dDIGITALIO.writeAttribute('CNT0_STP_DIS', 0x07)
                     self._dDIGITALIO.writeAttribute('CNT0_STP_TRIG', 0x00)
                     self._dDIGITALIO.writeAttribute('CNT0_STP_SRC', tg_input+1)
                     self._dDIGITALIO.writeAttribute('TRG0_V_CNT_V', 0x01)
                     self._dDIGITALIO.writeAttribute('CNT0_V_CNT_V', 0x00)
+                    self._dDIGITALIO.writeAttribute('CNT0_STP_DIS', 0x07)
+                    
                     
                     self.logMessage("startAcq(): (6.3/14) ID GEN configured to generate ID when CNT0_ID is generated", self.INFO)            
                     self._dIDGEN.writeAttribute('ID_GEN_CTL_ETI', 0x01)
@@ -895,7 +1002,6 @@ class Harmony(AlinLog):
                 self.logMessage("startAcq() (13/14) Start acquisition thread",self.INFO)
                 self._acq_thread = AcquisitionThread(self)
                 self._acq_thread.setAcquiringFlag(False)
-                self._acq_thread.setNumTriggers(self._acqntriggers)
                 self._acq_thread.setDaemon(True)
                 self._acq_thread.start()
                 
@@ -906,11 +1012,14 @@ class Harmony(AlinLog):
                             
                 self.setState("STATE_RUNNING")                                        
                 self.logMessage("startAcq(): (14/14) Acquisition Started", self.INFO)
+
+                if command is not None and "swtrig" in command.lower():
+                    self.setSWTrigger(True)
             except Exception, e:
                 self.logMessage("startAcq():Acquisition not started due to %s"%str(e), self.ERROR)
                 self.setState("STATE_FAULT")            
         else:
-            self.logMessage("startAcq():Not possible start acquisition in current state %s"%str(st), self.ERROR)
+            self.logMessage("startAcq():Not possible start acquisition in current state %s"%str(self.getState()), self.ERROR)
             return False
         
         return True        
@@ -918,41 +1027,40 @@ class Harmony(AlinLog):
     @handleError
     def stopAcq(self, value=False):
         self.logMessage("stopAcq()", self.INFO)
-        if self.isAcquiring():
-            try:
-                # Stops data saving in memoryCHND:CURRENT
-                self._dMEM.writeAttribute('CTL_SAVE', 0x00)
+        try:
+            # Stops data saving in memoryCHND:CURRENT
+            self._dMEM.writeAttribute('CTL_SAVE', 0x00)
 
-                # Stops count triggers
-                self._dDIGITALIO.writeAttribute('CNT0_STP_DIS', 0x00)
-                
-                if self._acq_type == 'TIME_ABOVE_FIFO_RANGE':
-                    # Diseble partial acquisition counter
-                    self._dDIGITALIO.writeAttribute('DIS_STP_DIS1_M', 0x03)
-                    self._dDIGITALIO.writeAttribute('DIS_STP_WD1', 0x00)
-                
-                self._dADCCORE.writeAttribute('ID_CH1_ID',0x00)
-                self._dADCCORE.writeAttribute('ID_CH2_ID',0x00)
-                self._dADCCORE.writeAttribute('ID_CH3_ID',0x00)
-                self._dADCCORE.writeAttribute('ID_CH4_ID',0x00)
-                self.logMessage("stopAcq() Memory saving stopped",self.INFO)
-    
-                #if self._acq_thread is not None:
-                    #self._acq_thread.end()
+            # Stops count triggers
+            self._dDIGITALIO.writeAttribute('CNT0_STP_DIS', 0x00)
+            self._dDIGITALIO.writeAttribute('CNT2_STP_DIS', 0x00)
+            
+            if self._acq_type == 'TIME_ABOVE_FIFO_RANGE':
+                # Diseble partial acquisition counter
+                self._dDIGITALIO.writeAttribute('DIS_STP_DIS1_M', 0x03)
+                self._dDIGITALIO.writeAttribute('DIS_STP_WD1', 0x00)
+            
+            self._dADCCORE.writeAttribute('ID_CH1_ID',0x00)
+            self._dADCCORE.writeAttribute('ID_CH2_ID',0x00)
+            self._dADCCORE.writeAttribute('ID_CH3_ID',0x00)
+            self._dADCCORE.writeAttribute('ID_CH4_ID',0x00)
+            self.logMessage("stopAcq() Memory saving stopped",self.INFO)
+
+            if str(value).upper() != "STOP_FROM_THREAD":
+                if self._acq_thread is not None:
+                    self._acq_thread.end()                    
                         
-                    #while not self._acq_thread.getProcessEnded():
-                        #self.logMessage("stopAcq(): Waiting process to die", self.INFO)
-                        #time.sleep(0.5)
-                        #pass  
-                        
-                self.logMessage("stopAcq() Acquisition Thread stopped", self.INFO)
-                
-                self.setState("STATE_ON")            
-            except Exception, e:
-                self.logMessage("stopAcq():Acquisition not stopped due to %s"%str(e), self.ERROR)
-                self.setState("STATE_FAULT")
-        else:
-            self.logMessage("stopAcq():Acquisition not started. State is %s"%str(st), self.ERROR)
+                    while not self._acq_thread.getProcessEnded():
+                        self.logMessage("stopAcq(): Waiting process to die", self.INFO)
+                        time.sleep(0.5)
+                    
+            self._acq_thread = None
+            self.setState("STATE_ON")            
+
+            self.logMessage("stopAcq() Acquisition Thread stopped", self.INFO)
+        except Exception, e:
+            self.logMessage("stopAcq():Acquisition not stopped due to %s"%str(e), self.ERROR)
+            self.setState("STATE_FAULT")
 
     @handleError
     def getNData(self):
@@ -978,8 +1086,17 @@ class Harmony(AlinLog):
     @handleError
     def getMeas(self, params=None):
         ret_val = []
+        params = str(params).split(",")
+        try:
+            idx = eval(params[0])
+        except:
+            idx = None
+        try:
+            ndata = eval(params[1])
+        except:
+            ndata = None
         for i in range(0,4):
-            ret_val.append(['CHAN0'+str(i+1),self.getCurrent(i, params=params)])
+            ret_val.append(['CHAN0'+str(i+1),self.getCurrent(i, params=idx, ndata=ndata)])
         
         self.logMessage("getMeas() Returns the values read in Memory", self.DEBUG)
         
@@ -1068,17 +1185,23 @@ class Harmony(AlinLog):
         return '[%s]' % ', '.join(map(str, ret_val))
 
     @handleError
-    def getSCPICurrent(self, channel):
-        return self.getCurrent(channel-1)
+    def getSCPICurrent(self, channel, params = None):
+        return self.getCurrent(channel-1, params)
 
     @handleError
-    def getCurrent(self, channel, params = None):
+    def getCurrent(self, channel, params = None, ndata=None):
         self.logMessage("getCurrent(): Channel=%d reading form fast bus"%channel, self.DEBUG)
 
         ret_val = []
         chdata = []
         if params is not None:
-            chdata = self._ch_readdata[channel][int(params+1):]
+            if ndata is not None:
+                end_idx = (int(params)+1) + int(ndata)
+                if end_idx > len(self._ch_readdata[channel]):
+                    end_idx = len(self._ch_readdata[channel])
+                chdata = self._ch_readdata[channel][int(params)+1:end_idx]
+            else:
+                chdata = self._ch_readdata[channel][int(params)+1:]
         else:
             chdata = self._ch_readdata[channel]
         for el in chdata:
@@ -1086,6 +1209,38 @@ class Harmony(AlinLog):
         
         self.logMessage("getCurrent(): Channel=%d with data=[%s] "%(channel,', '.join(map(str, ret_val)) ), self.DEBUG)
         return '[%s]' % ', '.join(map(str, ret_val))
+
+    @handleError
+    def getTriggerData(self):
+        self.logMessage("getCurrent(): Reading trigger acquisition data data=[%s] "%(', '.join(map(str, self._trigger_data)) ), self.DEBUG)
+        return '[%s]' % ', '.join(map(str, self._trigger_data))
+
+    @handleError    
+    def getValidTriggers(self):
+        ret_value = self._validtriggers if self._validtriggers is not None else 0
+        self.logMessage("getValidTriggers(): Valid Triggers = %s "%str(ret_value), self.DEBUG)
+        return ret_value
+
+
+    @handleError
+    def getCurrentWithTS(self, channel, params = None, ndata=None):
+        self.logMessage("getCurrent(): Channel=%d reading form fast bus"%channel, self.DEBUG)
+
+        chdata = []
+        if params is not None:
+            if ndata is not None:
+                end_idx = (int(params)+1) + int(ndata)
+                if end_idx > len(self._ch_readdata[channel]):
+                    end_idx = len(self._ch_readdata[channel])
+                chdata = self._ch_readdata[channel][int(params)+1:end_idx]
+            else:
+                chdata = self._ch_readdata[channel][int(params)+1:]
+        else:
+            chdata = self._ch_readdata[channel]
+
+        self.logMessage("getCurrent(): Channel=%d with data=[%s] "%(channel,', '.join(map(str, chdata)) ), self.DEBUG)
+        return '[%s]' % ', '.join(map(str, chdata))
+
 
     @handleError
     def getSCPIAverageCurrent(self, channel):
@@ -1511,6 +1666,137 @@ class Harmony(AlinLog):
         val = self._dSPI.feGetDACGain()
         self.logMessage("getDACGain() Gain=%s"%str(val), self.DEBUG)
         return val
+    
+    def setAOutFn(self, channel, args):
+        if self.isAcquiring():
+            self.logMessage("setAOutFn() Set function not allowed when acquiring", self.ERROR)
+            return
+        
+        args = str(args).split(",")
+        amplitude = self.getVAnalog(channel)
+        mode = 0
+        frequency = 1
+        periodic = True
+        matrix = []
+        
+        for i in range(0, len(args)):
+            val = args[i]
+            if i == 0:
+                mode = int(val)
+            elif i == 1:
+                amplitude = float(val)
+            elif i == 2:
+                frequency = float(val)
+            elif i == 3:
+                periodic = int(val)
+            else:
+                matrix.append(float(val))
+        
+        self.logMessage("setAOutFn() Start fn generation output on AOut%s, mode=%s, amplitude=%s, frequency=%s, periodic=%s "%(str(mode), str(channel),str(amplitude), str(frequency),bool(periodic)), self.INFO)
+
+        channel_params = {0: [self._dFIFO_1, _FIFO_ID_1, 'ID_1'],
+                        1: [self._dFIFO_2, _FIFO_ID_2, 'ID_2'],
+                        2: [self._dFIFO_3, _FIFO_ID_3, 'ID_3'],
+                        3: [self._dFIFO_4, _FIFO_ID_4, 'ID_4'],
+                        }
+        try:
+            FIFO_dev = channel_params[channel-1][0]
+            FIFO_id = channel_params[channel-1][1]
+            DAC_chan = channel_params[channel-1][2]
+        except:
+            self.logMessage("setAOutFn() Incorrect channel number %s"%str(channel), self.ERROR)
+            return
+
+        if mode == 0:
+            self._dDAC.writeAttribute(DAC_chan, 0x00)
+            self._dIDGEN.writeAttribute('ID_GEN_CTL_ETI', 0x00)
+            self.logMessage("setAOutFn() fn generation stopped", self.INFO)            
+            
+            self.setVAnalog(channel, amplitude)
+        else:
+            def convertMatrix(dac_gain=0, amplitude=10.0, matrix=[]):
+                tmp_matrix = []
+                for value in matrix:
+                    tmp_value = 0
+                    
+                    if (dac_gain == 0):
+                        value = (value * (amplitude/2)) + (amplitude/2)
+                        if (value >= 0 and value <= 10):
+                            tmp_value = int(65535 * (1 - (value/10.)))
+                    else:
+                        value = (value * amplitude)
+                        if (value >= -10 and value <= 10):
+                            tmp_value = int(65535/20. * (10 - value))
+                    tmp_value = (tmp_value<<16) & 0xFFFF0000
+                    
+                    tmp_matrix.append(tmp_value)
+                    
+                return tmp_matrix
+            
+            if mode == 1:
+                # SIN 
+                points = 40
+                matrix = [math.sin(2*math.pi*i/(points)) for i in range(0,points)]
+            elif mode == 2: 
+                # Pulse
+                matrix = [1, -1]
+            else:
+                # User function
+                if len(matrix) == 0:
+                    self.logMessage("setAOutFn() User matrix data not provided", self.ERROR)
+                    return
+
+            # 1- Fill the FIFO with the ndata_points - 1
+            matrix = convertMatrix(self.getDACGain(),amplitude, matrix)
+            fifo_data = matrix[:-1]
+            last_data = matrix[-1]
+
+            FIFO_dev.writeAttribute('MEM_CTL_ID_OUT', 0x00)
+            FIFO_dev.writeAttribute('FIFO_SIZE_SIZE', len(fifo_data)-1)
+            FIFO_dev.writeAttribute('MEM_CTL_ID_IN', _TEMPORAL_ID)
+            
+            self._dIDGEN.writeAttribute('WAIT_TIME', 0x00)  
+            self._dIDGEN.writeAttribute('TS_ID_ID_OUT', _TEMPORAL_ID)
+            self._dIDGEN.writeAttribute('ID_GEN_CTL_DSRC', 0x00)            
+            
+            for i in range(0, len(fifo_data)):
+                self._dIDGEN.writeAttribute('DATA_GEN_DATA', int(fifo_data[i]))
+                self._dIDGEN.writeAttribute('TS_ID_TIMESTAMP', i)
+
+                self._dIDGEN.writeAttribute('ID_GEN_CTL_MTRIG', 0x01)
+
+            self._dIDGEN.writeAttribute('TS_ID_ID_OUT', 0x00)
+            
+            # 2- Configure FIFO out
+            FIFO_dev.writeAttribute('MEM_CTL_ID_OUT', FIFO_id)
+            FIFO_dev.writeAttribute('MEM_CTL_ID_IN', _IDGEN_ID)
+            
+            # 3- Confiure DAC out
+            self._dDAC.writeAttribute('CFG_WCH', channel)
+            self._dDAC.writeAttribute('CFG_WVALUE', last_data)            
+            self._dDAC.writeAttribute('CFG_WR',0x01)                        
+            self._dDAC.writeAttribute(DAC_chan,FIFO_id)
+            self._dDAC.writeAttribute('CFG_RST',0x01)
+            
+            # 4- Configure IDGEN
+            self._dIDGEN.writeAttribute('DATA_GEN_DATA', last_data)
+            self._dIDGEN.writeAttribute('TS_ID_ID_OUT', _IDGEN_ID)
+            self._dIDGEN.writeAttribute('ID_GEN_CTL_TRIGGERID', FIFO_id)
+            
+            if periodic != 0:
+                self._dIDGEN.writeAttribute('ID_GEN_CTL_DSRC', 0x01)
+            else:
+                self._dIDGEN.writeAttribute('ID_GEN_CTL_DSRC', 0x00)
+                
+            wait_time = int(1/(frequency*1024.*len(matrix)*1E-9))
+            self._dIDGEN.writeAttribute('WAIT_TIME', wait_time)
+            self._dIDGEN.writeAttribute('ID_GEN_CTL_RST', 0x01)
+            
+            # 5- Start
+            self._dIDGEN.writeAttribute('ID_GEN_CTL_ETI', 0x01)
+            self._dIDGEN.writeAttribute('ID_GEN_CTL_MTRIG', 0x01)
+            
+            self.logMessage("setAOutFn() fn generation started on AOut %s with wait_time=%s"%(str(channel),str(wait_time)), self.INFO)            
             
     @handleError
     def fpgaGetDeviceList(self):

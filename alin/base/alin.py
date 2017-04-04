@@ -96,7 +96,7 @@ class AlinSDB(AlinLog):
 		self.logMessage("getData:: Address %s"%str(address), self.DEBUG)
 		self.base_address = address
 		if self.__check():		
-			self.device_bridges = [0]
+			self.device_bridges = [[0, self.base_address]]
 			self.sdb_structure = []
 			self.devices_counter = 0
 			bus_level = 0
@@ -105,8 +105,8 @@ class AlinSDB(AlinLog):
 			bridge_pos = 0
 			while (bridge_pos!=len(self.device_bridges) and bridge_pos<len(self.device_bridges)):
 				if bridge_pos!=0:
-					add_data = self.sdb_structure[self.device_bridges[bridge_pos]]['sdb_record_type']
-					self.base_address = self.getAddress(add_data)
+					add_data = self.sdb_structure[self.device_bridges[bridge_pos][0]]['sdb_record_type']
+					self.base_address = self.getAddress(add_data) + self.device_bridges[bridge_pos][1]
 					bus_level +=1
 				
 				devs = self.__getDevices(self.base_address)
@@ -292,6 +292,19 @@ class AlinSDB(AlinLog):
 	#  @param bus Layer of the SDB record
 	#  @param address Location to read the record
 	def __readBlock(self, dev=0, bus=0, address=0):
+		def convertFromBCD(value):
+			try:
+				bcd_1 = (value & 0xF000) >> 12
+				bcd_2 = (value & 0x0F00) >> 8
+				bcd_3 = (value & 0x00F0) >> 4
+				bcd_4 = (value & 0x000F)
+				
+				ret_value = bcd_1*1000 + bcd_2*100 + bcd_3*10 +bcd_4
+			except:
+				ret_value = 0
+			
+			return ret_value
+		
 		data_block = []
 		for i in range (0,16):
 			data = self.spec.specReadL(address+(i*4),hexformat=False)
@@ -337,11 +350,12 @@ class AlinSDB(AlinLog):
 			sdb_component['name'] = [(data_block[i]) for i in range (44,63)]
 			
 			if sdb_component['interconnect'] == self.SDB_RECORD_INTEGRATION:
-				self._fw_version = "".join([str(a) for a in sdb_component['version'][:2]])+"."+"".join([str(a) for a in sdb_component['version'][2:]])
+				self._fw_version = str(convertFromBCD(int("".join([str(a) for a in sdb_component['version'][:2]]))))\
+						+"."+str(convertFromBCD(int("".join([str(a) for a in sdb_component['version'][2:]]))))
 				self._fw_version_date =  "".join(['%02x'%a for a in sdb_component['date']])
 
 			if sdb_component['interconnect'] == self.SDB_RECORD_BRIDGE:
-				self.device_bridges.append(self.devices_counter)
+				self.device_bridges.append([self.devices_counter, self.base_address])
 		
 		self.sdb_structure.append(sdb_component)
 		self.logMessage("__readBlock:: %s record type found at bus level %s address %s"%(hex(sdb_component['interconnect']), str(bus), hex(address)), self.DEBUG)

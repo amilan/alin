@@ -82,7 +82,9 @@ function refreshFPGAData(allData) {
                     }
                     
                     table+='<tr><td  class="table_cell_title" colspan="2" >'+dname+'</td></tr>';
-                    $.each( item[1], function( att, value){
+                    var dadd = item[1]
+                    table+='<tr><td  class="table_cell_title" colspan="2" style="font-size: 12px">0x'+(dadd.start_add).toString(16)+' - 0x'+(dadd.end_add).toString(16)+'</td></tr>';
+                    $.each( item[2], function( att, value){
                         if (index == 'Last update') {
                             table+='<tr><td  class="table_cell_title2" style="font-size: 12px">&nbsp'+att+'</td><td  class="table_cell_value">'+value+'</td></tr>';                                       
                         }

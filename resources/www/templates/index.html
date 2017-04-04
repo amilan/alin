@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8"/>
-    <title> ALBA EM#</title>
+    <title>Em#</title>
     <link rel="shortcut icon" href="{{ static_url('images/favicon.gif') }}">
     <link rel="stylesheet" type="text/css" href="{{ static_url('default.css') }}">
 
@@ -28,23 +28,22 @@
 
 <body>
     <p></p>
-    <h1>
-        <div class="img-wrapper"><img src="{{ static_url('images/official_logo.gif') }}" alt="Site" title="ALBA" align="left" height="86" width="212" style="vertical-align: middle;"/></div>
+    <h1 >
+        <div class="img-wrapper"><img src="{{ static_url('images/official_logo.gif') }}" alt="Site" title="ALBA" align="left" height="106" width="288" style="vertical-align: middle;"/></div>
         <div class="img-wrapper-right" >
             <a id="portal-logo" title="Español" accesskey="1" href="http://www.cells.es/es">    
-                <img src="{{ static_url('images/ALBALogo.gif') }}" alt="Site" title="ALBA" align="right" height="74" width="136" style="vertical-align: botom;"/></a>    
+                <img src="{{ static_url('images/logo.gif') }}" alt="Site" title="ALBA" align="right" height="125" width="228" style="vertical-align: botom;"/></a>    
         </div>
-        <div class="img-wrapper-right"><img  src="{{ static_url('images/ComputingLogo.gif') }}" alt="Computing" align="right" height="53" width="120"/></div>
     </h1>
     
     <div class="topmenu">
-    <span id="time" ></span>
+    <span id="time"></span>
+    &nbsp&nbsp&nbsp
+    <a href="fpga.html" title="FPGA Data" style="text-align: right;font-size: 1.6vh;">&nbsp<img src="static/images/fpga.gif" height="25" width="25" style="background-color: white;"/>&nbsp</a>    
     &nbsp
-    <a class="info" href="fpga.html" title="FPGA Data"><img src="static/images/fpga.gif" height="25" width="25" style="background-color: #222225;"/></a>    
+    <a href="usermanual.html" title="User Manual" style="text-align: right;font-size: 1.6vh;">&nbsp<img src="static/images/question.png" height="25" width="25" style="background-color: white;"/>&nbsp</a>
     &nbsp
-    <a class="info" href="usermanual.html" title="User Manual"><img src="static/images/question.png" height="25" width="25" style="background-color: #222225;"/></a>
-    &nbsp
-    <a class="info" href="index.html" title="Go to Main Page"><img src="static/images/home.gif" height="25" width="25" style="background-color: #222225;"/></a>
+    <a href="index.html" title="Go to Main Page" style="text-align: right; font-size: 1.6vh;">&nbsp<img src="static/images/home.gif" height="25" width="25" style="background-color: white;"/>&nbsp</a>
     </div> 
     
     
@@ -58,7 +57,7 @@
 
     
     <div id="General" class="tabcontent">
-        <table border=1 frame=hsides rules=rows bordercolor="#222225"><caption>&nbsp;</caption>
+        <table border=1 frame=hsides rules=rows bordercolor="white"><caption>&nbsp;</caption>
         <tbody>
             <tr>
                 <th class="table_cell_title"></th>
@@ -68,7 +67,7 @@
                 <th class="table_cell_title" colspan="3">&nbsp Channel 4 &nbsp</th>
             </tr>
             <tr id='graphs_row'>
-                <th class="table_cell_title4" width='120px' style="text-align: center"><button class='tools' onclick='window.open("config.html","Ratting","width=900,height=800,left=150,top=200,toolbar=0,status=0,scrollbars=1")'>
+                <th class="table_cell_title4" width='120px' style="text-align: center"><button class='tools' onclick='window.open("config.html","Ratting","width=980,height=820,left=150,top=200,toolbar=0,status=0,scrollbars=1")'>
                 <img src="static/images/settings.gif" height="30" width="30"/></button></th>
                 <td colspan="3" ><div id="chart1" style="width:100%"></div></td>
                 <td colspan="3" ><div id="chart2" style="width:100%"></div></td>
@@ -93,10 +92,10 @@
             </tr>        
             <tr>
                 <th class="table_cell_title2">&nbspCurrent</th>
-                <td colspan="3" class="table_cell_value" id="chn1_inscurrent"></td>
-                <td colspan="3" class="table_cell_value" id="chn2_inscurrent"></td>
-                <td colspan="3" class="table_cell_value" id="chn3_inscurrent"></td>
-                <td colspan="3" class="table_cell_value" id="chn4_inscurrent"></td>
+                <td colspan="3" class="table_cell_value" id="chn1_inscurrent" style="font-size: 18px"></td>
+                <td colspan="3" class="table_cell_value" id="chn2_inscurrent" style="font-size: 18px"></td>
+                <td colspan="3" class="table_cell_value" id="chn3_inscurrent" style="font-size: 18px"></td>
+                <td colspan="3" class="table_cell_value" id="chn4_inscurrent" style="font-size: 18px"></td>
             </tr>
             <tr>
                 <th class="table_cell_title2">&nbspAvgCurrent</th>
@@ -182,65 +181,81 @@
     </div>
     
     <div id="Acquisition" class="tabcontent">
-        <table  border=1 frame=hsides rules=rows bordercolor="#222225"><caption>&nbsp;</caption>
+        <table  border=1 frame=hsides rules=rows bordercolor="white"><caption>&nbsp;</caption>
         <tbody>
             <tr>
+                <th class="table_cell_title"></th>
                 <th class="table_cell_title" colspan="5">&nbspTrigger&nbsp</th>
+            </tr>
+            <tr>
+                <th class="table_cell_title4" rowspan="5" width='10%' style="text-align: center"><button class='tools' onclick='window.open("config.html","Ratting","width=980,height=820,left=150,top=200,toolbar=0,status=0,scrollbars=1")'>
+                <img src="static/images/settings.gif" height="30" width="30"/></button></th>
+                <th class="table_cell_title4" width='15%'> Mode </th>
+                <th class="table_cell_title4"> Delay </th>
+                <th class="table_cell_title4"> Input </th>
+                <th class="table_cell_title4"> Polarity </th>
+                <th class="table_cell_title4"> Triggers </th>
+            </tr>
+            <tr>
+                <td class="table_cell_value" id="acq_trig_mode" width='15%'></td>
+                <td class="table_cell_value" id="acq_trig_delay"></td>
+                <td class="table_cell_value" id="acq_trig_input"></td>
+                <td class="table_cell_value" id="acq_trig_pol"></td>
+                <td class="table_cell_value" id="acq_trig_ntriggers"></td>
+            </tr>
+            <tr>
                 <th class="table_cell_title" colspan="5">&nbspAcquisition&nbsp</th>
             </tr>
             <tr>
-                <th class="table_cell_title4" width='10%' style="text-align: center"><button class='tools' onclick='window.open("config.html","Ratting","width=900,height=800,left=150,top=200,toolbar=0,status=0,scrollbars=1")'>
-                <img src="static/images/settings.gif" height="30" width="30"/></button></th>
-                <th class="table_cell_title4" width="10%"> Mode </th>
-                <th class="table_cell_title4" width="10%"> Delay </th>
-                <th class="table_cell_title4" width="10%"> Input </th>
-                <th class="table_cell_title4" width="10%"> Polarity </th>
-                <th class="table_cell_title4" width="10%"> Range </th>
-                <th class="table_cell_title4" width="10%"> Filter </th>
-                <th class="table_cell_title4" width="10%"> Time </th>
-                <th class="table_cell_title4" width="10%"> Triggers </th>
-                <th class="table_cell_title4" width="10%"> State </th>
+                <th class="table_cell_title4"> Range (All Ch)</th>
+                <th class="table_cell_title4"> Filter (All Ch)</th>
+                <th class="table_cell_title4"> High Time </th>
+                <th class="table_cell_title4"> Low Time </th>
+                <th class="table_cell_title4" width='15%'> State </th>
             </tr>
             <tr>
-                <td class="table_cell_value"></td>
-                <td class="table_cell_value" id="acq_trig_mode" width="10%"></td>
-                <td class="table_cell_value" id="acq_trig_delay" width="10%"></td>
-                <td class="table_cell_value" id="acq_trig_input" width="10%"></td>
-                <td class="table_cell_value" id="acq_trig_pol" width="10%"></td>
-                <td class="table_cell_value" id="acq_range" width="10%"></td>
-                <td class="table_cell_value" id="acq_filter" width="10%"></td>
-                <td class="table_cell_value" id="acq_time" width="10%"></td>
-                <td class="table_cell_value" id="acq_ntriggers" width="10%"></td>
-                <td class="table_cell_value" id="acq_state" width="80%"></td>
+                <td class="table_cell_value" id="acq_range"></td>
+                <td class="table_cell_value" id="acq_filter"></td>
+                <td class="table_cell_value" id="acq_time"></td>
+                <td class="table_cell_value" id="acq_lowtime"></td>
+                <td class="table_cell_value" id="acq_state"></td>
             </tr>
 
         </tbody>
         </table>
         <div id="acq_results">
-            <table  border=1 frame=hsides rules=rows bordercolor="#222225"><caption>&nbsp;</caption>
+            <table  border=1 frame=hsides rules=rows bordercolor="white"><caption>&nbsp;</caption>
             <tbody>
                 <tr>
                     <th class="table_cell_title" colspan="5">&nbsp Acquisition Data&nbsp</th>
                 </tr>
                 <tr>
-                    <th class="table_cell_title4" width='200px'>&nbspSamples</th>
+                    <th class="table_cell_title4" width='200px'>&nbspTriggers</th>
                     <td class="table_cell_value" id="acq_ndata" colspan="4" style="text-align: left"></td>
                 </tr>
+                <tr>
+                    <th class="table_cell_title4" width='200px'>&nbspValid Triggers</th>
+                    <td class="table_cell_value" id="valid_triggers" colspan="4" style="text-align: left"></td>
+                </tr>
                 <tr id='graphs_acqrow'>
-                    <th class="table_cell_title2" width='200px' style="text-align: center"><button onclick="saveData()" type="button" class="normalButton">Save Acq.</br>Data to File</button></th>
+                    <th class="table_cell_title2" width='200px' style="text-align: center"><button id="saveButton" onclick="saveData()" type="button" class="normalButton">Save Acq.</br>Data to File</button></th>
                     <td colspan="4"><div id="acq_chart" style="width:100%"></div></td>
                 </tr>
             </tbody>
             </table>
             <div>
-                <table  border=1 frame=hsides rules=rows bordercolor="#222225"><caption>&nbsp;</caption>
+                <table  border=1 frame=hsides rules=rows bordercolor="white"><caption>&nbsp</caption>
                 <tbody>
                     <tr>
-                        <th class="table_cell_title" style="text-align: center;" bgcolor="#828282" width="200px">#</th>
-                        <th class="table_cell_title">&nbsp Channel 1 (mA)</th>
-                        <th class="table_cell_title">&nbsp Channel 2 (mA)</th>
-                        <th class="table_cell_title">&nbsp Channel 3 (mA)</th>
-                        <th class="table_cell_title">&nbsp Channel 4 (mA)</th>
+                        <th class="table_cell_title" colspan="6" style="text-align: center;" id="max_acqdata">&nbsp;</th>
+                    </tr>
+                    <tr>
+                        <th class="table_cell_title" style="text-align: center;" bgcolor="#828282" width="100px"></th>
+                        <th class="table_cell_title" style="text-align: center;" >Time (s)</th>
+                        <th class="table_cell_title" style="text-align: center;" >Channel 1 (mA)</th>
+                        <th class="table_cell_title" style="text-align: center;" >Channel 2 (mA)</th>
+                        <th class="table_cell_title" style="text-align: center;" >Channel 3 (mA)</th>
+                        <th class="table_cell_title" style="text-align: center;" >Channel 4 (mA)</th>
                     </tr>
                 </tbody>
                 </table>
@@ -252,13 +267,13 @@
 
     
     <div id="InputOutput" class="tabcontent">
-        <table border=1 frame=hsides rules=rows bordercolor="#222225"><caption>&nbsp;</caption>
+        <table border=1 frame=hsides rules=rows bordercolor="white"><caption>&nbsp;</caption>
         <tbody>
             <tr>
                 <th class="table_cell_title" colspan="6">&nbsp Analog output &nbsp</th>
             </tr>
             <tr>
-                <th class="table_cell_title4" width='10%' style="text-align: center"><button class='tools' onclick='window.open("inout.html","Ratting","width=900,height=490,left=150,top=200,toolbar=0,status=0,scrollbars=1")'>
+                <th class="table_cell_title4" width='10%' style="text-align: center"><button class='tools' onclick='window.open("inout.html","Ratting","width=950,height=520,left=150,top=200,toolbar=0,status=0,scrollbars=1", "resizable=no")'>
                 <img src="static/images/settings.gif" height="30" width="30"/></button></th>
                 <th class="table_cell_title4">DAC Gain</th>
                 <th class="table_cell_title4">A_OUT1</th>
@@ -276,7 +291,7 @@
             </tr>
         </tbody>
         </table>
-        <table border=1 frame=hsides rules=rows bordercolor="#222225"><caption>&nbsp;</caption>
+        <table border=1 frame=hsides rules=rows bordercolor="white"><caption>&nbsp;</caption>
         <tbody>
             <tr>
                 <th class="table_cell_title" colspan="5">&nbsp High Speed IOPorts &nbsp</th>
@@ -304,7 +319,7 @@
             </tr>
         </tbody>
         </table>
-        <table border=1 frame=hsides rules=rows bordercolor="#222225"><caption>&nbsp;</caption>
+        <table border=1 frame=hsides rules=rows bordercolor="white"><caption>&nbsp;</caption>
         <tbody>
             <tr>
                 <th class="table_cell_title" colspan="14">&nbsp Differential IOPorts &nbsp</th>
@@ -347,7 +362,7 @@
             </tr>
         </tbody>
         </table>
-        <table border=1 frame=hsides rules=rows bordercolor="#222225"><caption>&nbsp;</caption>
+        <table border=1 frame=hsides rules=rows bordercolor="white"><caption>&nbsp;</caption>
         <tbody>
             <tr>
                 <th class="table_cell_title" colspan="5">&nbsp Supply Ports &nbsp</th>
@@ -373,7 +388,7 @@
     
     <div id="Diagnostics" class="tabcontent">
         <p></p>
-        <table  border=1 frame=hsides rules=rows bordercolor="#222225">
+        <table  border=1 frame=hsides rules=rows bordercolor="white">
         <tbody>
             <tr>
                 <th class="table_cell_title" >&nbsp FE Temp (deg) &nbsp</th>
@@ -386,7 +401,7 @@
         </tbody>
         </table>
         <p>&nbsp;</p>
-        <table  border=1 frame=hsides rules=rows bordercolor="#222225">
+        <table  border=1 frame=hsides rules=rows bordercolor="white">
         <tbody>
             <tr>
                 <th class="table_cell_title" colspan="10">&nbsp FV Ctrl &nbsp</th>
@@ -417,7 +432,7 @@
         </tbody>
         </table>
         <p>&nbsp;</p>
-        <table  border=1 frame=hsides rules=rows bordercolor="#222225">
+        <table  border=1 frame=hsides rules=rows bordercolor="white">
         <tbody>
             <tr>
                 <th class="table_cell_title" >&nbsp V Sense I ISO<br>(mA) &nbsp</th>
@@ -446,7 +461,7 @@
         </tbody>
         </table>
         <p>&nbsp;</p>
-        <table  border=1 frame=hsides rules=rows bordercolor="#222225"><caption>&nbsp;</caption>
+        <table  border=1 frame=hsides rules=rows bordercolor="white"><caption>&nbsp;</caption>
         <tbody>
             <tr>
                 <th class="table_cell_title"></th>
@@ -487,7 +502,7 @@
 
     <div id="Equipment Info" class="tabcontent">
         <p></p>    
-        <table border=1 frame=hsides rules=rows bordercolor="#222225">
+        <table border=1 frame=hsides rules=rows bordercolor="white">
         <tbody>
             <tr>
                 <th class="table_cell_title3" >&nbspMac address</th>

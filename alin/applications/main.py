@@ -145,8 +145,9 @@ class AlinMainClass():
     def stopApplications(self):
         for key, el in self._applications.iteritems():
             try:
-                el['pointer'].stop()
-                self.setLogMessage("EndApplications() Applications ended %s"%key, self._log.INFO)
+                if key is not 'MAIN':
+                    el['pointer'].stop()
+                    self.setLogMessage("EndApplications() Applications ended %s"%key, self._log.INFO)
             except Exception, e:
                 self.setLogMessage("Failed to end Applications %s device due to: %s"%(key,str(e)), self._log.ERROR)
     
